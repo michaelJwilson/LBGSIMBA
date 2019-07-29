@@ -37,12 +37,12 @@ sfr         =  f['galaxy_data']['sfr'][:]            ##  [Solar mass per year].
 bhmdot      =  f['galaxy_data']['bhmdot'][:]
 gfrac       =  f['galaxy_data']['gas_fraction'][:]
 
+sfr        *=  1.e9                                  ##  [Solar mass per giga year].
+
 smass       =  1.82e7                                ##  Stellar mass (particle) resolution [Solar masses].
 stellarmass =  f['galaxy_data']['nstar'][:] * smass
 ssfr        =  sfr / stellarmass
 
-
-sfr        *=  1.e9                                  ##  [Solar mass per giga year].
 
 print('\n\nRange of stellar mass: {} to {} solar masses.'.format(stellarmass.min() / 1e10, stellarmass.max() / 1e10))
 print('Range of SFR: {} to {}.'.format(sfr.min(), sfr.max()))
@@ -59,7 +59,7 @@ mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(l
 pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1)
 
 pl.xlabel(r'$\log_{10}|M_*|$')
-pl.ylabel(r'$\log_{10}|\dot M_* / M_*| / \rm{Gyr}$')
+pl.ylabel(r'$\log_{10}|\dot M_* / M_* / \rm{Gyr}^{-1} |$')
 
 plt.tight_layout()
 
