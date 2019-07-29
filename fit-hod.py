@@ -18,9 +18,9 @@ def cen_model(mhalo, params):
     return  result / 2.
     
 def sat_model(mhalo, params):
-    mcut   = params['mcut']
-    mone   = params['mone']
-    alpha  = params['alpha'] 
+    mcut   = params[0]
+    mone   = params[1]
+    alpha  = params[2] 
 
     result = (mhalo - mcut) / mone
 
@@ -30,22 +30,18 @@ def chi2(params, args):
     model     = args['model']
     mhalo, Nx = args['mhalo'], args['Nx']
 
+    err       = np.sqrt(Nx)
     result    = Nx - model(mhalo, params)
 
-    return  np.sum(result ** 2.)
+    return  np.sum((result / err) ** 2.)
 
     
 if __name__ == '__main__':
     Mh, Nc, Ns = np.loadtxt('dat/hod.txt', unpack=True, dtype=[('Mh', np.float32), ('Nc', np.float32), ('Ns', np.float32)])
 
+    ##  Centrals.
     args       = {'mhalo': Mh, 'Nx': Nc, 'model': cen_model}
-
-    ##  np.array([1.e10, 1.0])   
     cenparams  = np.array([1.e12, 1.])
-
-    for x, y in zip([1.e10, 1.e11, 1.e12], [1.0, 2.5, 5.0]):
-        print(chi2(np.array([x,y]), args))
-
     
     result     = minimize(chi2, cenparams, args=args, options={'disp': True}, method='Nelder-Mead')
 
@@ -53,9 +49,23 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
     
-    pl.loglog(Mh, Nc, 'k^')
-    pl.loglog(Mh, cen_model(Mh, result.x))
+    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^')
+    pl.loglog(Mh, cen_model(Mh, result.x), c='k')
 
+
+    ##  Satellites.
+    args       = {'mhalo': Mh, 'Nx': Ns, 'model': sat_model}
+    satparams  = np.array([1.e12, 1., 0.])
+
+    result     = minimize(chi2, satparams, args=args, options={'disp': True}, method='Nelder-Mead')
+
+    print(result.x)
+    print(result.success)
+    print(result.message)
+
+    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^')
+    pl.loglog(Mh, sat_model(Mh, result.x), c='darkcyan')
+    
     plt.tight_layout()
     
     pl.savefig('plots/fitted-hod.pdf')
