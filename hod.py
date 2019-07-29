@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     ##  DM particle mass: 9.6e7 [Solar Mass]
     pmass       =  9.6e7
-    hmass       =  ndm[haloindex] * pmass
+    hmass       =  ndm * pmass
 
     ##  Basic halo stats.                                                                                                                                                                                           
     print('\n\nNumber of halos found: {} millions.'.format(len(hid) / 1e6))
@@ -56,32 +56,30 @@ if __name__ == '__main__':
 
     print('\n\n')
 
-    for i, _bin in enumerate(bins[:-1]):
-      nhalos         = np.sum(bmass == i)
-      mean_mass      = np.mean(hmass[bmass == i])
+    for i, _bin in enumerate(bins):
+      nhalos     = np.sum(bmass == i)
+      mean_mass  = np.mean(hmass[bmass == i])
         
-      sample         = iscentral[bmass == i].astype(np.float)
-        
-      uhalos, counts = np.unique(haloindex[bmass == i], return_counts = True)
+      hsample    = hid[bmass == i]
+      gsample    = [x in hsample for x in haloindex] 
+      
+      result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]).astype(np.float), 'sat': np.sum(1 - iscentral[gsample]).astype(np.float), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
   
-      label          = str(_bin / 1e10)
-      result[label]  = {'mean_hmass': mean_mass, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
-                        'nhalos': nhalos, 'nuhalos': len(uhalos)}
-  
-      print(result[label])
+      print(result[i])
 
-
-    masses = np.array([result[key]['mean_hmass'] for key in result.keys()])
-    expcen = np.array([result[key]['cen'] / result[key]['nuhalos'] for key in result.keys()])
-    expsat = np.array([result[key]['sat'] / result[key]['nuhalos'] for key in result.keys()])
+    ##   
+    masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
+    expcen = np.array([result[key]['cen'] / result[key]['nhalos'] for key in range(len(bins))])
+    expsat = np.array([result[key]['sat'] / result[key]['nhalos'] for key in range(len(bins))])
     
     print(masses)
     print(expcen)
-
+    print(expsat)
+    
     pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k')
     pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan')
     
-    ##pl.xlim(11., 14.5)
+    ##  pl.xlim(11., 14.5)
     ##  pl.ylim(0.1, 300.)
 
     pl.xlabel(r'$\log_{10} | M_h / M_\odot|$')
