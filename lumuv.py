@@ -1,3 +1,7 @@
+import matplotlib
+
+matplotlib.use('PDF')
+
 import  glob
 import  h5py
 import  numpy             as      np
@@ -8,8 +12,6 @@ from    scipy.spatial     import  KDTree
 from    itertools         import  product
 from    hod               import  get_data
 
-
-plt.switch_backend('agg')
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                            
 boxsize      = 100.
@@ -49,5 +51,9 @@ ubins, cnts  =  np.unique(blumuv, return_counts = True)
 
 assert  len(ubins) == (len(bins) - 1)
 
-pl.plot(bins[:-1] + dMUV/2., cnts / vol)
+pl.plot(bins[:-1] + dMUV/2., np.log10(cnts / vol))
+
+pl.xlabel(r'$M_{UV}$')
+pl.ylabel(r'$\log_{10}|\bar n / (h^{-1} \rm{Mpc})^{-3}|$')
+
 pl.savefig('plots/lumuv.pdf')

@@ -11,8 +11,10 @@ from    hod               import  get_data
 
 plt.switch_backend('pdf')
 
-if __name__ == '__main__':                                                                                                                                                                                                                                                                                                                                                                       
-    print('\n\nWelcome to Simba HOD.')
+
+latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+
+if __name__ == '__main__':                                                                                                                                                                                                                                                                                                                                                     print('\n\nWelcome to Simba HOD.')
 
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                        
     boxsize     = 100.
