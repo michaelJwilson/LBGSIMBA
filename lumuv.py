@@ -51,9 +51,11 @@ ubins, cnts  =  np.unique(blumuv, return_counts = True)
 
 assert  len(ubins) == (len(bins) - 1)
 
-pl.plot(bins[:-1] + dMUV/2., np.log10(cnts / vol))
+pl.plot(bins[:-1] + dMUV/2., np.log10(cnts / vol), c='darkcyan')
 
 pl.xlabel(r'$M_{UV}$')
 pl.ylabel(r'$\log_{10}|\bar n / (h^{-1} \rm{Mpc})^{-3}|$')
+
+plt.tight_layout()
 
 pl.savefig('plots/lumuv.pdf')
