@@ -62,7 +62,7 @@ assert len(ninds) == (len(bins) - 1)
 pl.plot(np.log10(mean_smass), np.log10(np.cumsum(counts) / vol), c='darkcyan', lw=1, alpha=0.8)
 
 pl.xlabel(r'$\log_{10}|M_*|$')
-pl.ylabel(r'$\log_{10}|n(\langle M_*) / (h^{-1} \rm{Mpc})^{-3}|$')
+pl.ylabel(r'$\log_{10}|n(< M_*) / (h^{-1} \rm{Mpc})^{-3}|$')
 
 plt.tight_layout()
 
