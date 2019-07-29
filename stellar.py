@@ -56,7 +56,7 @@ ninds, counts =  np.unique(bsmass, return_counts = True)
 mean_smass    =	 np.array([np.mean(stellarmass[bsmass == _bin]) for _bin in np.arange(len(bins))])
 mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(len(bins))])
 
-pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1)
+pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1, alpha=0.8)
 
 pl.ylim(-1., 1.)
 

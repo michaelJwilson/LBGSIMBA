@@ -1,3 +1,5 @@
+import  matplotlib; matplotlib.use('pdf')
+
 import  glob
 import  h5py
 import  numpy             as      np
@@ -7,14 +9,13 @@ import  matplotlib.pyplot as      plt
 from    scipy.spatial     import  KDTree 
 from    itertools         import  product
 from    hod               import  get_data
-
-
-plt.switch_backend('pdf')
+from    utils             import  latexify
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
-if __name__ == '__main__':                                                                                                                                                                                                                                                                                                                                                     print('\n\nWelcome to Simba HOD.')
+if __name__ == '__main__':
+    print('\n\nWelcome to Simba xi.')
 
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                        
     boxsize     = 100.
@@ -39,7 +40,7 @@ if __name__ == '__main__':                                                      
     pos        /= 1.e3
     
     ##  Test.
-    ##  pos     = pos[:50]
+    pos         = pos[:50]
     
     ##  Apply periodic reflections.
     catalogue   = np.copy(pos)
@@ -101,10 +102,16 @@ if __name__ == '__main__':                                                      
     print(rr)
     print(xi)
 
-    pl.plot(meanr, 1. + xi)
+    pl.plot(meanr, 1. + xi, lw=1, c='darkcyan', alpha=0.8)
+
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$(1 + \xi)$')
+
+    plt.tight_layout()
     
     pl.savefig('plots/xi.pdf')
+
+    ##  Save result:
+    np.savetxt('dat/xi.txt', np.c_[meanr, 1. + xi], fmt='%.6le')
     
     print('\n\nDone.\n\n')
