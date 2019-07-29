@@ -53,8 +53,25 @@ bins          =  np.logspace(9., 13., 10, endpoint=True, base=10.0)
 bsmass        =  np.digitize(stellarmass, bins=bins)
 
 ninds, counts =  np.unique(bsmass, return_counts = True)
-mean_smass    =	 np.array([np.mean(stellarmass[bsmass == _bin]) for _bin in np.arange(len(bins))])
-mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(len(bins))])
+mean_smass    =	 np.array([np.mean(stellarmass[bsmass == _bin]) for _bin in np.arange(len(bins) -1)])
+
+vol           =  boxsize ** 3.
+
+assert len(ninds) == (len(bins) - 1)
+
+pl.plot(np.log10(mean_smass), np.log10(np.cumsum(counts) / vol), c='darkcyan', lw=1, alpha=0.8)
+
+pl.xlabel(r'$\log_{10}|M_*|$')
+pl.ylabel(r'$\log_{10}|n(\langle M_*) / (h^{-1} \rm{Mpc})^{-3}|$')
+
+plt.tight_layout()
+
+pl.savefig('plots/smf.pdf')
+
+pl.clf()
+
+##  Specific star formation rate. 
+mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(len(bins) -1)])
 
 pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1, alpha=0.8)
 
