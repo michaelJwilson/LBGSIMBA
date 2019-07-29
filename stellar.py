@@ -9,7 +9,10 @@ import  matplotlib.pyplot     as      plt
 from    scipy.spatial         import  KDTree 
 from    itertools             import  product
 from    main                  import  get_data, print_keys
+from    utils                 import  latexify
 
+
+latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
 print('\n\nWelcome to Simba stellar mass.')
     
