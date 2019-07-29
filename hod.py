@@ -13,6 +13,8 @@ from    main           import  get_data, print_keys
 from    utils          import  latexify
 
 
+latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
@@ -62,7 +64,7 @@ if __name__ == '__main__':
       uhalos, counts = np.unique(haloindex[bmass == i], return_counts = True)
   
       label          = str(_bin / 1e10)
-      result[label]  = {'mean_hmass': mean_mass / 1e10, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
+      result[label]  = {'mean_hmass': mean_mass, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
                         'nhalos': nhalos, 'nuhalos': len(uhalos)}
   
       print(result[label])

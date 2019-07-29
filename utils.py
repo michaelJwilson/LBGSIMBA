@@ -4,6 +4,21 @@ import  astropy.constants  as      const
 import  pylab              as      pl
 
 
+def set_size(w, h, ax=None):
+    ''' 
+    w, h: width, height in inches.
+    '''
+    if not ax: 
+      ax = plt.gca()
+
+    l    = ax.figure.subplotpars.left
+    r    = ax.figure.subplotpars.right
+    t    = ax.figure.subplotpars.top
+    b    = ax.figure.subplotpars.bottom
+    figw = float(w)/(r-l)
+    figh = float(h)/(t-b)
+    ax.figure.set_size_inches(figw, figh)
+
 def latexify(fig_width=None, fig_height=None, columns=1, equal=False, fontsize=10, ratio=None, ggplot=True, usetex=True):
     '''
     Set up matplotlib's RC params for LaTeX plotting.
