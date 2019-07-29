@@ -4,12 +4,10 @@ matplotlib.use('PDF')
 
 import  glob
 import  h5py
-import  numpy          as      np
-import  pylab          as      pl
-import  matplotlib.pyplot as plt
+import  numpy             as      np
+import  pylab             as      pl
+import  matplotlib.pyplot as      plt
 
-from    scipy.spatial  import  KDTree 
-from    itertools      import  product
 from    main           import  get_data, print_keys
 from    utils          import  latexify
 
