@@ -90,5 +90,8 @@ if __name__ == '__main__':
     plt.tight_layout()
     
     pl.savefig('plots/hod.pdf')
-    
+
+    ##  Write results.
+    np.savetxt('dat/hod.txt', np.c_[masses, expcen, expsat], fmt='%.6le')
+
     print('\n\nDone.\n\n')
