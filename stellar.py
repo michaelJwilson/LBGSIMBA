@@ -58,7 +58,7 @@ mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(l
 
 pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1)
 
-pl.ylim(-2., 1.)
+pl.ylim(-1., 1.)
 
 pl.xlabel(r'$\log_{10}|M_*|$')
 pl.ylabel(r'$\log_{10}|\dot M_* / M_* / \rm{Gyr}^{-1} |$')
