@@ -49,7 +49,7 @@ ubins, cnts  =  np.unique(blumuv, return_counts = True)
 
 assert  len(ubins) == (len(bins) - 1)
 
-pl.plot(bins[:-1] + dMUV/2., np.cumsum(np.log10(cnts / vol)), c='darkcyan', lw=2, alpha=0.8)
+pl.plot(bins[:-1] + dMUV/2., np.log10(np.cumsum(cnts / vol)), c='darkcyan', lw=2, alpha=0.8)
 
 pl.xlabel(r'$M_{UV}$')
 pl.ylabel(r'$\log_{10}|\bar n / (h^{-1} \rm{Mpc})^{-3}|$')
