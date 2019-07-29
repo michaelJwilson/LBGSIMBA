@@ -76,11 +76,11 @@ if __name__ == '__main__':
     print(expcen)
     print(expsat)
     
-    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k')
-    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan')
+    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k', alpha=0.8, lw=1)
+    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan', alpha=0.8, lw=1)
     
-    ##  pl.xlim(11., 14.5)
-    ##  pl.ylim(0.1, 300.)
+    pl.xlim(10.5, 14.5)
+    pl.ylim(0.01, 100.)
 
     pl.xlabel(r'$\log_{10} | M_h / M_\odot|$')
     pl.ylabel(r'$\langle N_g \rangle$')
