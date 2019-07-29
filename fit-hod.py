@@ -53,8 +53,8 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
     
-    pl.plot(Mh, Nc, 'k^')
-    pl.plot(Mh, cen_model(Mh, result.x))
+    pl.loglog(Mh, Nc, 'k^')
+    pl.loglog(Mh, cen_model(Mh, result.x))
 
     plt.tight_layout()
     
