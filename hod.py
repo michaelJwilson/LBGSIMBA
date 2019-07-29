@@ -78,8 +78,8 @@ if __name__ == '__main__':
     print(masses)
     print(expcen)
 
-    pl.semilogy(np.log10(masses), expcen, label='Centrals', c='k')
-    pl.semilogy(np.log10(masses), expcen, label='Centrals', c='darkcyan')
+    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k')
+    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan')
     
     ##pl.xlim(11., 14.5)
     ##  pl.ylim(0.1, 300.)
