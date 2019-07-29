@@ -63,22 +63,25 @@ if __name__ == '__main__':
   
       label          = str(_bin / 1e10)
       result[label]  = {'mean_hmass': mean_mass / 1e10, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
-                        'nhalos': nhalos, 'uhalos': len(uhalos)}
+                        'nhalos': nhalos, 'nuhalos': len(uhalos)}
   
       print(result[label])
 
 
     masses = np.array([result[key]['mean_hmass'] for key in result.keys()])
-    expcen = np.array([result[key]['cen'] / result[key]['tot'] for key in result.keys()])
+    expcen = np.array([result[key]['cen'] / result[key]['nuhalos'] for key in result.keys()])
     
     print(masses)
     print(expcen)
 
-    pl.semilogy(np.log10(masses), expcen)
+    pl.semilogy(np.log10(masses), expcen, label='Centrals')
 
-    pl.xlim(11., 14.5)
-    pl.ylim(0.1, 300.)
+    ##pl.xlim(11., 14.5)
+    ##  pl.ylim(0.1, 300.)
 
+    pl.xlabel(r'$\log_{10} | M_h / M_\odot|$')
+    pl.ylabel(r'$\langle N_g \rangle$')
+    
     pl.savefig('plots/hod.pdf')
     
     print('\n\nDone.\n\n')
