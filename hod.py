@@ -85,6 +85,8 @@ if __name__ == '__main__':
     pl.xlabel(r'$\log_{10} | M_h / M_\odot|$')
     pl.ylabel(r'$\langle N_g \rangle$')
 
+    pl.legend(loc=2, frameon=False)
+    
     plt.tight_layout()
     
     pl.savefig('plots/hod.pdf')
