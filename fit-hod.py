@@ -22,6 +22,8 @@ def sat_model(mhalo, params):
     mone   = params[1]
     alpha  = params[2] 
 
+    print(mcut, mone, alpha)
+    
     result = (mhalo - mcut) / mone
     result = result ##  ** alpha
     
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     
     ##  Satellites.
     args       = {'mhalo': Mh, 'Nx': Ns, 'model': sat_model}
-    satparams  = np.array([1.e12, 5.e11, 1.2])
+    satparams  = np.array([1.2e11, 1.e12, 1.2])
 
     result     = minimize(chi2, satparams, args=args, options={'disp': True}, method='Nelder-Mead')
 
