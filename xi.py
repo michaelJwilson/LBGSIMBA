@@ -96,10 +96,10 @@ if __name__ == '__main__':
     
     xi          =  cnts / rr - 1.
 
-    print(bins + dr / 2.) 
+    ##  rint(bins + dr / 2.) 
     print(meanr)
-    print(cnts)
-    print(rr)
+    ##  print(cnts)
+    ##  print(rr)
     print(xi)
 
     pl.semilogx(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
