@@ -17,7 +17,7 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                        
+    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     boxsize     = 100.
     getredshift = 3.00307
 
@@ -38,6 +38,10 @@ if __name__ == '__main__':
     ##  Positions in kpc.
     pos         = f['galaxy_data']['pos'][:]
     pos        /= 1.e3
+
+    ngal        =  len(pos)
+    vol         =  boxsize ** 3.
+    nbar        =  ngal / vol
     
     ##  Test.
     pos         = pos[:50]
@@ -69,33 +73,35 @@ if __name__ == '__main__':
     PTree       =  KDTree(pos)
     CTree       =  KDTree(catalogue)
 
-    ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
-    ##         two reflections. 
-    paired      =  CTree.query_ball_tree(PTree, 25.)
+    if compute:
+        ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
+        ##         two reflections. 
+        paired      =  CTree.query_ball_tree(PTree, 25.)
 
-    dr          =  0.1
-    bins        =  np.arange(0.0, 12.5, dr)
+        dr          =  0.1
+        bins        =  np.arange(0.0, 12.5, dr)
+        
+        sep         =  []
 
-    sep         =  []
+        for i, row in enumerate(catalogue):
+            for j, twin in enumerate(paired[i]):
+                sep.append(np.sum((row - catalogue[twin])**2.))
 
-    for i, row in enumerate(catalogue):
-        for j, twin in enumerate(paired[i]):
-            sep.append(np.sum((row - catalogue[twin])**2.))
+        sep         =  np.sqrt(np.array(sep))
+        bsep        =  np.digitize(sep, bins=bins)
 
-    sep         =  np.sqrt(np.array(sep))
-    bsep        =  np.digitize(sep, bins=bins)
+        meanr       =  np.array([np.mean(sep[bsep == x]) for x in range(len(bins) - 1)]) 
+        cnts        =  np.array([np.sum(bsep == x) for x in range(len(bins) - 1)])
+                
+        rr          =  (4. * np.pi / 3.) * nbar * nbar * vol * (( bins[:-1] + dr / 2. ) ** 3. - ( bins[:-1] - dr / 2. ) ** 3)
+        xi          =  cnts / rr - 1.
 
-    meanr       =  np.array([np.mean(sep[bsep == x]) for x in range(len(bins) - 1)]) 
-    cnts        =  np.array([np.sum(bsep == x) for x in range(len(bins) - 1)])
-
-    ngal        =  catalogue.shape[0]
-    vol         =  boxsize ** 3.
-    nbar        =  ngal / vol
-
-    rr          =  (4. * np.pi / 3.) * nbar * nbar * vol * (( bins[:-1] + dr / 2. ) ** 3. - ( bins[:-1] - dr / 2. ) ** 3.)
-    
-    xi          =  cnts / rr - 1.
-
+        ##  Save result:
+        np.savetxt('dat/xi.txt', np.c_[meanr, xi], fmt='%.6le')
+        
+    else:
+        meanr, xi   = np.loadtxt('dat/xi.txt')
+        
     ##  rint(bins + dr / 2.) 
     print(meanr)
     ##  print(cnts)
