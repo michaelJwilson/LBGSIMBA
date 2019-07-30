@@ -21,7 +21,7 @@ if __name__ == '__main__':
     boxsize     =  100.
     getredshift =  3.00307
 
-    test        =  True
+    test        =  False
     compute     =  False
     
     f, p        =  get_data(boxsize, getredshift)
