@@ -1,6 +1,4 @@
-import  matplotlib
-
-matplotlib.use('PDF')
+import  matplotlib;  matplotlib.use('PDF')
 
 import  glob
 import  h5py
@@ -12,7 +10,7 @@ from    scipy.spatial  import  KDTree
 from    itertools      import  product
 from    main           import  get_data, print_keys
 from    utils          import  latexify
-from    fit-hod        import  cen_model, sat_model
+from    fithod         import  cen_model, sat_model
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
