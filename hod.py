@@ -66,6 +66,14 @@ if __name__ == '__main__':
   
       print(result[i])
 
+      
+    ##  Plot best-fit models.                                                                                                                                                                                                                                                                                                                                                                                                        
+    cenparams = np.loadtxt('dat/hod-nc-params.txt')
+    pl.semilogy(np.log10(masses), cen_model(masses, cenparams), c='k', alpha=0.8, lw=1)
+
+    satparams = np.loadtxt('dat/hod-ns-params.txt')
+    pl.semilogy(np.log10(masses), sat_model(masses, satparams), c='darkcyan', alpha=0.8, lw=1)
+      
     ##   
     masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
     expcen = np.array([result[key]['cen'] / result[key]['nhalos'] for key in range(len(bins))])
@@ -75,16 +83,8 @@ if __name__ == '__main__':
     print(expcen)
     print(expsat)
     
-    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k', alpha=0.8, lw=0, marker='^')
-    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan', alpha=0.8, lw=0, marker='^')
-
-    ##  Plot best-fit models.
-    cenparams = np.loadtxt('dat/hod-nc-params.txt') 
-    pl.semilogy(np.log10(masses), cen_model(masses, cenparams), c='k', alpha=0.8)
-
-    satparams = np.loadtxt('dat/hod-ns-params.txt')
-    pl.semilogy(np.log10(masses), sat_model(masses, satparams), c='darkcyan', alpha=0.8)
-    
+    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k', alpha=0.8, lw=0, marker='^', markersize=2)
+    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan', alpha=0.8, lw=0, marker='^', markersize=2)
     
     pl.xlim(10.5, 14.5)
     pl.ylim(0.01, 100.)
