@@ -49,8 +49,8 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
     
-    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^', fmt='')
-    ##  pl.loglog(Mh, cen_model(Mh, result.x), c='k')
+    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^', linestyle='')
+    pl.loglog(Mh, cen_model(Mh, result.x), c='k')
 
     np.savetxt('dat/hod-nc-params.txt', result.x, fmt='%.6le')
     
@@ -64,8 +64,8 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
 
-    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^', fmt='')
-    ##  pl.loglog(Mh, sat_model(Mh, result.x), c='darkcyan')
+    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^', linestyle='')
+    pl.loglog(Mh, sat_model(Mh, result.x), c='darkcyan')
     
     plt.tight_layout()
     
