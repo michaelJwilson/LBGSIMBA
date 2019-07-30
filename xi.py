@@ -73,7 +73,7 @@ if __name__ == '__main__':
     ##         two reflections. 
     paired      =  CTree.query_ball_tree(PTree, 25.)
 
-    dr          =  0.5
+    dr          =  0.1
     bins        =  np.arange(0.0, 12.5, dr)
 
     sep         =  []
@@ -104,6 +104,8 @@ if __name__ == '__main__':
 
     pl.semilogx(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
+    pl.xlim(0.1, 12.5)
+    
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
 
