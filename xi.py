@@ -102,10 +102,10 @@ if __name__ == '__main__':
     print(rr)
     print(xi)
 
-    pl.semilogy(meanr, 1. + xi, lw=1, c='darkcyan', alpha=0.8)
+    pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
-    pl.ylabel(r'$(1 + \xi)$')
+    pl.ylabel(r'$\xi(r)$')
 
     plt.tight_layout()
     

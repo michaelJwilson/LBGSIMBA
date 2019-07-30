@@ -1,4 +1,4 @@
-python hod.py
+python xi.py
 
 git add .
 git commit -m 'Update'
