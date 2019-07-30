@@ -18,9 +18,11 @@ if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-    boxsize     = 100.
-    getredshift = 3.00307
+    boxsize     =  100.
+    getredshift =  3.00307
 
+    compute     =  True
+    
     f, p        =  get_data(boxsize, getredshift)
 
     ##
