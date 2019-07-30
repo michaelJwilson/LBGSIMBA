@@ -23,8 +23,9 @@ def sat_model(mhalo, params):
     alpha  = params[2] 
 
     result = (mhalo - mcut) / mone
-
-    return  result ** alpha
+    result = result ** alpha
+    
+    return  result
 
 def chi2(params, args):
     model     = args['model']
