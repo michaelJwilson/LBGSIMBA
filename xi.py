@@ -80,7 +80,7 @@ if __name__ == '__main__':
         ##         two reflections. 
         paired      =  CTree.query_ball_tree(PTree, 25.)
 
-        dr          =  0.1
+        dr          =  0.25
         bins        =  np.arange(0.0, 12.5, dr)
         
         sep         =  []
