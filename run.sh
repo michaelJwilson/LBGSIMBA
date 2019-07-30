@@ -1,4 +1,4 @@
-python fit-hod.py
+python hod.py
 
 git add .
 git commit -m 'Update'
