@@ -68,11 +68,13 @@ if __name__ == '__main__':
 
       
     ##  Plot best-fit models.                                                                                                                                                                                                                                                                                                                                                                                                        
+    ordinate  = np.logspace(10., 15., num=200)
+
     cenparams = np.loadtxt('dat/hod-nc-params.txt')
-    pl.semilogy(np.log10(masses), cen_model(masses, cenparams), c='k', alpha=0.8, lw=1)
+    pl.semilogy(np.log10(ordinate), cen_model(ordinate, cenparams), c='k', alpha=0.8, lw=1)
 
     satparams = np.loadtxt('dat/hod-ns-params.txt')
-    pl.semilogy(np.log10(masses), sat_model(masses, satparams), c='darkcyan', alpha=0.8, lw=1)
+    pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
       
     ##   
     masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
