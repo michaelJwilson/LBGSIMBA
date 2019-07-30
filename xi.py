@@ -105,6 +105,7 @@ if __name__ == '__main__':
     pl.semilogx(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
     pl.xlim(0.1, 12.5)
+    pl.ylim(0.01, 10.)
     
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
