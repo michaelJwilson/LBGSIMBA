@@ -22,7 +22,7 @@ if __name__ == '__main__':
     getredshift =  3.00307
 
     test        =  False
-    compute     =  True
+    compute     =  False
     
     f, p        =  get_data(boxsize, getredshift)
 
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
     pl.xlim(0.1, 12.5)
-    pl.ylim(0.01, 10.)
+    pl.ylim(0.1,  60.)
     
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
