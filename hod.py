@@ -75,8 +75,8 @@ if __name__ == '__main__':
     print(expcen)
     print(expsat)
     
-    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k', alpha=0.8, lw=1, marker='^')
-    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan', alpha=0.8, lw=1, marker='^')
+    pl.semilogy(np.log10(masses), expcen, label='Centrals',   c='k', alpha=0.8, lw=0, marker='^')
+    pl.semilogy(np.log10(masses), expsat, label='Satellites', c='darkcyan', alpha=0.8, lw=0, marker='^')
 
     ##  Plot best-fit models.
     cenparams = np.loadtxt('dat/hod-nc-params.txt') 
