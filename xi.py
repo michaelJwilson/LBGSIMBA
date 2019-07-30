@@ -102,7 +102,7 @@ if __name__ == '__main__':
     print(rr)
     print(xi)
 
-    pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
+    pl.semilogx(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
