@@ -38,15 +38,15 @@ if __name__ == '__main__':
     print('Number of satellites found: {}'.format(np.sum(1. - iscentral)))
         
     ##  Positions in kpc.
-    pos         = f['galaxy_data']['pos'][:]
-    pos        /= 1.e3
+    pos         =  f['galaxy_data']['pos'][:]
+    pos        /=  1.e3
+
+    ##  Test.                                                                                                                                                                                                                                                                                                                                                                                     
+    pos         = pos[:500]
 
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
     nbar        =  ngal / vol
-    
-    ##  Test.
-    pos         = pos[:50]
     
     ##  Apply periodic reflections.
     catalogue   = np.copy(pos)
@@ -99,10 +99,10 @@ if __name__ == '__main__':
         xi          =  cnts / rr - 1.
 
         ##  Save result:
-        np.savetxt('dat/xi.txt', np.c_[meanr, xi], fmt='%.6le')
+        np.savetxt('dat/xi.txt', np.c_[bins[:-1] + dr / 2., meanr, xi], fmt='%.6le')
         
     else:
-        meanr, xi   = np.loadtxt('dat/xi.txt')
+        midr, meanr, xi   = np.loadtxt('dat/xi.txt', unpack=True)
         
     ##  rint(bins + dr / 2.) 
     print(meanr)
@@ -121,8 +121,5 @@ if __name__ == '__main__':
     plt.tight_layout()
     
     pl.savefig('plots/xi.pdf')
-
-    ##  Save result:
-    np.savetxt('dat/xi.txt', np.c_[meanr, 1. + xi], fmt='%.6le')
     
     print('\n\nDone.\n\n')
