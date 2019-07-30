@@ -49,13 +49,14 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
     
-    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^')
-    pl.loglog(Mh, cen_model(Mh, result.x), c='k')
+    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^', fmt='')
+    ##  pl.loglog(Mh, cen_model(Mh, result.x), c='k')
 
-
+    np.savetxt('dat/hod-nc-params.txt', result.x, fmt='%.6le')
+    
     ##  Satellites.
     args       = {'mhalo': Mh, 'Nx': Ns, 'model': sat_model}
-    satparams  = np.array([1.e12, 1., 0.])
+    satparams  = np.array([1.e12, 1.e12, 0.5])
 
     result     = minimize(chi2, satparams, args=args, options={'disp': True}, method='Nelder-Mead')
 
@@ -63,9 +64,11 @@ if __name__ == '__main__':
     print(result.success)
     print(result.message)
 
-    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^')
-    pl.loglog(Mh, sat_model(Mh, result.x), c='darkcyan')
+    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^', fmt='')
+    ##  pl.loglog(Mh, sat_model(Mh, result.x), c='darkcyan')
     
     plt.tight_layout()
     
     pl.savefig('plots/fitted-hod.pdf')
+
+    np.savetxt('dat/hod-ns-params.txt', result.x, fmt='%.6le')
