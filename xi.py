@@ -42,7 +42,7 @@ if __name__ == '__main__':
     pos        /=  1.e3
 
     ##  Test.                                                                                                                                                                                                                                                                                                                                                                                     
-    pos         = pos[:1500]
+    ##  pos     = pos[:1500]
 
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
