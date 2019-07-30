@@ -21,7 +21,8 @@ if __name__ == '__main__':
     boxsize     =  100.
     getredshift =  3.00307
 
-    compute     =  True
+    test        =  True
+    compute     =  False
     
     f, p        =  get_data(boxsize, getredshift)
 
@@ -41,8 +42,8 @@ if __name__ == '__main__':
     pos         =  f['galaxy_data']['pos'][:]
     pos        /=  1.e3
 
-    ##  Test.                                                                                                                                                                                                                                                                                                                                                                                     
-    ##  pos     = pos[:1500]
+    if test:                                                                                                                                                                                                                                                                                                                                                                                    
+      pos       = pos[:1000]
 
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
@@ -110,7 +111,7 @@ if __name__ == '__main__':
     ##  print(rr)
     print(xi)
 
-    pl.semilogx(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
+    pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 
     pl.xlim(0.1, 12.5)
     pl.ylim(0.01, 10.)
