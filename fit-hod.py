@@ -25,7 +25,7 @@ def sat_model(mhalo, params):
     print(mcut, mone, alpha)
     
     result = (mhalo - mcut) / mone
-    result = result ##  ** alpha
+    result = result**alpha
     
     return  result
 
