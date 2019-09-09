@@ -8,7 +8,7 @@ import  matplotlib.pyplot as plt
 
 from    scipy.spatial  import  KDTree 
 from    itertools      import  product
-from    main           import  get_data, print_keys
+from    get_data       import  get_data, print_keys
 from    utils          import  latexify
 from    fithod         import  cen_model, sat_model
 
@@ -18,56 +18,64 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                        
-    boxsize     = 100.
-    getredshift = 3.00307
+    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
+    boxsize     =  100.
+    getredshift =  3.00307
 
     f, p        =  get_data(boxsize, getredshift)
-
+    
     ##
     gid         =  f['galaxy_data']['GroupID'][:]
     iscentral   =  f['galaxy_data']['central'][:]
     haloindex   =  f['galaxy_data']['parent_halo_index'][:]
-    
-    ##  Basic stats.
-    print('\n\nNumber of galaxies found: {}'.format(len(iscentral)))
-    print('Number of centrals found: {}'.format(np.sum(iscentral)))
-    print('Number of satellites found: {}'.format(np.sum(1 - iscentral)))
 
-    ##
+    ##                                                                                                                                                                                                                              
     hid         =  f['halo_data']['GroupID'][:]
     ndm         =  f['halo_data']['ndm'][:]
 
-    ##  DM particle mass: 9.6e7 [Solar Mass]
+    ##  DM particle mass: 9.6e7 [Solar Mass]                                                                                                                                                                                        
     pmass       =  9.6e7
     hmass       =  ndm * pmass
+    
+    ##  Basic galaxy stats.
+    print('\n\n')
+    print('Number of galaxies found:   {}'.format(len(iscentral)))
+    print('Number of centrals found:   {}'.format(np.sum(iscentral)))
+    print('Number of satellites found: {}'.format(np.sum(1 - iscentral)))
 
     ##  Basic halo stats.                                                                                                                                                                                           
-    print('\n\nNumber of halos found: {} millions.'.format(len(hid) / 1e6))
-    print('Range of halo masses: {} to {} [10^9]'.format(hmass.min() / 1e9, hmass.max() / 1e9))
+    print('\n\nNumber of halos found: {}M.'.format(len(hid) / 1e6))
+    print('Range of halo masses: {} [10^9] to {} [10^13].'.format(hmass.min() / 1e9, hmass.max() / 1e13))
 
     ##  Now bin galaxies and halos by halo mass.  
     bins        =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
     bmass       =  np.digitize(hmass, bins=bins)
-
+    
     ##
     result      =  {}
-
+    
     print('\n\n')
 
     for i, _bin in enumerate(bins):
+      ##  Number of haloes in this mass bin.   
       nhalos     = np.sum(bmass == i)
+
+      ##  Mean halo mass of this sample.
       mean_mass  = np.mean(hmass[bmass == i])
-        
+
+      ##  Halo IDs that make the sample. 
       hsample    = hid[bmass == i]
+
+      ##  In / out array for the galaxies.
       gsample    = [x in hsample for x in haloindex] 
       
       result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]).astype(np.float), 'sat': np.sum(1 - iscentral[gsample]).astype(np.float), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
   
       print(result[i])
 
+    exit(1)
       
-    ##  Plot best-fit models.                                                                                                                                                                                                                                                                                                                                                                                                        
+    ##  Plot best-fit models.
     ordinate  = np.logspace(10., 15., num=200)
 
     cenparams = np.loadtxt('dat/hod-nc-params.txt')

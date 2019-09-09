@@ -1,4 +1,3 @@
-
 # Reads in the photometry files output by Loser (https://bitbucket.org/romeeld/closer/src/default/)
 # These are ASCII files, with suffix .app for apparent mags, .abs for absolute mags.
 

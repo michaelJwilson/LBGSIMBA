@@ -17,12 +17,14 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-    boxsize     =  100.
+    hubble      =  0.68
+    boxsize     =  100. * hubble  ##  [Mpc/h].
+
+    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244     
     getredshift =  3.00307
 
     test        =  False
-    compute     =  False
+    compute     =  True
     
     f, p        =  get_data(boxsize, getredshift)
 
@@ -40,10 +42,11 @@ if __name__ == '__main__':
         
     ##  Positions in kpc.
     pos         =  f['galaxy_data']['pos'][:]
-    pos        /=  1.e3
-
-    if test:                                                                                                                                                                                                                                                                                                                                                                                    
-      pos       = pos[:1000]
+    pos        /=  1.e3  ##  [Mpc].
+    pos        *=  0.68
+    
+    if test:
+      pos = pos[:1000]
 
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
@@ -82,7 +85,7 @@ if __name__ == '__main__':
         paired      =  CTree.query_ball_tree(PTree, 25.)
 
         dr          =  0.25
-        bins        =  np.arange(0.0, 12.5, dr)
+        bins        =  np.arange(-1.0, 12.75, dr)
         
         sep         =  []
 
@@ -103,7 +106,7 @@ if __name__ == '__main__':
         np.savetxt('dat/xi.txt', np.c_[bins[:-1] + dr / 2., meanr, xi], fmt='%.6le')
         
     else:
-        midr, meanr, xi   = np.loadtxt('dat/xi.txt', unpack=True)
+        midr, meanr, xi = np.loadtxt('dat/xi.txt', unpack=True)
         
     ##  rint(bins + dr / 2.) 
     print(meanr)

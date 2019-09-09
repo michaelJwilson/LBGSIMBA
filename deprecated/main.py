@@ -1,10 +1,12 @@
 import  glob
 import  h5py
-import  numpy         as      np
-import  pylab         as      pl
+import  numpy           as      np
+import  pylab           as      pl
+import  astropy.io.fits as      fits
 
-from    scipy.spatial import  KDTree 
-from    itertools     import  product
+from    scipy.spatial   import  KDTree 
+from    itertools       import  product
+from    astropy.table   import  Table
 
 
 def print_keys(arg):
@@ -21,7 +23,7 @@ def get_data(boxsize, getredshift):
     redshifts  = np.loadtxt('/home/mjwilson/LBGSIMBA/snapshot_redshifts.txt', dtype={'names': ['a', 'z', 'id'], 'formats': ['float', 'float', 'int']})
     redshifts  = np.array([x[1] for x in redshifts[snapshots]])
 
-    zdiff      = np.abs(redshifts - 3.00307)
+    zdiff      = np.abs(redshifts - getredshift)
     index      = np.where(zdiff == zdiff.min())[0]
 
     getfile    = sortfiles[index[0]]
@@ -36,8 +38,8 @@ def get_data(boxsize, getredshift):
     print('\n\nRetrieving:  {}'.format(photfile))
 
     ##  Extract desired data from this redshift snapshot. 
-    f         = h5py.File(getfile)
-    p         = h5py.File(photfile)
+    f          = h5py.File(getfile)
+    p          = h5py.File(photfile)
 
     print_keys(f)
     print_keys(f['galaxy_data'])
@@ -48,15 +50,17 @@ def get_data(boxsize, getredshift):
     return f, p 
 
 
-if __name__ == '__main__':                                                                                                                                                                                                                                                                                                                                                                       
+if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                                                                                                                                                                                        
-    boxsize     = 100.
-    getredshift = 3.00307
+    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
+
+    hubble      =  0.68
+    boxsize     =  100.
+    getredshift =  3.00307
 
     f, p        =  get_data(boxsize, getredshift)
-
+    
     ##
     gid         =  f['galaxy_data']['GroupID'][:]
     iscentral   =  f['galaxy_data']['central'][:]
@@ -92,7 +96,7 @@ if __name__ == '__main__':
     bsmass        =  np.digitize(stellarmass, bins=bins)
 
     ninds, counts =  np.unique(bsmass, return_counts = True)
-    mean_smass    =	 np.array([np.mean(stellarmass[bsmass == _bin]) for _bin in np.arange(len(bins))])
+    mean_smass    =  np.array([np.mean(stellarmass[bsmass == _bin]) for _bin in np.arange(len(bins))])
 
     ##  Check that all bins are populated by at least one galaxy. 
     assert  len(ninds) == (len(bins) - 1)
@@ -106,9 +110,26 @@ if __name__ == '__main__':
     ##  print('\n\nNumber of star-forming galaxies found: {}'.format(np.sum(ssfr > qlimit)))
     ##  print('Number of quenched galaxies found: {}'.format(np.sum(ssfr < qlimit)))
     
-    ##  Positions in kpc.
+    ##  Positions in comoving kpc.
     pos         = f['galaxy_data']['pos'][:]
     pos        /= 1.e3
+    pos        *= hubble
+    
+
+    pos  = Table(pos, names=('x', 'y', 'z'))
+
+    pos['x'].unit = 'Mpc/h'
+    pos['y'].unit = 'Mpc/h'
+    pos['z'].unit = 'Mpc/h'
+
+    print(pos)
+
+    pos.write('simba_pos_3.00307.fits', format='fits', overwrite=True)
+
+    ##  Save to .txt for nersc at /global/homes/m/mjwilson/SIMBA.
+    ##  np.savetxt('simba_pos_{}.txt'.format(getredshift), pos, fmt='%.6le')
+
+    exit(1)
     
     ##  Test.
     ##  pos     = pos[:50]
@@ -122,14 +143,14 @@ if __name__ == '__main__':
     convert     = {'+': +1., '0': 0., '-': -1.}
 
     for reflection in reflections:
-        _copy       = np.copy(pos)
-        signs       = [convert[x] for x in reflection]
+      _copy       = np.copy(pos)
+      signs       = [convert[x] for x in reflection]
     
-        _copy[:,0] += signs[0] * boxsize
-        _copy[:,1] += signs[1] * boxsize
-        _copy[:,2] += signs[2] * boxsize
-
-        catalogue   = np.vstack([catalogue, _copy])
+      _copy[:,0] += signs[0] * boxsize
+      _copy[:,1] += signs[1] * boxsize
+      _copy[:,2] += signs[2] * boxsize
+        
+      catalogue   = np.vstack([catalogue, _copy])
         
     print(len(pos), 27 * len(pos), len(catalogue))
     print(catalogue.shape)
@@ -198,17 +219,17 @@ if __name__ == '__main__':
     print('\n\n')
 
     for i, _bin in enumerate(bins):
-        nhalos         = np.sum(bmass == i)
-        mean_mass      = np.mean(hmass[bmass == i])
+      nhalos         = np.sum(bmass == i)
+      mean_mass      = np.mean(hmass[bmass == i])
         
-        sample         = iscentral[bmass == i]
+      sample         = iscentral[bmass == i]
         
-        uhalos, counts = np.unique(haloindex[bmass == i], return_counts = True)
+      uhalos, counts = np.unique(haloindex[bmass == i], return_counts = True)
   
-        label          = str(_bin / 1e10)
-        result[label]  = {'mean_hmass': mean_mass / 1e10, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
-                          'nhalos': nhalos, 'uhalos': len(uhalos)}
-  
-        print(result[label])
+      label          = str(_bin / 1e10)
+      result[label]  = {'mean_hmass': mean_mass / 1e10, 'cen': np.sum(sample), 'sat': np.sum(1 - sample), 'tot': len(sample), 'satfrac': 100. * np.sum(1. - sample) / len(sample),\
+                        'nhalos': nhalos, 'uhalos': len(uhalos)}
+
+      print(result[label])
 
     print('\n\nDone.\n\n')
