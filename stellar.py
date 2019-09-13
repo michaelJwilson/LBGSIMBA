@@ -15,38 +15,28 @@ from    utils                 import  latexify
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
 print('\n\nWelcome to Simba stellar mass.')
-    
-##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-boxsize     =  100.
-vol         =  boxsize ** 3.
 
-for getredshift in [2.024621, 3.00307, 3.963392, 5.0244]:
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
+pl.axvline(np.log10(100. * 1.82e7), ymin=0., ymax=1., c='k', alpha=1.0, lw=1)
+pl.axvline(np.log10(100. * 2.28e6), ymin=0., ymax=1., c='k', alpha=1.0, lw=1)
+
+pl.axhline(np.log10(1.e-2),  xmin=0., xmax=1., c='k', linestyle='--', alpha=1.0, lw=1)
+pl.axhline(np.log10(1.e-3),  xmin=0., xmax=1., c='k', linestyle='--', alpha=1.0, lw=1)
+
+for boxsize, linestyle, min_smass, label in zip([100., 50.], ['-', '--'], [1.82e7, 2.82e6], [1, 0]):
+  vol           =  boxsize ** 3.
+
+  for i, getredshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
+    color       =  colors[i]
+
     f, p        =  get_data(boxsize, getredshift)
 
-    ##
-    gid         =  f['galaxy_data']['GroupID'][:]
-    iscentral   =  f['galaxy_data']['central'][:]
-    haloindex   =  f['galaxy_data']['parent_halo_index'][:]
-    
-    ##  Basic stats.
-    print('\n\nNumber of galaxies found: {}'.format(len(iscentral)))
-    print('Number of centrals found: {}'.format(np.sum(iscentral)))
-    print('Number of satellites found: {}'.format(np.sum(1. - iscentral)))
-
     ##  
-    sfr         =  f['galaxy_data']['sfr'][:]            ##  [Solar mass per year].
-    bhmdot      =  f['galaxy_data']['bhmdot'][:]
-    gfrac       =  f['galaxy_data']['gas_fraction'][:]
-
-    sfr        *=  1.e9                                  ##  [Solar mass per giga year].
-
-    smass       =  1.82e7                                ##  Stellar mass (particle) resolution [Solar masses].
-    stellarmass =  f['galaxy_data']['nstar'][:] * smass
-    ssfr        =  sfr / stellarmass
+    stellarmass  =  f['galaxy_data']['nstar'][:] * min_smass   ##  Stellar mass (particle) resolution [Solar masses]. 
 
     print('\n\nRange of stellar mass: {} to {} solar masses.'.format(stellarmass.min() / 1e10, stellarmass.max() / 1e10))
-    print('Range of SFR: {} to {}.'.format(sfr.min(), sfr.max()))
-    print('Range of SSFR: {} to {}.'.format(ssfr.min(), ssfr.max()))
     
     ##  Stellar mass function.
     bins         =  np.arange(10.5, 5.5, -0.05)
@@ -76,37 +66,30 @@ for getredshift in [2.024621, 3.00307, 3.963392, 5.0244]:
 
     assert len(ubins) == len(bins)
 
-    pl.plot(mean_smass, np.log10(np.cumsum(cnts) / vol), lw=1, alpha=0.8, label=r'$z$ = %.2lf' % getredshift)
+    if label:
+      label=r'$z$ = %.2lf' % getredshift
+
+    else:
+      label = ''
+      
+    pl.plot(mean_smass, np.log10(np.cumsum(cnts) / vol), lw=1, alpha=0.8, label=label, linestyle=linestyle, color=color)
+
+  break
 
 ##
-pl.xlim(10.5, 8.5)
-pl.ylim(-5., -1.5)
+pl.xlim(10.5, 8.30)
+pl.ylim(-5., -1.50)
 
 pl.xlabel(r'$\log_{10}|M_*|$')
 pl.ylabel(r'$\log_{10}|\bar n(< M_*) / (h^{-1} \rm{Mpc})^{-3}|$')
 
 plt.tight_layout()
 
-pl.legend(loc=4, frameon=False, handlelength=1)
+pl.legend(loc=4, frameon=False, handlelength=1, borderaxespad=1.)
 
 pl.savefig('plots/smf.pdf')
 
 pl.clf()
 
-'''
-##  Specific star formation rate. 
-mean_ssfr     =  np.array([np.mean(ssfr[bsmass == _bin]) for _bin in np.arange(len(bins) -1)])
-
-pl.plot(np.log10(mean_smass), np.log10(mean_ssfr), c='darkcyan', lw=1, alpha=0.8)
-
-pl.ylim(-1., 1.)
-
-pl.xlabel(r'$\log_{10}|M_*|$')
-pl.ylabel(r'$\log_{10}|\dot M_* / M_* / \rm{Gyr}^{-1} |$')
-
-plt.tight_layout()
-
-pl.savefig('plots/ssfr.pdf')
-'''
 print('\n\nDone.\n\n')
     

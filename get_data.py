@@ -53,12 +53,9 @@ def get_data(boxsize, getredshift):
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-    hubble      =  0.68
-    boxsize     =  100.
-    getredshift =  3.00307
+    boxsize     =  50.
 
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244                                                                                                                                                                        
+    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     f2, p2      =  get_data(boxsize, 2.024621)
     f3, p3      =  get_data(boxsize, 3.00307)
     f4, p4      =  get_data(boxsize, 3.963392)

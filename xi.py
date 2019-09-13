@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244     
     getredshift =  3.00307
 
-    test        =  False
+    test        =  True
     compute     =  True
     
     f, p        =  get_data(boxsize, getredshift)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     ##  Positions in kpc.
     pos         =  f['galaxy_data']['pos'][:]
     pos        /=  1.e3  ##  [Mpc].
-    pos        *=  0.68
+    pos        *=  0.68  ##  [Mpc/h].
     
     if test:
       pos = pos[:1000]
@@ -72,12 +72,10 @@ if __name__ == '__main__':
         
     print(len(pos), 27 * len(pos), len(catalogue))
     print(catalogue.shape)
-
-    print(catalogue)
-
+    
     ##  Grow tree. 
-    PTree       =  KDTree(pos)
-    CTree       =  KDTree(catalogue)
+    PTree = KDTree(pos)
+    CTree = KDTree(catalogue)
 
     if compute:
         ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
@@ -109,10 +107,10 @@ if __name__ == '__main__':
         midr, meanr, xi = np.loadtxt('dat/xi.txt', unpack=True)
         
     ##  rint(bins + dr / 2.) 
-    print(meanr)
+    ##  print(meanr)
     ##  print(cnts)
     ##  print(rr)
-    print(xi)
+    ##  print(xi)
 
     pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
 

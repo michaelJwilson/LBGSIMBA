@@ -241,6 +241,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
         # Plot the histograms.
         if smooth1d is None:
             hist_kwargs["color"] = color ##  'black'
+            hist_kwargs["alpha"] = 1.0
             
             bins_1d = int(max(1, np.round(hist_bin_factor[i] * bins[i])))
             n, _, _ = ax.hist(x, bins=bins_1d, weights=weights, log=True,\
@@ -338,7 +339,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
             # use MathText for axes ticks
             ax.xaxis.set_major_formatter(
                 ScalarFormatter(useMathText=use_math_text))
-
+        
         for j, y in enumerate(xs):
             if np.shape(xs)[0] == 1:
                 ax = axes
@@ -350,6 +351,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
 
             ax.grid(b=False)
             ax.set_facecolor('white')
+            
             ax.set_axis_on()
 
             ax.spines['bottom'].set_color('black')
@@ -358,9 +360,9 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
             ax.spines['right'].set_color('black')
             
             if j > i:
-                ax.set_frame_on(False)
-                ax.set_xticks([])
-                ax.set_yticks([])
+                #ax.set_frame_on(False)
+                #ax.set_xticks([])
+                #ax.set_yticks([])
                 continue
             
             elif j == i:
@@ -375,7 +377,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
             hist2d(y, x, ax=ax, range=[range[j], range[i]], weights=weights,
                    color=color, smooth=smooth, bins=[bins[j], bins[i]],
                    **hist2d_kwargs)
-
+            
             if truths is not None:
                 if truths[i] is not None and truths[j] is not None:
                     ax.plot(truths[j], truths[i], "s", color=truth_color)
@@ -409,7 +411,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
                 # use MathText for axes ticks
                 ax.xaxis.set_major_formatter(
                     ScalarFormatter(useMathText=use_math_text))
-
+            
             if (j > 0):
                 ax.set_yticklabels([])
 
@@ -428,7 +430,7 @@ def corner(xs, bins=20, range=None, weights=None, color="k", hist_bin_factor=1,
                 # use MathText for axes ticks
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useMathText=use_math_text))
-
+            '''
     return fig
 
 
