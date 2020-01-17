@@ -14,7 +14,7 @@ def print_keys(arg):
 
 def get_data(boxsize, getredshift):
     ##  Find the snapshot file closest to the desired redshift, getredshift. 
-    files      = glob.glob('/home/mjwilson/LBGSIMBA/sim/m100n1024/s50/Groups/m100n1024_*.hdf5')
+    files      = glob.glob('/home/mjwilson/LBGSIMBA/100MPC/m100n1024_*.hdf5')
     snapshots  = [int(x.split('/')[-1].split('_')[-1].split('.hdf5')[0]) for x in files]
     sortind    = np.argsort(snapshots)
     sortfiles  = [files[i] for i in sortind]
@@ -51,7 +51,7 @@ def get_data(boxsize, getredshift):
 
 
 if __name__ == '__main__':
-    print('\n\nWelcome to Simba HOD.')
+    print('\n\nWelcome to Simba get_data.')
 
     boxsize     =  50.
 
