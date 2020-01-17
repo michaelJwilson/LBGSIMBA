@@ -53,7 +53,7 @@ def get_data(boxsize, getredshift):
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')
 
-    boxsize     =  50.
+    boxsize     =  100.
 
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     f2, p2      =  get_data(boxsize, 2.024621)

@@ -51,31 +51,35 @@ p4           =  np.array(p4, dtype = [('g', 'float32'), ('r', 'float32'), ('i', 
 p5           =  np.hstack((_p5['appmag_30'][:], _p5['appmag_31'][:], _p5['appmag_33'][:]))
 p5           =  np.array(p5, dtype = [('r', 'float32'), ('i', 'float32'), ('z', 'float32')])
 
-for band in ['u', 'g', 'r']:
-  for i, y in enumerate(x['appmag_{:d}'.format(col)][:]):    
-      Flux      =  10. ** (-(y + 48.60) / 2.5)
-      SigF      =  ferr(y, depths[band], estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None)
+nruns        =  4 * 3 * len(p2['u'])
+count        =  0
 
-      Noise     =  normal_rand(loc=0.0, scale=SigF).rvs(size=1)[0]
+for x in [p2, p3, p4, p5]:
+  for band in x.dtype.names:
+    for i, y in enumerate(x[band]):    
+      Flux       =  10. ** (-(y + 48.60) / 2.5)  ##  Nanomaggies. 
+      SigF       =  ferr(y, depths[band], estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None)
+
+      Noise      =  normal_rand(loc=0.0, scale=SigF).rvs(size=1)[0]
 
       ##  See also eqn. (10.2) of Chromey, Introduction to Observational Astronomy.                                                                                                                                               
-      lup       =  luptitude(Flux + Noise, SigF)
+      x[band][i] = luptitude(Flux + Noise, SigF)
 
-      x['appmag_{:d}'.format(col)][i] = lup
+      print(100. * count / nruns)
 
-exit(1)
+      count += 1
 
-umg2         =  lsstu2 - lsstg2
-gmr2         =  lsstg2 - lsstr2
+umg2         =  p2['u'] - p2['g']
+gmr2         =  p2['g'] - p2['r']
 
-umg3         =  lsstu3 - lsstg3
-gmr3         =  lsstg3 - lsstr3
+umg3         =  p3['u'] - p3['g']
+gmr3         =  p3['g'] - p3['r']
 
-gmr4         =  lsstg4 - lsstr4
-rmi4         =  lsstr4 - lssti4
+gmr4         =  p4['g'] - p4['r']
+rmi4         =  p4['r'] - p4['i']
 
-imz5         =  lssti5 - lsstz5
-rmi5         =  lsstr5 - lssti5
+imz5         =  p5['i'] - p5['z']
+rmi5         =  p5['r'] - p5['i']
 
 ##
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
