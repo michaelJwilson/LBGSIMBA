@@ -72,19 +72,17 @@ if __name__ == '__main__':
       result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]).astype(np.float), 'sat': np.sum(1 - iscentral[gsample]).astype(np.float), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
   
       print(result[i])
-
-    exit(1)
-      
+    
     ##  Plot best-fit models.
     ordinate  = np.logspace(10., 15., num=200)
-
+    
     cenparams = np.loadtxt('dat/hod-nc-params.txt')
     pl.semilogy(np.log10(ordinate), cen_model(ordinate, cenparams), c='k', alpha=0.8, lw=1)
 
     satparams = np.loadtxt('dat/hod-ns-params.txt')
     pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
       
-    ##   
+    ##
     masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
     expcen = np.array([result[key]['cen'] / result[key]['nhalos'] for key in range(len(bins))])
     expsat = np.array([result[key]['sat'] / result[key]['nhalos'] for key in range(len(bins))])

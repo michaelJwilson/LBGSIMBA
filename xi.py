@@ -17,14 +17,14 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
+    test        =  False
+    compute     =  True
+    
     hubble      =  0.68
-    boxsize     =  100. * hubble  ##  [Mpc/h].
+    boxsize     =  100.  ##  [Mpc/h].
 
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244     
     getredshift =  3.00307
-
-    test        =  True
-    compute     =  True
     
     f, p        =  get_data(boxsize, getredshift)
 
