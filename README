@@ -1,1 +1,25 @@
-py simba_photometry.py m50n512 s50 51 app 25 26 27 28 29 30 31 32 33
+# Google doc.
+# https://docs.google.com/document/d/13Gx2DbFilPwk_9ua-KHpPLpScynJhFupaxWSAoYZRzk/edit
+
+# Overleaf.
+# https://www.overleaf.com/project/5d15f7201f2d5a0cddb700d0
+
+# pyloser (photometry and spectra from caesar catalogues)
+# https://bitbucket.org/romeeld/pyloser/src/master/README.md
+# https://pyloser.readthedocs.io/en/latest/
+
+# Caesar - object linked lists from hydrosim.
+# https://caesar.readthedocs.io/en/latest/loading.html
+
+# Color 28 3053    4086    3571     LSST   u band 305.30 - 408.60                                                                                                                                                          
+# Color 29 3863    5670    4768     LSST   g band 386.30 - 567.00                                                                                                                                                         
+# Color 30 5369    7060    6216     LSST   r band 536.90 - 706.00                                                                                                                                                         
+# Color 31 6759    8330    7546     LSST   i band 675.90 - 833.00                                                                                                                                                      
+# Color 32 9083    10996   10042    LSST   y band 908.30 - 1099.60                                                                                                                                                     
+# Color 33 8029    9386    8709     LSST   z band 802.90 - 938.60 
+#
+# Color 25 9402.7  12038.9 10755.6  Euclid Y filter
+# Color 26 11619.5 15653.3 13628    Euclid J filter
+# Color 27 15101.2 20331.9 17645.2  Euclid H filter
+
+py sphotometry.py m100n1024 s50 51 app 25 26 27 28 29 30 31 33 32

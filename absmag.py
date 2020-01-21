@@ -13,7 +13,7 @@ from    utils             import  latexify
 
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-boxsize      =  100.
+boxsize      =  100.  ##  Mpc/h.
 vol          =  boxsize ** 3.
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244  

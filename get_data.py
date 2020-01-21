@@ -1,5 +1,6 @@
 import  glob
 import  h5py
+import  caesar
 import  numpy           as      np
 import  pylab           as      pl
 import  astropy.io.fits as      fits
@@ -49,12 +50,29 @@ def get_data(boxsize, getredshift):
 
     return f, p 
 
+def get_caesar(boxsize, redshift):
+    #  0.330620   2.024621  078
+    #  0.249808   3.003070  062
+    #  0.201475   3.963392  051
+    #  0.165992   5.024400  042
+
+    assert  boxsize == 100.
+    
+    snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
+    root  = '/home/mjwilson/LBGSIMBA/100/'
+
+    snap  = snaps[redshift]
+    
+    fpath = root + 'm100n1024_{}.hdf5'.format(snap)
+
+    return  caesar.load(fpath)
+
 
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')
 
     boxsize     =  100.
-
+    '''
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     f2, p2      =  get_data(boxsize, 2.024621)
     f3, p3      =  get_data(boxsize, 3.00307)
@@ -71,5 +89,8 @@ if __name__ == '__main__':
     print(p5['HEADER_INFO'][:])
     print
     print(p2['COLOR_INFO'][:])
-    
+    '''
+
+    links = get_caesar(boxsize, 2.024621)
+
     print('\n\nDone.\n\n')
