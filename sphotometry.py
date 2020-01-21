@@ -17,8 +17,8 @@ def read_mags(SNAP, infile=None, magcols=None, SUFF='app'):
       infile   = '/home/rad/data/m100n1024/s50/Groups/loser_m100n1024_{}.{}'.format(SNAP, SUFF)
 
     if magcols == None:
-        # ugrizyYJH
-        magcols = [28, 29, 30, 31, 33, 32, 25, 26, 27]
+        # 1500A bandpass;  ugrizyYJH
+        magcols = [19, 28, 29, 30, 31, 33, 32, 25, 26, 27]
 
     print('\nReading file: {}'.format(infile))
         
@@ -36,7 +36,7 @@ def read_mags(SNAP, infile=None, magcols=None, SUFF='app'):
         Lmag_nd.append(list(np.loadtxt(infile, usecols=(12+int(magcols[i]) + nbands), unpack=True)))
 
     # magnitudes of galaxies in each desired band
-    names  = ['u', 'g', 'r', 'i', 'z', 'y', 'Y', 'J', 'H']
+    names  = ['UV', 'u', 'g', 'r', 'i', 'z', 'y', 'Y', 'J', 'H']
 
     mag    = pd.DataFrame(np.array(Lmag).T, columns=names)
 

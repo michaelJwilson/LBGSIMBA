@@ -9,42 +9,25 @@ import  matplotlib.pyplot as      plt
 from    scipy.spatial     import  KDTree
 from    itertools         import  product
 from    hod               import  get_data
+from    get_data          import  snaps
+from    sphotometry       import  read_mags
 
 
-boxsize      = 100.
+boxsize      = 100.              ##  Mpc/h.
 vol          = boxsize ** 3.
 
 print('\n\nWelcome to Simba UV luminosity.')
 
-##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244     
-for getredshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-  f, p         =  get_data(boxsize, getredshift)
+dMUV         =  0.5
+bins         =  np.arange(-23., -11.5, dMUV)
+  
+for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
+  ##  'UV':  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'
+  _, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, mag, mag_nd = read_mags(snaps[redshift], infile=None, magcols=None, SUFF='abs')
+  
+  blumuv       =  np.digitize(mag['UV'][mag['UV'] >= bins[0]], bins=bins, right=False)
 
-  ##
-  gid          =  f['galaxy_data']['GroupID'][:]
-  iscentral    =  f['galaxy_data']['central'][:]
-  haloindex    =  f['galaxy_data']['parent_halo_index'][:]
-
-  ##  print(p['COLOR_INFO'][:])
-  ##
-  cid          =  p['CAESAR_ID'][:]
-  LUMUV        =  p['absmag_19'][:]  ## 1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'
-
-  lsstu        =  p['appmag_28'][:]
-  lsstg        =  p['appmag_29'][:]
-  lsstr        =  p['appmag_30'][:]
-  lssti        =  p['appmag_31'][:]
-  lsstz        =  p['appmag_33'][:]  ##  Note the switch in z and y ordering.
-  lssty        =  p['appmag_32'][:]
-
-  ##  Assert on the CAESAR ordering:  i.e. equating GroupID to CAESAR_ID for galaxy catalogue.
-  assert  np.all(gid == cid)
-
-  dMUV         =  0.5
-  bins         =  np.arange(-23., -11.5, dMUV)
-  blumuv       =  np.digitize(LUMUV[LUMUV >= bins[0]], bins=bins, right=False)
-
-  ubins, cnts  =  np.unique(blumuv, return_counts = True)
+  ubins, cnts  =  np.unique(blumuv, return_counts=True)
 
   cnts         =   cnts[ubins < len(bins)]
   ubins        =  ubins[ubins < len(bins)]
@@ -61,8 +44,8 @@ for getredshift in [2.024621, 3.00307, 3.963392, 5.0244]:
   
   assert  len(ubins) == len(bins)
   
-  pl.plot(bins + dMUV/2., np.log10(np.cumsum(cnts / vol)), lw=1, alpha=0.8, label='$z$ = %.2lf' % getredshift)
-
+  pl.plot(bins + dMUV/2., np.log10(np.cumsum(cnts / vol)), lw=1, alpha=0.8, label='$z$ = %.2lf' % redshift)
+  
 pl.legend(loc=4, frameon=False, handlelength=1)
   
 pl.xlim(-22., -16.)
