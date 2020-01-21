@@ -47,3 +47,7 @@ filters[39] = 'VISTA-Y'
 filters[40] = 'WFCAM-J'
 filters[41] = 'WFCAM-H'
 filters[42] = 'WFCAM-K'
+
+
+if __name__ == '__main__':
+    print(filters.values())

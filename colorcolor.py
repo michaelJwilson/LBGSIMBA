@@ -8,7 +8,7 @@ import  matplotlib.pyplot as      plt
 
 from    scipy.spatial     import  KDTree
 from    itertools         import  product
-from    get_data          import  get_data
+from    get_data          import  get_data, get_pyloser
 from    utils             import  latexify
 from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
@@ -19,22 +19,22 @@ boxsize      =  100.
 ##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]
 ##  Available snapshots: ['062',   '078',    '051',    '042']
 
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, two,   two_nd    =  read_mags('078', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, three, three_nd  =  read_mags('062', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, four,  four_nd   =  read_mags('051', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, five,  five_nd   =  read_mags('042', infile=None, magcols=None, SUFF='app')
+two          =  get_pyloser(boxsize, 2.024621)
+three        =  get_pyloser(boxsize, 3.003070)                       
+four         =  get_pyloser(boxsize, 3.963392)
+five         =  get_pyloser(boxsize, 5.024400)
 
-umg2         =  two['u'].values   - two['g'].values
-gmr2         =  two['g'].values   - two['r'].values
+umg2         =  two['LSST_u'].values   - two['LSST_g'].values
+gmr2         =  two['LSST_g'].values   - two['LSST_r'].values
 
-umg3         =  three['u'].values - three['g'].values
-gmr3         =  three['g'].values - three['r'].values
+umg3         =  three['LSST_u'].values - three['LSST_g'].values
+gmr3         =  three['LSST_g'].values - three['LSST_r'].values
 
-gmr4         =  four['g'].values  - four['r'].values 
-rmi4         =  four['r'].values  - four['i'].values
+gmr4         =  four['LSST_g'].values  - four['LSST_r'].values 
+rmi4         =  four['LSST_r'].values  - four['LSST_i'].values
 
-imz5         =  five['i'].values  - five['z'].values
-rmi5         =  five['r'].values  - five['i'].values
+imz5         =  five['LSST_i'].values  - five['LSST_z'].values
+rmi5         =  five['LSST_r'].values  - five['LSST_i'].values
 
 ##
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
@@ -70,7 +70,7 @@ for ax in axes:
   ax.spines['right'].set_color('black')
 
   ax.set_xlim(-.5,   .5)
-  ax.set_ylim(-.5, 1.75)
+  ax.set_ylim(-.5, 2.75)
 
   ax.legend(frameon=False, loc=1)
   

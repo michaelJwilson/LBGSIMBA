@@ -9,7 +9,6 @@ import  astropy.io.fits as      fits
 from    scipy.spatial   import  KDTree 
 from    itertools       import  product
 from    astropy.table   import  Table
-from    filters         import  filters
 
 
 snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
@@ -77,7 +76,9 @@ def get_pyloser(boxsize, redshift):
     
     links = h5py.File(fpath, 'r')
 
-    return  pd.DataFrame(links['appmag'], columns=names)
+    bands = list(links.attrs.items()[14][1])
+        
+    return  pd.DataFrame(data=links['appmag'][:], columns=bands)
     
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')

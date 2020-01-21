@@ -5,12 +5,12 @@ def  get_depths():
     depths      = OrderedDict()
     
     ##  LSST-Y10                                                                                                                                  
-    depths['u'] = 25.30
-    depths['g'] = 26.84
-    depths['r'] = 27.04
-    depths['i'] = 26.35
-    depths['z'] = 25.22
-    depths['y'] = 24.47
+    depths['LSST_u'] = 27.00 # 25.30
+    depths['LSST_g'] = 27.00 # 26.84
+    depths['LSST_r'] = 27.00 # 27.04
+    depths['LSST_i'] = 27.00 # 26.35
+    depths['LSST_z'] = 27.00 # 25.22
+    depths['LSST_y'] = 27.00 # 24.47
 
     ##  Euclid                                                                                                                                    
     depths['Y'] = 24.0

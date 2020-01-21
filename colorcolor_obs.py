@@ -16,24 +16,26 @@ from    depths            import  get_depths
 from    scipy.stats       import  norm       as normal_rand
 from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
+from    get_data          import  get_pyloser
 
 
 boxsize      =  100.
 
 depths       =  get_depths()
 
+two          =  get_pyloser(boxsize, 2.024621)
+three        =  get_pyloser(boxsize, 3.003070)
+four         =  get_pyloser(boxsize, 3.963392)
+five         =  get_pyloser(boxsize, 5.024400)
+
 ##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]                                                                                                                                                                        
 ##  Available snapshots: ['062',   '078',    '051',    '042']                                                                                                                                                                          
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, two,   two_nd    =  read_mags('078', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, three, three_nd  =  read_mags('062', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, four,  four_nd   =  read_mags('051', infile=None, magcols=None, SUFF='app')
-redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, five,  five_nd   =  read_mags('042', infile=None, magcols=None, SUFF='app')
 
-nruns        =  len(two['u']) * len(two.dtype.names) + len(three['u']) * len(three.dtype.names) + len(four['u']) * len(four.dtype.names) + len(five['u']) * len(five.dtype.names)
+nruns        =  5 * (len(two['LSST_u'])  + len(three['LSST_u']) + len(four['LSST_u']) + len(five['LSST_u']))
 count        =  0
 
 for x in [two, three, four, five]:
-  for band in x.dtype.names:
+  for band in ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z']:
     for i, y in enumerate(x[band]):    
       Flux       =  10. ** (-(y + 48.60) / 2.5)  ##  Nanomaggies. 
       SigF       =  ferr(y, depths[band], estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None)
@@ -47,32 +49,30 @@ for x in [two, three, four, five]:
 
       count += 1
 
-exit(1)
+umg2         =  two['LSST_u'].values   - two['LSST_g'].values
+gmr2         =  two['LSST_g'].values   - two['LSST_r'].values
+
+umg3         =  three['LSST_u'].values - three['LSST_g'].values
+gmr3         =  three['LSST_g'].values - three['LSST_r'].values
+
+gmr4         =  four['LSST_g'].values  - four['LSST_r'].values
+rmi4         =  four['LSST_r'].values  - four['LSST_i'].values
+
+imz5         =  five['LSST_i'].values  - five['LSST_z'].values
+rmi5         =  five['LSST_r'].values  - five['LSST_i'].values
       
-umg2         =  p2['u'] - p2['g']
-gmr2         =  p2['g'] - p2['r']
-
-umg3         =  p3['u'] - p3['g']
-gmr3         =  p3['g'] - p3['r']
-
-gmr4         =  p4['g'] - p4['r']
-rmi4         =  p4['r'] - p4['i']
-
-imz5         =  p5['i'] - p5['z']
-rmi5         =  p5['r'] - p5['i']
-
 ##
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
 
 ##
 fig, axes    = plt.subplots(nrows=1, ncols=4, sharey=False)
 
-##  plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
-  
-axes[0].plot(gmr2, umg2, '.', markersize=.25, c='y', label=r'$z={:.1f}$'.format(2.0246), alpha=0.6)  
-axes[1].plot(gmr3, umg3, '.', markersize=.25, c='b', label=r'$z={:.1f}$'.format(3.0031), alpha=0.6)
-axes[2].plot(rmi4, gmr4, '.', markersize=.25, c='g', label=r'$z={:.1f}$'.format(3.9633), alpha=0.6)
-axes[3].plot(imz5, rmi5, '.', markersize=.25, c='r', label=r'$z={:.1f}$'.format(5.0244), alpha=0.6)
+plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
+
+fast_scatter(axes[0], gmr2, umg2, np.ones_like(gmr2), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[1], gmr3, umg3, np.ones_like(gmr3), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[2], rmi4, gmr4, np.ones_like(rmi4), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[3], imz5, rmi5, np.ones_like(imz5), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
 
 axes[0].set_xlabel(r'$g-r$')
 axes[0].set_ylabel(r'$u-g$')
@@ -95,10 +95,10 @@ for ax in axes:
   ax.spines['right'].set_color('black')
 
   ax.set_xlim(-.5,   .5)
-  ax.set_ylim(-.5, 1.75)
+  ax.set_ylim(-.5, 2.75)
 
   ax.legend(frameon=False, loc=1)
-  
+
 plt.tight_layout()
 
-pl.savefig('plots/colorcolor_obs.pdf')
+pl.savefig('plots/colorcolor_obs.png')
