@@ -61,14 +61,21 @@ def get_caesar(boxsize, redshift):
     assert  boxsize == 100.
     
     root  = '/home/mjwilson/LBGSIMBA/100/'
-
     snap  = snaps[redshift]
     
     fpath = root + 'm100n1024_{}.hdf5'.format(snap)
 
     return  caesar.load(fpath)
 
+def get_pyloser(boxsize, redshift):
+    root  = '/home/mjwilson/LBGSIMBA/100/'
+    snap  = snaps[redshift]
 
+    fpath = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+    
+    return  h5py.File(fpath, 'r')
+
+    
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')
 
@@ -92,6 +99,8 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    links = get_caesar(boxsize, 2.024621)
+    # links = get_caesar(boxsize, 2.024621)
 
+    links = get_pyloser(boxsize, 2.024621)   
+    
     print('\n\nDone.\n\n')

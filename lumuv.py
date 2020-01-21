@@ -13,14 +13,14 @@ from    get_data          import  snaps
 from    sphotometry       import  read_mags
 
 
-boxsize      = 100.              ##  Mpc/h.
-vol          = boxsize ** 3.
-
-print('\n\nWelcome to Simba UV luminosity.')
+boxsize      =  100.              ##  Mpc/h.
+vol          =  boxsize ** 3.
 
 dMUV         =  0.5
 bins         =  np.arange(-23., -11.5, dMUV)
-  
+
+print('\n\nWelcome to Simba UV luminosity.')
+
 for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
   ##  'UV':  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'
   _, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, mag, mag_nd = read_mags(snaps[redshift], infile=None, magcols=None, SUFF='abs')
@@ -41,10 +41,12 @@ for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
 
   ubins        =  ubins[sortind]
   cnts         =  cnts[sortind]
+
+  cnts         =  cnts / dMUV
   
   assert  len(ubins) == len(bins)
   
-  pl.plot(bins + dMUV/2., np.log10(np.cumsum(cnts / vol)), lw=1, alpha=0.8, label='$z$ = %.2lf' % redshift)
+  pl.plot(bins + dMUV/2., np.log10(cnts / vol), lw=1, alpha=0.8, label='$z$ = %.2lf' % redshift)
   
 pl.legend(loc=4, frameon=False, handlelength=1)
   
@@ -52,7 +54,7 @@ pl.xlim(-22., -16.)
 pl.ylim(-5., -1.5)
 
 pl.xlabel(r'$M_{UV}$')
-pl.ylabel(r'$\log_{10}|\bar n (M < M_{UV}) / (h^{-1} \rm{Mpc})^{-3}|$')
+pl.ylabel(r'$\log_{10}|d\bar n dM_{UV} / (h^{-1} \rm{Mpc})^{-3}|$')
 
 plt.tight_layout()
 
