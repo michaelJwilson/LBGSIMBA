@@ -10,6 +10,8 @@ from    itertools       import  product
 from    astropy.table   import  Table
 
 
+snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
+
 def print_keys(arg):
     print('\n\nAvailable keys for {}:\n{}'.format(arg, arg.keys()))
 
@@ -58,7 +60,6 @@ def get_caesar(boxsize, redshift):
 
     assert  boxsize == 100.
     
-    snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
     root  = '/home/mjwilson/LBGSIMBA/100/'
 
     snap  = snaps[redshift]
