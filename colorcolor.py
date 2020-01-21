@@ -10,52 +10,31 @@ from    scipy.spatial     import  KDTree
 from    itertools         import  product
 from    get_data          import  get_data
 from    utils             import  latexify
-
+from    sphotometry       import  read_mags
+from    fast_scatter      import  fast_scatter
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
 boxsize      =  100.
-vol          =  boxsize ** 3.
 
-##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244  
-f2, p2       =  get_data(boxsize, 2.024621)
-f3, p3       =  get_data(boxsize, 3.00307)
-f4, p4       =  get_data(boxsize, 3.963392) 
-f5, p5       =  get_data(boxsize, 5.024400)
+##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]
+##  Available snapshots: ['062',   '078',    '051',    '042']
 
-# Color 28 3053 4086  3571  LSST u band 305.30 - 408.60
-# Color 29 3863 5670  4768  LSST g band 386.30 - 567.00
-# Color 30 5369 7060  6216  LSST r band 536.90 - 706.00
-# Color 31 6759 8330  7546  LSST i band 675.90 - 833.00
-# Color 32 9083 10996 10042 LSST y band 908.30 - 1099.60
-# Color 33 8029 9386  8709  LSST z band 802.90 - 938.60
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, two,   two_nd    =  read_mags('078', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, three, three_nd  =  read_mags('062', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, four,  four_nd   =  read_mags('051', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, five,  five_nd   =  read_mags('042', infile=None, magcols=None, SUFF='app')
 
-lsstu2       =  p2['appmag_28'][:]
-lsstg2       =  p2['appmag_29'][:]
-lsstr2       =  p2['appmag_30'][:]
+umg2         =  two['u'].values   - two['g'].values
+gmr2         =  two['g'].values   - two['r'].values
 
-lsstu3       =  p3['appmag_28'][:]
-lsstg3       =  p3['appmag_29'][:]
-lsstr3       =  p3['appmag_30'][:]
+umg3         =  three['u'].values - three['g'].values
+gmr3         =  three['g'].values - three['r'].values
 
-lsstg4       =  p4['appmag_29'][:]
-lsstr4       =  p4['appmag_30'][:]
-lssti4       =  p4['appmag_31'][:]
+gmr4         =  four['g'].values  - four['r'].values 
+rmi4         =  four['r'].values  - four['i'].values
 
-lsstr5       =  p5['appmag_30'][:]
-lssti5       =  p5['appmag_31'][:]
-lsstz5       =  p5['appmag_33'][:]
-
-umg2         =  lsstu2 - lsstg2
-gmr2         =  lsstg2 - lsstr2
-
-umg3         =  lsstu3 - lsstg3
-gmr3         =  lsstg3 - lsstr3
-
-gmr4         =  lsstg4 - lsstr4
-rmi4         =  lsstr4 - lssti4
-
-imz5         =  lssti5 - lsstz5
-rmi5         =  lsstr5 - lssti5
+imz5         =  five['i'].values  - five['z'].values
+rmi5         =  five['r'].values  - five['i'].values
 
 ##
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
@@ -63,12 +42,12 @@ latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.3
 ##
 fig, axes    = plt.subplots(nrows=1, ncols=4, sharey=False)
 
-##  plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
-  
-axes[0].plot(gmr2, umg2, '.', markersize=.25, c='y', label=r'$z={:.1f}$'.format(2.0246), alpha=0.6)  
-axes[1].plot(gmr3, umg3, '.', markersize=.25, c='b', label=r'$z={:.1f}$'.format(3.0031), alpha=0.6)
-axes[2].plot(rmi4, gmr4, '.', markersize=.25, c='g', label=r'$z={:.1f}$'.format(3.9633), alpha=0.6)
-axes[3].plot(imz5, rmi5, '.', markersize=.25, c='r', label=r'$z={:.1f}$'.format(5.0244), alpha=0.6)
+plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
+
+fast_scatter(axes[0], gmr2, umg2, np.ones_like(gmr2), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[1], gmr3, umg3, np.ones_like(gmr3), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[2], rmi4, gmr4, np.ones_like(rmi4), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+fast_scatter(axes[3], imz5, rmi5, np.ones_like(imz5), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
 
 axes[0].set_xlabel(r'$g-r$')
 axes[0].set_ylabel(r'$u-g$')
@@ -97,4 +76,4 @@ for ax in axes:
   
 plt.tight_layout()
 
-pl.savefig('plots/colorcolor.pdf')
+pl.savefig('plots/colorcolor.png')

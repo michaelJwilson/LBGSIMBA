@@ -14,47 +14,25 @@ from    luptitudes        import  luptitude
 from    hildebrandt       import  ferr
 from    depths            import  get_depths
 from    scipy.stats       import  norm       as normal_rand
+from    sphotometry       import  read_mags
+from    fast_scatter      import  fast_scatter
 
 
-##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
 boxsize      =  100.
-vol          =  boxsize ** 3.
 
 depths       =  get_depths()
 
-##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244  
-f2, _p2      =  get_data(boxsize, 2.024621)
-f3, _p3      =  get_data(boxsize, 3.00307)
-f4, _p4      =  get_data(boxsize, 3.963392) 
-f5, _p5      =  get_data(boxsize, 5.024400)
+##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]                                                                                                                                                                        
+##  Available snapshots: ['062',   '078',    '051',    '042']                                                                                                                                                                          
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, two,   two_nd    =  read_mags('078', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, three, three_nd  =  read_mags('062', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, four,  four_nd   =  read_mags('051', infile=None, magcols=None, SUFF='app')
+redshift, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, five,  five_nd   =  read_mags('042', infile=None, magcols=None, SUFF='app')
 
-# Color 28 3053 4086  3571  LSST u band 305.30 - 408.60
-# Color 29 3863 5670  4768  LSST g band 386.30 - 567.00
-# Color 30 5369 7060  6216  LSST r band 536.90 - 706.00
-# Color 31 6759 8330  7546  LSST i band 675.90 - 833.00
-# Color 32 9083 10996 10042 LSST y band 908.30 - 1099.60
-# Color 33 8029 9386  8709  LSST z band 802.90 - 938.60
-
-##  u, g, r.
-p2           =  np.hstack((_p2['appmag_28'][:], _p2['appmag_29'][:], _p2['appmag_30'][:]))
-p2           =  np.array(p2, dtype = [('u', 'float32'), ('g','float32'), ('r','float32')])
-
-##  u, g, r.
-p3           =  np.hstack((_p3['appmag_28'][:], _p3['appmag_29'][:], _p3['appmag_30'][:]))
-p3           =  np.array(p3, dtype = [('u', 'float32'), ('g','float32'), ('r','float32')])
-
-##  g, r, i.
-p4           =  np.hstack((_p4['appmag_29'][:], _p4['appmag_30'][:], _p4['appmag_31'][:]))
-p4           =  np.array(p4, dtype = [('g', 'float32'), ('r', 'float32'), ('i', 'float32')])
-
-##  r, i, z. 
-p5           =  np.hstack((_p5['appmag_30'][:], _p5['appmag_31'][:], _p5['appmag_33'][:]))
-p5           =  np.array(p5, dtype = [('r', 'float32'), ('i', 'float32'), ('z', 'float32')])
-
-nruns        =  4 * 3 * len(p2['u'])
+nruns        =  len(two['u']) * len(two.dtype.names) + len(three['u']) * len(three.dtype.names) + len(four['u']) * len(four.dtype.names) + len(five['u']) * len(five.dtype.names)
 count        =  0
 
-for x in [p2, p3, p4, p5]:
+for x in [two, three, four, five]:
   for band in x.dtype.names:
     for i, y in enumerate(x[band]):    
       Flux       =  10. ** (-(y + 48.60) / 2.5)  ##  Nanomaggies. 
@@ -69,6 +47,8 @@ for x in [p2, p3, p4, p5]:
 
       count += 1
 
+exit(1)
+      
 umg2         =  p2['u'] - p2['g']
 gmr2         =  p2['g'] - p2['r']
 
