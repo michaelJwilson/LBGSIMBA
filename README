@@ -23,3 +23,9 @@
 # Color 27 15101.2 20331.9 17645.2  Euclid H filter
 
 py sphotometry.py m100n1024 s50 51 app 25 26 27 28 29 30 31 33 32
+
+# Garel 2015
+https://arxiv.org/pdf/1511.05597.pdf
+
+# Park 2016
+https://arxiv.org/pdf/1511.01983.pdf

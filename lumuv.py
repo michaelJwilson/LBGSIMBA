@@ -16,7 +16,7 @@ from    sphotometry       import  read_mags
 boxsize      =  100.              ##  Mpc/h.
 vol          =  boxsize ** 3.
 
-dMUV         =  0.5
+dMUV         =  0.1
 bins         =  np.arange(-23., -11.5, dMUV)
 
 print('\n\nWelcome to Simba UV luminosity.')
@@ -54,7 +54,7 @@ pl.xlim(-22., -16.)
 pl.ylim(-5., -1.5)
 
 pl.xlabel(r'$M_{UV}$')
-pl.ylabel(r'$\log_{10}|d\bar n dM_{UV} / (h^{-1} \rm{Mpc})^{-3}|$')
+pl.ylabel(r'$\log_{10}|d\bar n/dM_{UV}|$')
 
 plt.tight_layout()
 

@@ -68,7 +68,7 @@ def get_caesar(boxsize, redshift):
 
     return  caesar.load(fpath)
 
-def get_pyloser(boxsize, redshift):
+def get_pyloser(boxsize, redshift, printit=False):
     root  = '/home/mjwilson/LBGSIMBA/100/'
     snap  = snaps[redshift]
 
@@ -77,7 +77,11 @@ def get_pyloser(boxsize, redshift):
     links = h5py.File(fpath, 'r')
 
     bands = list(links.attrs.items()[14][1])
-        
+
+    if printit:
+        for x in bands:
+            print(x)
+    
     return  pd.DataFrame(data=links['appmag'][:], columns=bands)
     
 if __name__ == '__main__':
@@ -105,6 +109,6 @@ if __name__ == '__main__':
 
     # links = get_caesar(boxsize, 2.024621)
 
-    links = get_pyloser(boxsize, 2.024621)   
+    links = get_pyloser(boxsize, 2.024621, printit=True)   
     
     print('\n\nDone.\n\n')
