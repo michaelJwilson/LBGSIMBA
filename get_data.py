@@ -53,7 +53,7 @@ def get_data(boxsize, getredshift):
 
     return f, p 
 
-def get_caesar(boxsize, redshift):
+def get_caesar(boxsize, redshift, load_halo=False):
     #  0.330620   2.024621  078
     #  0.249808   3.003070  062
     #  0.201475   3.963392  051
@@ -66,16 +66,18 @@ def get_caesar(boxsize, redshift):
     
     fpath = root + 'm100n1024_{}.hdf5'.format(snap)
 
-    return  caesar.load(fpath)
+    return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
 def get_pyloser(boxsize, redshift, printit=False):
+    #  Currently, photometry only. 
+
     root  = '/home/mjwilson/LBGSIMBA/100/'
     snap  = snaps[redshift]
 
     fpath = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
     
     links = h5py.File(fpath, 'r')
-
+    
     bands = list(links.attrs.items()[14][1])
 
     if printit:
@@ -107,8 +109,8 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    # links = get_caesar(boxsize, 2.024621)
+    links = get_caesar(boxsize, 2.024621)
 
-    links = get_pyloser(boxsize, 2.024621, printit=True)   
+    # links = get_pyloser(boxsize, 2.024621, printit=True)   
     
     print('\n\nDone.\n\n')
