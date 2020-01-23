@@ -61,10 +61,10 @@ def calc_xi(test, reflect, boxsize, redshift):
     
     ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
     ##         two reflections. 
-    paired      =  CTree.query_ball_tree(PTree, 25.)
+    paired      =  CTree.query_ball_tree(PTree, 60.)
         
     dr          =  0.25
-    bins        =  np.arange(-1.0, 12.75, dr)
+    bins        =  np.arange(-1.0, 60.0, dr)
         
     sep         =  []
 
@@ -88,14 +88,16 @@ def plot_xi():
     for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
         midr, meanr, xi = np.loadtxt('dat/xi_{:.3f}.txt'.format(redshift), unpack=True)
 
-        pl.loglog(meanr, xi, lw=1, c='darkcyan', alpha=0.8)
+        pl.loglog(meanr, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
 
-    pl.xlim(0.1, 12.5)
-    pl.ylim(0.1,  60.)
+    pl.xlim(0.1,  60.5)
+    pl.ylim(0.1,  2.e3)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
 
+    pl.legend(loc=3, frameon=False)
+    
     plt.tight_layout()
 
     pl.savefig('plots/xi.pdf')
@@ -110,8 +112,8 @@ if __name__ == '__main__':
     boxsize     =  100.           #  [Mpc/h];  hubble      =  0.68                                                                                                                                         
     vol         =  boxsize ** 3.
 
-    #  for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-    #    calc_xi(test, reflect, boxsize, redshift)
+    for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
+      calc_xi(test, reflect, boxsize, redshift)
 
     plot_xi()
       
