@@ -3,7 +3,6 @@ import  h5py
 import  caesar
 import  pandas          as      pd
 import  numpy           as      np
-import  pylab           as      pl
 import  astropy.io.fits as      fits
 
 from    scipy.spatial   import  KDTree 

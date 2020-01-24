@@ -58,6 +58,8 @@ del simba['A_s']
 
 simba['sigma8'] = s8 
 pstring         = ''.join(['%s:  %s;  ' % (key, value) for (key, value) in params.items()]).strip()
+pstring        += '\n'
+pstring        += 'k [Mpc/h], Pk	[(Mpc/h)**3.]'
 
 # Save.
 np.savetxt('linpk.txt', np.c_[kk, Pk], fmt='%.6le', header=pstring)
