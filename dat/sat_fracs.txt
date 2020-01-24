@@ -1,0 +1,26 @@
+For redshift of 2.0246		Number of galaxies found: 23846
+    	     			Number of centrals found: 18051
+				Number of satellites found: 5795
+
+				The satellite fraction is 0.243
+				
+
+For redshift of 3.0031		Number of galaxies found: 18165
+    	     			Number of centrals found: 14466
+				Number of satellites found: 3699
+
+				The satellite fraction is 0.204
+
+
+For redshift of 3.9634		Number of galaxies found: 13683
+    	     			Number of centrals found: 11326
+				Number of satellites found: 2357
+
+				The satellite fraction is 0.172
+
+
+For redshift of 5.0244		Number of galaxies found: 7989
+    	     			Number of centrals found: 6874
+				Number of satellites found: 1115
+
+				The satellite fraction is 0.140
