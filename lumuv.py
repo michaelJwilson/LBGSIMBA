@@ -16,7 +16,7 @@ from    sphotometry       import  read_mags
 boxsize      =  100.              ##  Mpc/h.
 vol          =  boxsize ** 3.
 
-dMUV         =  0.1
+dMUV         =  0.2
 bins         =  np.arange(-23., -11.5, dMUV)
 
 print('\n\nWelcome to Simba UV luminosity.')
