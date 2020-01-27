@@ -17,6 +17,7 @@ from    scipy.stats       import  norm       as normal_rand
 from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
 from    get_data          import  get_pyloser
+from    color_box         import  color_box
 
 
 boxsize      =  100.
@@ -74,6 +75,10 @@ fast_scatter(axes[1], gmr3, umg3, np.ones_like(gmr3), 0.9, 1.1, 10, markersize=0
 fast_scatter(axes[2], rmi4, gmr4, np.ones_like(rmi4), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
 fast_scatter(axes[3], imz5, rmi5, np.ones_like(imz5), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
 
+color_box(axes[1], 'u')
+color_box(axes[2], 'g')
+color_box(axes[3], 'r')
+
 axes[0].set_xlabel(r'$g-r$')
 axes[0].set_ylabel(r'$u-g$')
 
@@ -94,8 +99,8 @@ for ax in axes:
   ax.spines['left'].set_color('black')
   ax.spines['right'].set_color('black')
 
-  ax.set_xlim(-.5,   .5)
-  ax.set_ylim(-.5, 2.75)
+  ax.set_xlim(-1.5, 1.5)
+  ax.set_ylim(-1.0, 3.55)
 
   ax.legend(frameon=False, loc=1)
 
