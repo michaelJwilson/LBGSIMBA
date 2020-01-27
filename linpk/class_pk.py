@@ -58,12 +58,13 @@ def make_pk(zlist):
     fout.write("# ns={:f}, A_s={:e}, sig8={:f}\n".\
                format(params['n_s'],params['A_s'],cosmo.sigma8()))
 
-    fout.write("# {:>3s} {:>8s} {:>8s}\n".format("z","D(z)","f(z)"))
+    fout.write("# {:>3s} {:>8s} {:>8s} {:>8s}\n".format("z","D(z)","f(z)", "sigma_8(z)"))
 
     for zz in np.arange(0.0,9.51,0.25):
-        fout.write("{:5.2f} {:8.4f} {:8.4f}\n".\
+        fout.write("{:5.2f} {:8.4f} {:8.4f} {:8.4f}\n".\
                   format(zz,cosmo.scale_independent_growth_factor(zz),\
-                            cosmo.scale_independent_growth_factor_f(zz)))
+                            cosmo.scale_independent_growth_factor_f(zz),\
+                            cosmo.nonlinear_hmcode_sigma8(np.array(zz), len(zz))))
 
     fout.close()
 
