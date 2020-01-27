@@ -60,12 +60,12 @@ def make_pk(zlist):
 
     fout.write("# {:>3s} {:>8s} {:>8s} {:>8s}\n".format("z","D(z)","f(z)", "sigma_8(z)"))
 
-    for zz in np.arange(0.0,9.51,0.25):
+    for zz in np.arange(0.0, 9.51, 0.25):
         fout.write("{:5.2f} {:8.4f} {:8.4f} {:8.4f}\n".\
                   format(zz,cosmo.scale_independent_growth_factor(zz),\
                             cosmo.scale_independent_growth_factor_f(zz),\
-                            cosmo.nonlinear_hmcode_sigma8(np.array(zz), len(zz))))
-
+                            cosmo.sigma(8 / hub, zz)))
+        
     fout.close()
 
     # Now compute P(k) at each zz and write each to a file.
@@ -75,13 +75,17 @@ def make_pk(zlist):
         iz = int(100*zz+0.001)
         pk = np.array([ cosmo.pk(k*params['h'],zz)*params['h']**3 for k in kk])
         hf = np.array([nonlin.pk(k*params['h'],zz)*params['h']**3 for k in kk])
+
         fout = open("dat/pklin_z{:03d}.txt".format(iz),"w")
+
         fout.write("# Matter power spectra at z={:f}.\n".format(zz))
         fout.write("# D(z)={:f}, f(z)={:f}.\n".\
                    format(cosmo.scale_independent_growth_factor(zz),\
                           cosmo.scale_independent_growth_factor_f(zz)))
+
         fout.write("# {:>13s} {:>15s} {:>15s}\n".\
                    format("k[h/Mpc]","Plin(k)","HaloFit"))
+
         for i in range(kk.size):
             fout.write("{:15.5e} {:15.5e} {:15.5e}\n".format(kk[i],pk[i],hf[i]))
 
@@ -91,7 +95,7 @@ def make_pk(zlist):
         
 
 if __name__=="__main__":
-    zlist = [2.02,3.00,3.96,5.02]
+    zlist = [2.02, 3.00, 3.96, 5.02]
 
     cosmo = make_pk(zlist)
     
