@@ -1,0 +1,48 @@
+import matplotlib;  matplotlib.use('Agg')
+
+import numpy             as      np
+import matplotlib.pyplot as      plt
+
+from   classy            import  Class
+
+
+# create instance of the class "Class"
+LambdaCDM = Class()
+
+# pass input parameters
+LambdaCDM.set({'omega_b':0.022032,'omega_cdm':0.12038,'h':0.67556,'A_s':2.215e-9,'n_s':0.9619,'tau_reio':0.0925})
+
+LambdaCDM.set({'output':'tCl,pCl,lCl,mPk','lensing':'yes','P_k_max_1/Mpc':3.0})
+
+# run class
+LambdaCDM.compute()
+
+kk = np.logspace(-4,np.log10(3),1000) # k [h/Mpc].
+
+Pk = []            # P(k) in (Mpc/h)**3
+h  = LambdaCDM.h() # get reduced Hubble for conversions to 1/Mpc
+
+for k in kk:
+  Pk.append(LambdaCDM.pk(k*h,0.)*h**3) # function .pk(k,z)
+
+# Save.
+np.savetxt('linpk.txt', np.c_[kk, Pk], fmt='%.6le')
+
+# plot P(k)
+plt.figure(2)
+
+plt.xscale('log');plt.yscale('log');plt.xlim(kk[0],kk[-1])
+
+plt.xlabel(r'$k \,\,\,\, [h/\mathrm{Mpc}]$')
+
+plt.ylabel(r'$P(k) \,\,\,\, [\mathrm{Mpc}/h]^3$')
+
+plt.plot(kk, Pk, 'k-')
+
+plt.savefig('plots/linpk.pdf')
+
+# optional: clear content of LambdaCDM (to reuse it for another model)
+LambdaCDM.struct_cleanup()
+
+# optional: reset parameters to default
+LambdaCDM.empty()

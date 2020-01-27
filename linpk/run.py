@@ -6,6 +6,9 @@ import matplotlib.pyplot as      plt
 from   classy            import  Class
 
 
+snaps     = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
+
+
 # create instance of the class "Class"
 LambdaCDM = Class()
 
@@ -21,7 +24,12 @@ Ocdm       = Om - Ob
 s8         = 0.82
 ns         = 0.97
 
-simba      = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9}
+simba      = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9, 'z_pk': 5.024400}
+# simba    = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9, 'z_pk': 2.024621}
+# simba    = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9, 'z_pk': 3.003070}
+# simba    = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9, 'z_pk': 3.963392}
+# simba    = {'omega_b': Ob * h * h, 'omega_cdm': Ocdm * h * h, 'h': h, 'n_s': ns, 'tau_reio': 0.0925, 'A_s': 2.215e-9, 'z_pk': 5.024400}
+
 
 # planck2015 = {'omega_b': 0.02222, 'omega_cdm': 0.1197, 'h': 0.68, 'A_s': 2.215e-9, 'n_s':0.9619, 'tau_reio': 0.0925}
 
@@ -30,7 +38,7 @@ params     = simba
 # pass input parameters
 LambdaCDM.set(params)
 
-LambdaCDM.set({'output':'tCl,pCl,lCl,mPk','lensing':'yes','P_k_max_1/Mpc':3.0})
+LambdaCDM.set({'output': 'tCl,pCl,lCl,mPk', 'lensing':'yes', 'P_k_max_1/Mpc': 3.0})
 
 # run class
 LambdaCDM.compute()
@@ -52,17 +60,13 @@ Pk = np.array(Pk)
 print(derived['sigma8'])
 print(s8)
 
-Pk = Pk * ( s8 / derived['sigma8'] )**2
-
-del simba['A_s']
-
-simba['sigma8'] = s8 
+simba['sigma8'] = derived['sigma8']
 pstring         = ''.join(['%s:  %s;  ' % (key, value) for (key, value) in params.items()]).strip()
 pstring        += '\n'
 pstring        += 'k [Mpc/h], Pk	[(Mpc/h)**3.]'
 
 # Save.
-np.savetxt('linpk.txt', np.c_[kk, Pk], fmt='%.6le', header=pstring)
+np.savetxt('linpk_{:.5f}.txt'.format(params['z_pk']), np.c_[kk, Pk], fmt='%.6le', header=pstring)
     
 # plot P(k)
 plt.figure(2)
