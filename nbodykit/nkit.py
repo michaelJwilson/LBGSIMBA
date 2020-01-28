@@ -1,3 +1,4 @@
+import pickle
 import numpy                        as      np
 import time
 import astropy.io.fits              as      fits
@@ -37,9 +38,9 @@ for x in snaps.keys():
       cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
 
       ##  Box size in Mpc/h.
-      mesh            = cat.to_mesh(resampler='CIC', Nmesh=2056, compensated=False, BoxSize=1.e2)
+      mesh            = cat.to_mesh(resampler='CIC', Nmesh=1024, compensated=False, BoxSize=1.e2)
       
-      r               = FFTPower(mesh, mode='2d', dk=0.05, kmin=0.1, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=100., Nmesh=2056)
+      r               = FFTPower(mesh, mode='2d', dk=0.05, kmin=0.1, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=100., Nmesh=1024)
 
       poles           = r.poles
 
@@ -54,7 +55,7 @@ for x in snaps.keys():
           print("%s = %s" %(_, str(r.power.attrs[_])))
 
           
-      # The 2D power spectrum results                                                                                                                                                                                                                                                         
+      # The 2D power spectrum results
       print("power = ", r.power)
       print("variables = ", r.power.variables)
 
@@ -63,12 +64,9 @@ for x in snaps.keys():
 
           print("'%s' has shape %s and dtype %s" %(name, var.shape, var.dtype))
 
-      r.power['kp'] = r.power['mu'] * r.power['k']
-      r.power['kt'] = np.sqrt(1. - r.power['mu'] ** 2.) * r.power['k']
-
-      np.savetxt('dat/tdpk_{:.5f}.txt'.format(x), np.c_[r.power['kp'].flatten(), r.power['kt'].flatten(), r.power['power'].real.flatten(), r.power['modes'].flatten()])
-
-      print(r.power['kp'])
+      np.save('dat/tdpk_{:.5f}_k.npy'.format(x),  r.power['k'])
+      np.save('dat/tdpk_{:.5f}_mu.npy'.format(x), r.power['mu'])
+      np.save('dat/tdpk_{:.5f}_Pk.npy'.format(x), r.power['power'].real)
 
       exit(1)
       
