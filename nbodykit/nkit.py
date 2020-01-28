@@ -12,6 +12,9 @@ from   nbodykit.transform           import  StackColumns
 from   nbodykit                     import  setup_logging
 
 ##  source activate nbodykit-env
+##
+##  export PYTHONPATH=/home/mjwilson/LBGSIMBA/:$PYTHONPATH
+##
 ##  python3 nkit.py
 
 compute          = True
@@ -34,9 +37,9 @@ for x in snaps.keys():
       cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
 
       ##  Box size in Mpc/h.
-      mesh            = cat.to_mesh(resampler='CIC', Nmesh=16, compensated=False, BoxSize=1.e2 * hubble)
+      mesh            = cat.to_mesh(resampler='CIC', Nmesh=2056, compensated=False, BoxSize=1.e2)
       
-      r               = FFTPower(mesh, mode='2d', dk=0.05, kmin=0.1, Nmu=120, los=[0,0,1], poles=[0,2,4])
+      r               = FFTPower(mesh, mode='2d', dk=0.05, kmin=0.1, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=100., Nmesh=2056)
 
       poles           = r.poles
 
@@ -47,6 +50,29 @@ for x in snaps.keys():
       print('Number of galaxies: {}'.format(len(cat['x'])))
       print('Shotnoise: {}'.format(poles.attrs['shotnoise']))
 
+      for _ in r.power.attrs:
+          print("%s = %s" %(_, str(r.power.attrs[_])))
+
+          
+      # The 2D power spectrum results                                                                                                                                                                                                                                                         
+      print("power = ", r.power)
+      print("variables = ", r.power.variables)
+
+      for name in r.power.variables:
+          var = r.power[name]
+
+          print("'%s' has shape %s and dtype %s" %(name, var.shape, var.dtype))
+
+      r.power['kp'] = r.power['mu'] * r.power['k']
+      r.power['kt'] = np.sqrt(1. - r.power['mu'] ** 2.) * r.power['k']
+
+      np.savetxt('dat/tdpk_{:.5f}.txt'.format(x), np.c_[r.power['kp'].flatten(), r.power['kt'].flatten(), r.power['power'].real.flatten(), r.power['modes'].flatten()])
+
+      print(r.power['kp'])
+
+      exit(1)
+      
+      # The multipoles. 
       for ell in [0]:    
         k      = poles['k']
         P      = poles['power_%d' % ell].real
@@ -54,4 +80,7 @@ for x in snaps.keys():
         if ell == 0:
           P    = P - poles.attrs['shotnoise']
 
-        np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])
+        np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])            
+
+      break
+        

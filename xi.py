@@ -88,10 +88,20 @@ def plot_xi():
     for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
         midr, meanr, xi = np.loadtxt('dat/xi_{:.3f}.txt'.format(redshift), unpack=True)
 
-        pl.loglog(meanr, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
+        # pl.loglog(meanr, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
 
-    pl.xlim(0.1,  60.5)
-    pl.ylim(0.1,  2.e3)
+        # ZA
+        iz  = int(100 * redshift + 0.001)
+        _   = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz), unpack=True)
+
+        r   = _[:,0]
+        xi  = _[:,1] / r / r
+
+        pl.loglog(r, xi, lw=1, alpha=0.8, linestyle='--')
+
+        
+    #pl.xlim(0.1,  60.5)
+    #pl.ylim(0.1,  2.e3)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
@@ -112,8 +122,8 @@ if __name__ == '__main__':
     boxsize     =  100.           #  [Mpc/h];  hubble      =  0.68                                                                                                                                         
     vol         =  boxsize ** 3.
 
-    for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-      calc_xi(test, reflect, boxsize, redshift)
+    #for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
+    #  calc_xi(test, reflect, boxsize, redshift)
 
     plot_xi()
       

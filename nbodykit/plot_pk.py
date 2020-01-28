@@ -1,23 +1,29 @@
-import numpy                              as np
-
 import matplotlib; matplotlib.use('PDF')
+
+import numpy                              as np
 import matplotlib.pyplot                  as plt
+import pylab                              as pl
 
-import pylab as pl
+from   get_data                           import snaps
+from   utils                              import latexify
 
-from   get_data import snaps
+
+latexify(columns=1, equal=True, fontsize=8, ggplot=True, usetex=True)
 
 
-for x in snaps.keys():
+colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+for i, x in enumerate(snaps.keys()):
   fpath = '/home/mjwilson/LBGSIMBA/nbodykit/dat/pk_{:.5f}.txt'.format(x)
   k, P  = np.loadtxt(fpath, unpack=True)
     
-  plt.semilogy(k, P, label=r'{:.2f}'.format(x), marker='^')
+  plt.semilogy(k, P, marker='^', color=colors[i], lw=0, markersize=3)
 
   # linear theory.
-  k, P  = np.loadtxt('/home/mjwilson/LBGSIMBA/linpk/linpk_{:.5f}.txt'.format(x), unpack=True)
-
-  plt.semilogy(k, P, label=r'{:.2f}'.format(x))
+  iz      = int(100 * x + 0.001)
+  k, P, _ = np.loadtxt('/home/mjwilson/LBGSIMBA/linpk/dat/pklin_z{:03d}.txt'.format(iz), unpack=True)
+  
+  plt.semilogy(k, P, label=r'{:.2f}'.format(x), color=colors[i])
   
 # format the axes                                                                                                                                                                                                                                                                                                       
 plt.legend(loc=0, frameon=False)
