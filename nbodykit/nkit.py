@@ -25,6 +25,8 @@ t0               = time.time()
 
 cols             = ['x', 'y', 'z']
 
+tracer           = 'g' # ['dm', 'g']
+
 for x in snaps.keys():
     if compute:
       setup_logging()
@@ -32,7 +34,7 @@ for x in snaps.keys():
       ##  Comoving Mpc/h.         
       ##  cat         = CSVCatalog(fpath, names=cols, delim_whitespace=True)
 
-      fpath           = '/home/mjwilson/LBGSIMBA/dat/simba_dmzpos_{:.5f}.fits'.format(x) 
+      fpath           = '/home/mjwilson/LBGSIMBA/dat/simba_{}zpos_{:.5f}.fits'.format(tracer, x) 
       
       cat             = FITSCatalog(fpath)
       cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
@@ -54,7 +56,6 @@ for x in snaps.keys():
       for _ in r.power.attrs:
           print("%s = %s" %(_, str(r.power.attrs[_])))
 
-          
       # The 2D power spectrum results
       print("power = ", r.power)
       print("variables = ", r.power.variables)
@@ -64,11 +65,9 @@ for x in snaps.keys():
 
           print("'%s' has shape %s and dtype %s" %(name, var.shape, var.dtype))
 
-      np.save('dat/ztdpk_{:.5f}_k.npy'.format(x),  r.power['k'])
-      np.save('dat/ztdpk_{:.5f}_mu.npy'.format(x), r.power['mu'])
-      np.save('dat/ztdpk_{:.5f}_Pk.npy'.format(x), r.power['power'].real)
-
-      exit(1)
+      np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
+      np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
+      np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    
