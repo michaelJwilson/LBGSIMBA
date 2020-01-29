@@ -19,10 +19,12 @@ colors         = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 tracer         = 'g'  # ['g', 'dm']
 
-for i, x in enumerate(['2.02462']):
-  k            = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{}_k.npy'.format(tracer, x))
-  mu           = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{}_mu.npy'.format(tracer, x))
-  Pk           = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{}_Pk.npy'.format(tracer, x))
+for i, redshift in enumerate(snaps.keys()):
+  pl.clf()
+
+  k            = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer,  redshift))
+  mu           = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, redshift))
+  Pk           = np.load('/home/mjwilson/LBGSIMBA/nbodykit/dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, redshift))
 
   k            = np.log10(k)
   Pk           = np.log10(Pk)
@@ -40,16 +42,18 @@ for i, x in enumerate(['2.02462']):
   # plotting
   ax           = pl.gca()
   fig          = pl.gcf()
+
+  ax.grid(False)
   
   x            = np.arange(-0.3, 0.0, 0.01)
   y            = np.arange( 0.0, 1.0, 0.01)
 
   X, Y         = np.meshgrid(x, y)
 
-  pct          = 1
+  pct          = 0.1
   
-  vmin         = np.percentile(Pk.data[~mask].flatten(), pct)
-  vmax         = np.percentile(Pk.data[~mask].flatten(), 100 - pct)
+  vmin         = np.percentile(Pk.data[~mask].flatten(),  1)
+  vmax         = np.percentile(Pk.data[~mask].flatten(), 99)
 
   print(vmin, vmax)
   
@@ -63,28 +67,20 @@ for i, x in enumerate(['2.02462']):
   
   cb           = fig.colorbar(m, cax=cax)
 
-  # cb.set_label(r'$\log_{\rm{10}}|P(k)|$', fontsize=6)
-
-  ax.grid(False)
+  # labelpad=-.1
+  cb.set_label(r'$\log_{\rm{10}}|P(k)|$', fontsize=8)
   
   ax.set_xlabel('$\log_{10}|k|$',         fontsize=8)
   ax.set_ylabel('$\mu$',                  fontsize=8)
 
   ax.set_xlim([-0.3, 0.0])
-  '''
-  ax.set_axis_on()
-
-  ax.spines['bottom'].set_color('black')
-  ax.spines['top'].set_color('black')
-  ax.spines['left'].set_color('black')
-  ax.spines['right'].set_color('black')
   
-  ax.margins(0.05)
-  '''
+  # ax.margins(0.05)
+  
   # ax.hold(True)
   
   # fig.tight_layout()
 
-pl.savefig('plots/ztdpk_{}.pdf'.format(tracer, x))
+  pl.savefig('plots/ztdpk_{}_{}.pdf'.format(tracer, redshift))
 
 

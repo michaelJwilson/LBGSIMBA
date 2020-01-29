@@ -19,7 +19,7 @@ def calc_xi(test, reflect, boxsize, redshift):
     caesar      =  get_caesar(boxsize, redshift)
 
     pos         =  [x.pos.to('Mpc/h') for x in caesar.galaxies]  # comoving Mpc/h. 
-    iscentral   =  np.array([x.central         for x in caesar.galaxies]).astype(np.int)
+    iscentral   =  np.array([x.central for x in caesar.galaxies]).astype(np.int)
     
     ##  Basic stats.
     print('\n\nNumber of galaxies found: {}'.format(len(iscentral)))
@@ -56,8 +56,8 @@ def calc_xi(test, reflect, boxsize, redshift):
       print(catalogue.shape)
     
     ##  Grow tree. 
-    PTree = KDTree(pos)
-    CTree = KDTree(catalogue)
+    PTree       = KDTree(pos)
+    CTree       = KDTree(catalogue)
     
     ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
     ##         two reflections. 
@@ -85,19 +85,26 @@ def calc_xi(test, reflect, boxsize, redshift):
     np.savetxt('dat/xi_{:.3f}.txt'.format(redshift), np.c_[bins[:-1] + dr / 2., meanr, xi], fmt='%.6le')
     
 def plot_xi():
+    # r[Mpc/h]     r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2
+
     for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
         midr, meanr, xi = np.loadtxt('dat/xi_{:.3f}.txt'.format(redshift), unpack=True)
 
-        # pl.loglog(meanr, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
+        pl.loglog(meanr, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
 
         # ZA
-        iz  = int(100 * redshift + 0.001)
-        _   = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz), unpack=True)
+        iz     = int(100 * redshift + 0.001)
+        _      = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz))
 
-        r   = _[:,0]
-        xi  = _[:,1] / r / r
+        b1, b2 = 1.0, 0.0
 
-        pl.loglog(r, xi, lw=1, alpha=0.8, linestyle='--')
+        cc     = np.array([0., 0., 1.0, b1, b2, b1**2, b1*b2, b2**2])
+
+        rs     = _[:,0]
+        _      = _[:,0:8]
+        result = np.dot(_, cc)
+        
+        pl.loglog(rs, result, lw=1, alpha=0.8, linestyle='--')
 
         
     #pl.xlim(0.1,  60.5)

@@ -79,5 +79,5 @@ for x in snaps.keys():
 
         np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])            
 
-      break
+
         

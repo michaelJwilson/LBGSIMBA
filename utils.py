@@ -81,8 +81,9 @@ def latexify(fig_width=None, fig_height=None, columns=1, equal=False, fontsize=1
                 'figure.figsize': [fig_width, fig_height],
                 'font.family': 'serif',
                 'figure.facecolor': 'w',
-                'axes.facecolor': 'white'}
-
+                'axes.facecolor': 'white',
+                'axes.grid': False}
+    
     matplotlib.rcParams.update(params)
 
     ax = pl.gca()

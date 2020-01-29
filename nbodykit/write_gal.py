@@ -44,6 +44,7 @@ def read_zpos(boxsize, redshift):
 
 
 if __name__ == '__main__':
-  read_zpos(100., 2.024621)
+  for x in snaps.keys():
+    read_zpos(100., x)
     
   print('\n\nDone.\n\n')
