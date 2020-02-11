@@ -61,10 +61,10 @@ def calc_xi(test, reflect, boxsize, redshift):
     
     ##  Note:  asymmetric catalogue-based Tree call and pos call - i.e. do not count pairs between
     ##         two reflections. 
-    paired      =  CTree.query_ball_tree(PTree, 60.)
+    paired      =  CTree.query_ball_tree(PTree, 100.)
         
     dr          =  0.25
-    bins        =  np.arange(-1.0, 60.0, dr)
+    bins        =  np.arange(-1.0, 100.0, dr)
         
     sep         =  []
 
@@ -123,14 +123,17 @@ def plot_xi():
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
-    test        =   True
+    test        =  False
     reflect     =   True
 
-    boxsize     =  100.           #  [Mpc/h];  hubble      =  0.68                                                                                                                                         
+    boxsize     =    100.           #  [Mpc/h];  hubble      =  0.68                                                                                                                                         
     vol         =  boxsize ** 3.
 
-    #for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-    #  calc_xi(test, reflect, boxsize, redshift)
+    redshifts   = [2.024621, 3.00307, 3.963392, 5.0244]
+    redshifts   = [3.963392, 5.0244]
+    
+    for redshift in redshifts:
+      calc_xi(test, reflect, boxsize, redshift)
 
     plot_xi()
       

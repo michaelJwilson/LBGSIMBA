@@ -18,7 +18,7 @@ from   scipy.integrate    import quad
 
 latexify(fontsize=6)
 
-def p(z, z0, sigma):    
+def p(z, z0=2., sigma=0.5):    
     # Normalised Gaussian in z. 
     norm = 1. / sigma / np.sqrt(2. * sigma)
     exp  = (z - z0) / sigma
@@ -31,16 +31,24 @@ def z_at_value(vals, func):
     vals = np.array([vals])    
     return np.array([_z_at_value(func, x * u.Mpc / cosmo.h, zmax=10.) for x in vals])
 
-def pc(chi, z0=2., sigma=0.5):
+def pc(chi, pz):
     zee    = z_at_value(chi, cosmo.comoving_distance)    
 
-    return p(zee, z0, sigma) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
+    return pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
+
+#@np.vectorize
+def tophatc(chi, rc=2.e3, dr=1.e2):
+    norm = 1. / (2. * dr)
+    
+    on   = np.abs(chi - rc) <= dr  
+    
+    return  norm * on.astype(np.float)
     
 def xi(r, r0=5., gamma=1.8):
     # r0 in Mpc/h
     return (r / r0) ** -gamma
 
-def Aw(gamma, rc, dr, r0): 
+def Aw(rc, dr, gamma, r0): 
     # narrow slice, eqn. (19) of Simon.
     _     = rc ** (1. - gamma) / 2. / dr
 
@@ -50,32 +58,35 @@ def Aw(gamma, rc, dr, r0):
 
     return  _ * norm
         
-def pow_wtheta(theta, gamma, rc, dr, r0):
+def pow_wtheta(theta, rc, dr, gamma=1.8, r0=5.):
     ##  theta in radians. 
-    return Aw(gamma, rc, dr, r0) * theta ** (1. - gamma)
+    return  Aw(rc, dr, gamma, r0) * theta ** (1. - gamma)
 
 def inner(theta, rbar, xi):
+    Rmin = rbar	* theta
+
     def _(dr):
-        R = np.sqrt(rbar**2. * theta**2. + dr**2.)
+        R  = np.sqrt(rbar**2. * theta**2. + dr**2.)
 
         return  xi(R)
-
-    # NOTE:  Ranges on dr of inner integral. 
-    return  scipy.integrate.quad(_, 1.0, 250., limit=500)[0]
+    
+    return  2. * scipy.integrate.quad(_, 0., 4.e3, limit=50)[0]
 
 @np.vectorize
-def limber_wtheta(theta, p1, p2, xi):
-    def p1p2(x):
+def limber_wtheta(theta, p1, p2, xi, zmin=0.01, zmax=6.0):
+    def _(x):
         return p1(x) * p2(x) * inner(theta, x, xi)
 
-    # NOTE:  Integral over \bar r.  Range hard coded.
-    return  scipy.integrate.quad(p1p2, 10., 6000., limit=500)[0]
+    lower = cosmo.h * cosmo.comoving_distance(zmin).value # Mpc/h 
+    upper = cosmo.h * cosmo.comoving_distance(zmax).value # Mpc/h
+
+    return  scipy.integrate.quad(_, lower, upper, limit=50)[0]
 
 def zel(index):
     redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
     redshift  = redshifts[index]
     
-    # r[Mpc/h]     r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2
+    #  r [Mpc/h]    r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2
     iz        = int(100 * redshift + 0.001)
     _         = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz))
 
@@ -84,7 +95,7 @@ def zel(index):
     cc        = np.array([0., 0., 1.0, b1, b2, b1**2, b1*b2, b2**2])
 
     rs        = _[:,0]
-    _         = _[:,0:8]
+    _         = _[:, 0:8]
 
     result    = np.dot(_, cc)
 
@@ -92,24 +103,29 @@ def zel(index):
 
 
 if __name__ == '__main__':    
-    # https://arxiv.org/pdf/astro-ph/0609165.pdf
+    #  https://arxiv.org/pdf/astro-ph/0609165.pdf
     
-    ts   = np.arange(0.1, 10., 1.0)  # degs.
+    ts   = np.arange(0.1, 10., 0.1)  # degs.
     cs   = ts * np.pi / 180.         # radians. 
 
-    # wt = pow_wtheta(cs, 1.8, 2000., 100., 5.)  
-    
-    for i in np.arange(4):
-      zz, rs, xi = zel(i)      
-      wt         = limber_wtheta(cs, pc, pc, xi)
+    for i in np.arange(2, 3, 1):
+      zz, rs, _  = zel(i)      
+      wt         = limber_wtheta(cs, tophatc, tophatc, xi)
 
-      pl.loglog(ts, wt, label=zz)
+      print(wt)
+      
+      pl.loglog(ts, wt, c='k', label='Limber')
 
+      wt         = pow_wtheta(cs, 2.e3, 1.e2)
+      pl.loglog(ts, wt, c='r', linestyle='--', label='Power law')
+
+    pl.legend()
+      
     pl.xlabel(r'$\theta$ [deg.]')
     pl.ylabel(r'$\omega(\theta$)')
 
     plt.tight_layout()
-    
+
     pl.savefig('plots/wtheta.pdf')
-    
+
     print('\n\nDone.\n\n')
