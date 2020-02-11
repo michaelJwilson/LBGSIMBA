@@ -15,9 +15,9 @@ snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
 def print_keys(arg):
     print('\n\nAvailable keys for {}:\n{}'.format(arg, arg.keys()))
 
-def get_data(boxsize, getredshift):
+def get_data(boxsize, getredshift, printit=False):
     ##  Find the snapshot file closest to the desired redshift, getredshift. 
-    files      = glob.glob('/home/mjwilson/LBGSIMBA/100MPC/m100n1024_*.hdf5')
+    files      = glob.glob('/home/mjwilson/LBGSIMBA/100/m100n1024_*.hdf5')
     snapshots  = [int(x.split('/')[-1].split('_')[-1].split('.hdf5')[0]) for x in files]
     sortind    = np.argsort(snapshots)
     sortfiles  = [files[i] for i in sortind]
@@ -25,7 +25,7 @@ def get_data(boxsize, getredshift):
 
     redshifts  = np.loadtxt('/home/mjwilson/LBGSIMBA/snapshot_redshifts.txt', dtype={'names': ['a', 'z', 'id'], 'formats': ['float', 'float', 'int']})
     redshifts  = np.array([x[1] for x in redshifts[snapshots]])
-
+    
     zdiff      = np.abs(redshifts - getredshift)
     index      = np.where(zdiff == zdiff.min())[0]
 
@@ -44,11 +44,12 @@ def get_data(boxsize, getredshift):
     f          = h5py.File(getfile)
     p          = h5py.File(photfile)
 
-    print_keys(f)
-    print_keys(f['galaxy_data'])
-    print_keys(f['halo_data'])
+    if printit:
+        print_keys(f)
+        print_keys(f['galaxy_data'])
+        print_keys(f['halo_data'])
     
-    print_keys(p)
+        print_keys(p)
 
     return f, p 
 
@@ -69,7 +70,6 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
 def get_pyloser(boxsize, redshift, printit=False):
     #  Currently, photometry only. 
-
     root  = '/home/mjwilson/LBGSIMBA/100/'
     snap  = snaps[redshift]
 
@@ -108,8 +108,8 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    links = get_caesar(boxsize, 2.024621)
+    # links = get_caesar(boxsize, 2.024621)
 
-    # links = get_pyloser(boxsize, 2.024621, printit=True)   
+    links = get_pyloser(boxsize, 2.024621, printit=True)   
     
     print('\n\nDone.\n\n')

@@ -32,7 +32,11 @@ if __name__ == '__main__':
     figure, axes = pl.subplots(K, K, figsize=(dim, dim))
     axes         = figure.axes
     '''
-    for getredshift, reverse, color in zip([3.963392, 3.00307], [True, False], ['green', 'dodgerblue']):
+    for getredshift, reverse, color in zip([2.024621, 3.00307, 3.963392, 5.0244], [False] * 3, ['yellow', 'dodgerblue', 'green', 'brickred']):
+        pl.clf()
+
+        print('Solving for z={}.'.format(getredshift))
+        
         ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
         boxsize     =  100.
         f, p        =  get_data(boxsize, getredshift)
@@ -83,7 +87,7 @@ if __name__ == '__main__':
         ##  Quantiles=[0.16, 0.5, 0.84];  **hist_kwargs
         figure      = corner.corner(toplot, bins=10, labels=[r"$\log_{10}(M_h)$", r"$\log_{10}(M_*)$", r"$M_{UV}$", r"$\log_{10}$(SFR)", r"$i_{AB}$"], show_titles=False,\
                                     title_kwargs={"fontsize": 12}, use_math_text=False, plot_contours=False, smooth=None, plot_density=False, reverse=reverse, hist_kwargs=hist_kwargs, **hist_kwargs)
-    
-    pl.savefig('plots/cornerplot.pdf')
+        
+        pl.savefig('plots/cornerplot_z{}.pdf'.format(np.round(getredshift).astype(np.int)))
     
     print('\n\nDone.\n\n')
