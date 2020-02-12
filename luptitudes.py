@@ -6,7 +6,7 @@ import pylab as pl
 def luptitude(F, SigF):
   ##  Luptitudes, https://arxiv.org/pdf/astro-ph/9903081.pdf
   ##  Note:  x = F / F0, where F0 is the flux of a zero mag. object.
-  a     = 2.500 * np.log10(np.exp(1))
+  a     = 2.5 * np.log10(np.exp(1))
   F0    = 10. ** (-48.60 / 2.5)
 
   x     = F / F0

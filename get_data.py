@@ -8,6 +8,7 @@ import  astropy.io.fits as      fits
 from    scipy.spatial   import  KDTree 
 from    itertools       import  product
 from    astropy.table   import  Table
+from    hildebrandt     import  ferr
 
 
 snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
@@ -53,6 +54,46 @@ def get_data(boxsize, getredshift, printit=False):
 
     return f, p 
 
+def get_phys(boxsize, getredshift, printit=False):
+    f, p                     = get_data(boxsize, getredshift, printit=printit)
+
+    to_return                = {}
+    
+    ##                                                                                                                                                                                                                              
+    to_return['gid']         =  f['galaxy_data']['GroupID'][:]
+    to_return['iscentral']   =  f['galaxy_data']['central'][:]
+    to_return['haloindex']   =  f['galaxy_data']['parent_halo_index'][:]
+    to_return['cid']         =  p['CAESAR_ID'][:]
+    
+    ##  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'                                                                                                                                                           
+    to_return['MUV']         =  p['absmag_19'][:]
+
+    ## Ignore photometry that's not in the pyloser files.
+    ## to_return['lsstu']    =  p['appmag_28'][:]
+    ## to_return['lsstg']    =  p['appmag_29'][:]
+    ## to_return['lsstr']    =  p['appmag_30'][:]
+    ## to_return['lssti']    =  p['appmag_31'][:]
+
+    ##                                                                                                                                                                                                                              
+    to_return['sfr']         =  f['galaxy_data']['sfr'][:]
+
+    to_return['smass_res']   =  1.82e7                                ##  [Solar masses].
+
+    to_return['stellarmass'] =  f['galaxy_data']['nstar'][:] * to_return['smass_res']
+    to_return['ssfr']        =  to_return['sfr'] / to_return['stellarmass']
+    
+    ##                                                                                                                                                                                                                              
+    to_return['hid']         =  f['halo_data']['GroupID'][:]
+    to_return['ndm']         =  f['halo_data']['ndm'][:]
+
+    ##  DM particle mass: 9.6e7 [Solar Mass]                                                                                                                                                                                        
+    to_return['dm_pmass']    =  9.6e7
+    to_return['_hmass']      =  to_return['ndm'] * to_return['dm_pmass']
+    to_return['hmass']       =  np.array([to_return['_hmass'][to_return['hid'] == x][0] for x in to_return['haloindex']])
+
+    return  to_return  
+    
+
 def get_caesar(boxsize, redshift, load_halo=False):
     #  0.330620   2.024621  078
     #  0.249808   3.003070  062
@@ -76,15 +117,59 @@ def get_pyloser(boxsize, redshift, printit=False):
     fpath = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
     
     links = h5py.File(fpath, 'r')
+    attrs = links.attrs.items()
     
-    bands = list(links.attrs.items()[14][1])
-
+    bands = list(attrs[14][1])
+    
     if printit:
+        for x in attrs:
+            print(x)
+        
         for x in bands:
             print(x)
+                        
+    return  links['mag_wavelengths'][:], pd.DataFrame(data=links['appmag'][:], columns=bands)
+
+def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
+    from  depths  import  get_depths
+
+
+    depths       = get_depths()
     
-    return  pd.DataFrame(data=links['appmag'][:], columns=bands)
+    wave, frame  = get_pyloser(boxsize, redshift, printit=printit)
+
+    wave         = dict(zip(frame.columns, wave))
     
+    retain       = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+    frame        = frame[retain]
+    frame        = frame[:nrows]
+
+    wave         = dict(zip(retain, [wave[x] for x in retain]))
+    
+    for band in retain:
+      print('Solving for {}.'.format(band))
+
+      b                               = band.split('_')[-1]
+      
+      frame['FLAMBDA_' + b]           = np.zeros_like(frame[band])          ##  Fv [ergs/s/cm2/Hz].
+      frame['FLAMBDAERR_' + b]        = np.zeros_like(frame[band])
+      
+      for i, y in enumerate(frame[band]):  
+        frame['FLAMBDA_' + b][i]      = 10. ** (-(y + 48.60) / 2.5)
+        frame['FLAMBDAERR_' + b][i]   = ferr(y, depths[band], estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None)
+
+        # Fv to Fl conversion.
+        frame['FLAMBDA_' + b][i]     *= 2.9979e8 / wave[band] / wave[band]  ##  Fl [ergs/s/cm2/A].
+        frame['FLAMBDAERR_' + b][i]  *= 2.9979e8 / wave[band] / wave[band]
+
+        frame['FLAMBDA_' + b][i]     *= 1.0e18                              ##  1.e-18  Fl [ergs/s/cm2/A].
+        frame['FLAMBDAERR_' + b][i]  *= 1.0e18 
+        
+      del frame[band]
+        
+    return wave, frame
+
+      
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')
 
@@ -108,8 +193,13 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    # links = get_caesar(boxsize, 2.024621)
+    # links       = get_caesar(boxsize, 2.024621)
 
-    links = get_pyloser(boxsize, 2.024621, printit=True)   
+    # wave, frame = get_pyloser(boxsize, 2.024621, printit=True)
+    wave, links   = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
+
+    # result      = get_phys(boxsize, 2.024621, printit=False)
+
+    print(links)
     
     print('\n\nDone.\n\n')

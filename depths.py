@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 
 def  get_depths():
-    depths      = OrderedDict()
+    depths           = OrderedDict()
     
     ##  LSST-Y10                                                                                                                                  
     depths['LSST_u'] = 27.00 # 25.30

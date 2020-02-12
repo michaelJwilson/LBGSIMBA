@@ -13,6 +13,7 @@ from    utils             import  latexify
 from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
 from    color_box         import  color_box
+from    get_data          import  get_phys
 
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
@@ -21,11 +22,21 @@ boxsize      =  100.
 ##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]
 ##  Available snapshots: ['062',   '078',    '051',    '042']
 
-two          =  get_pyloser(boxsize, 2.024621)
-three        =  get_pyloser(boxsize, 3.003070)                       
-four         =  get_pyloser(boxsize, 3.963392)
-five         =  get_pyloser(boxsize, 5.024400)
+redshifts    = [2.024621, 3.00307, 3.963392, 5.0244]
 
+two          =        get_pyloser(boxsize, 2.024621)
+three        =        get_pyloser(boxsize, 3.003070)                       
+four         =        get_pyloser(boxsize, 3.963392)
+five         =        get_pyloser(boxsize, 5.024400)
+
+prop         =  'hmass'  ## 'smass'  
+
+phys2        =  get_phys(boxsize, 2.024621)['hmass']
+phys3        =	get_phys(boxsize, 3.003070)['hmass']
+phys4        =	get_phys(boxsize, 3.963392)['hmass']
+phys5        =	get_phys(boxsize, 5.024400)['hmass']
+
+##
 umg2         =  two['LSST_u'].values   - two['LSST_g'].values
 gmr2         =  two['LSST_g'].values   - two['LSST_r'].values
 
@@ -46,10 +57,12 @@ fig, axes    = plt.subplots(nrows=1, ncols=4, sharey=False)
 
 plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
 
-fast_scatter(axes[0], gmr2, umg2, np.ones_like(gmr2), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
-fast_scatter(axes[1], gmr3, umg3, np.ones_like(gmr3), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
-fast_scatter(axes[2], rmi4, gmr4, np.ones_like(rmi4), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
-fast_scatter(axes[3], imz5, rmi5, np.ones_like(imz5), 0.9, 1.1, 10, markersize=0.1, cmap='autumn_r', printit=False, alpha=1.0)
+cmap = 'viridis'
+
+fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+fast_scatter(axes[2], rmi4, gmr4, np.log10(phys4), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+fast_scatter(axes[3], imz5, rmi5, np.log10(phys5), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 
 color_box(axes[1], 'u')
 color_box(axes[2], 'g')
@@ -79,7 +92,7 @@ for ax in axes:
   ax.set_ylim(-1.0, 3.55)
 
   ax.legend(frameon=False, loc=1)
-  
+
 plt.tight_layout()
 
 pl.savefig('plots/colorcolor.png')
