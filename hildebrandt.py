@@ -1,6 +1,4 @@
-import  matplotlib;  matplotlib.use('PDF')
 import  numpy as np
-import  pylab as pl
 
 
 @np.vectorize
@@ -40,6 +38,9 @@ def snr(m, mstar, estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None):
 
 
 if __name__ == '__main__':
+  import  matplotlib;  matplotlib.use('PDF')
+  import  pylab as pl
+
   ms = np.arange(16., 29., 0.1)
     
   for mstar in [27., 26., 25.]:
