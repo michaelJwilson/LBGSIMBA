@@ -15,13 +15,7 @@ from    fithod         import  cen_model, sat_model
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
-if __name__ == '__main__':
-    print('\n\nWelcome to Simba HOD.')
-
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-    boxsize     =  100.
-    getredshift =  3.00307
-
+def run_hod(boxsize=100., getredshift=3.00307):
     f, p        =  get_data(boxsize, getredshift)
     
     ##
@@ -39,6 +33,7 @@ if __name__ == '__main__':
     
     ##  Basic galaxy stats.
     print('\n\n')
+    print('For redshifts:  {}'.format(getredshift))
     print('Number of galaxies found:   {}'.format(len(iscentral)))
     print('Number of centrals found:   {}'.format(np.sum(iscentral)))
     print('Number of satellites found: {}'.format(np.sum(1 - iscentral)))
@@ -72,7 +67,8 @@ if __name__ == '__main__':
       result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]).astype(np.float), 'sat': np.sum(1 - iscentral[gsample]).astype(np.float), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
   
       print(result[i])
-    
+
+    '''
     ##  Plot best-fit models.
     ordinate  = np.logspace(10., 15., num=200)
     
@@ -81,7 +77,8 @@ if __name__ == '__main__':
 
     satparams = np.loadtxt('dat/hod-ns-params.txt')
     pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
-      
+    '''
+
     ##
     masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
     expcen = np.array([result[key]['cen'] / result[key]['nhalos'] for key in range(len(bins))])
@@ -105,8 +102,18 @@ if __name__ == '__main__':
     plt.tight_layout()
     
     pl.savefig('plots/hod.pdf')
-
+    
     ##  Write results.
-    np.savetxt('dat/hod.txt', np.c_[masses, expcen, expsat], fmt='%.6le')
+    np.savetxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), np.c_[masses, expcen, expsat], fmt='%.6le')
 
+
+if __name__ == '__main__':
+    print('\n\nWelcome to Simba HOD.')
+
+    redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
+
+    for redshift in redshifts:
+        run_hod(100., getredshift=redshift)
+    
     print('\n\nDone.\n\n')
+    

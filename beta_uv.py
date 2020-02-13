@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     boxsize        = 100.
 
-    nrows          = -1
+    nrows          = 250
 
     ##  [2.024621, 3.003070, 3.963392]
     redshift       = 3.963392
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     pl.xlabel(r'$\log_{10}|f_0|$')
     pl.ylabel(r'$\beta$')
 
-    plt.tight_layout()
+    ##  plt.tight_layout()
     
     pl.savefig('plots/beta.pdf')
     

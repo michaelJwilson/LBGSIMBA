@@ -50,8 +50,8 @@ def latexify(fig_width=None, fig_height=None, columns=1, equal=False, fontsize=1
     mpl.rc('text', usetex = usetex)
 
     if fig_width is None:
-        fig_width = 6.08948 if columns == 2 else 6.08948 / 2.  ##  width in inches
-
+        fig_width = 6.9738 if columns == 2 else 6.9738 / 2.  ##  width in inches
+        
     if fig_height is None:
       if equal is False:
         if ratio is None:
