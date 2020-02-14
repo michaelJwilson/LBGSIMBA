@@ -58,7 +58,9 @@ t0         = time.time()
 
 ##  Simba. 
 cols       = ['x', 'y', 'z']
-tracer     =  'g' # ['dm', 'g']
+
+##  ['dm', 'g']    
+tracer     =  'dm'
 
 for x in snaps.keys():
     if compute:
@@ -112,7 +114,7 @@ for x in snaps.keys():
         if ell == 0:
           P    = P - poles.attrs['shotnoise']
 
-        np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])            
+        np.savetxt('dat/{}pk_{:.5f}.txt'.format(tracer, x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
         # np.savetxt('dat/abacus_pk_100.txt', np.c_[k, P]) 
         
 

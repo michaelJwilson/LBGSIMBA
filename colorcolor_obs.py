@@ -12,7 +12,7 @@ from    get_data          import  get_data
 from    utils             import  latexify
 from    luptitudes        import  luptitude, lup_lim
 from    hildebrandt       import  ferr
-from    depths            import  get_depths
+from    depths            import  get_depths, get_depths27
 from    scipy.stats       import  norm       as normal_rand
 from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
@@ -26,7 +26,7 @@ boxsize      =  100.
 
 depths       =  get_depths()
 
-nrows        =  -1
+nrows        =  50
 prop         =  'hmass'  ## 'smass'     
 
 wave, two    =  get_pyloser(boxsize, 2.024621, nrows=nrows)
@@ -96,13 +96,36 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four
 
       count += 1
 
-  print('\n\n')
-  print(x)
 
+physs  = {}
+frames = {}
+      
 ##  Sufficiently detected. 
-for frame in [two, three, four, five]:
-  isin       = [len(x) >= 1 for x in two['ISIN']]
-  frame      = frame.loc[isin, :]
+for name, frame, phys in zip(['two', 'three', 'four', 'five'], [two, three, four, five], [phys2, phys3, phys4, phys5]):
+  isin              = [len(x) >= 1 for x in frame['ISIN']]
+  frame['INSAMPLE'] = isin
+
+  frame.to_pickle('bigdat/{}.pkl'.format(name))
+  
+  frame             = frame.loc[isin, :]
+
+  print('\n\n')
+  print(frame)
+
+  physs[name]       = phys
+  frames[name]      = frame 
+
+##
+two          =  frames['two']
+three        =  frames['three']
+four         =  frames['four']
+five         =  frames['five']
+
+phys2        =  physs['two']
+phys3        =	physs['three']
+phys4        =	physs['four']
+phys5        =	physs['five']
+
 
 ##
 umg2         =  two['LUP_LSST_u'].values   - two['LUP_LSST_g'].values
@@ -128,10 +151,10 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap         = 'viridis'
 
-axes[0].plot(gmr2, umg2, marker='.', c='k', lw=0, markersize=1)
-axes[1].plot(gmr3, umg3, marker='.', c='k', lw=0, markersize=1)
-axes[2].plot(rmi4, gmr4, marker='.', c='k', lw=0, markersize=1)
-axes[3].plot(imz5, rmi5, marker='.', c='k', lw=0, markersize=1)
+axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=1, cmap=cmap)
+axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=1, cmap=cmap)
+axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=1, cmap=cmap)
+axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=1, cmap=cmap)
 
 #fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)

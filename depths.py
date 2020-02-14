@@ -32,3 +32,16 @@ def  get_depths():
     depths['ACS_F850LP'] = 27.0
 
     return  depths
+
+def get_depths27():
+    depths           = OrderedDict()
+
+    ##  LSST-Y10                                                                                                                                                                                                                                                                                                                                                                                                         
+    depths['LSST_u'] = 27.00
+    depths['LSST_g'] = 27.00
+    depths['LSST_r'] = 27.00
+    depths['LSST_i'] = 27.00
+    depths['LSST_z'] = 27.00
+    depths['LSST_y'] = 27.00
+
+    return  depths
