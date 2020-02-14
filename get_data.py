@@ -54,7 +54,7 @@ def get_data(boxsize, getredshift, printit=False):
 
     return f, p 
 
-def get_phys(boxsize, getredshift, printit=False):
+def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     f, p                     = get_data(boxsize, getredshift, printit=printit)
 
     to_return                = {}
@@ -91,6 +91,10 @@ def get_phys(boxsize, getredshift, printit=False):
     to_return['_hmass']      =  to_return['ndm'] * to_return['dm_pmass']
     to_return['hmass']       =  np.array([to_return['_hmass'][to_return['hid'] == x][0] for x in to_return['haloindex']])
 
+    for key in to_return.keys():
+      if key not in ['smass_res', 'dm_pmass']:    
+        to_return[key]       =  to_return[key][:nrows] 
+    
     return  to_return  
     
 
@@ -109,7 +113,7 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1):
     #  Currently, photometry only. 
     root  = '/home/mjwilson/LBGSIMBA/100/'
     snap  = snaps[redshift]
@@ -120,6 +124,13 @@ def get_pyloser(boxsize, redshift, printit=False):
     attrs = links.attrs.items()
     
     bands = list(attrs[14][1])
+
+
+    frame  = pd.DataFrame(data=links['appmag'][:], columns=bands) 
+    
+    retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+    frame  = frame[retain]
+    frame  = frame[:nrows]
     
     if printit:
         for x in attrs:
@@ -128,7 +139,7 @@ def get_pyloser(boxsize, redshift, printit=False):
         for x in bands:
             print(x)
                         
-    return  links['mag_wavelengths'][:], pd.DataFrame(data=links['appmag'][:], columns=bands)
+    return  links['mag_wavelengths'][:], frame
 
 def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     from  depths  import  get_depths
