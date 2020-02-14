@@ -2,6 +2,7 @@ import  matplotlib;  matplotlib.use('PDF')
 
 import  glob
 import  h5py
+import  pandas            as      pd
 import  numpy             as      np
 import  pylab             as      pl
 import  matplotlib.pyplot as      plt
@@ -16,38 +17,48 @@ from    sphotometry       import  read_mags
 boxsize      =  100.              ##  Mpc/h.
 vol          =  boxsize ** 3.
 
-dMUV         =  0.2
+dMUV         =  0.3
 bins         =  np.arange(-23., -11.5, dMUV)
 
 print('\n\nWelcome to Simba UV luminosity.')
 
-for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-  ##  'UV':  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'
-  _, boxsize, nbands, ngal, sfr, LyC, mformed, mstar, L_FIR, meanage, Zstar, A_V, mag, mag_nd = read_mags(snaps[redshift], infile=None, magcols=None, SUFF='abs')
+for redshift, name in zip([2.024621, 3.00307, 3.963392, 5.0244], ['two', 'three', 'four', 'five']):
+  wave, frame   =  get_pyloser(boxsize, redshift, nrows=50, magtype='abs')
   
-  blumuv       =  np.digitize(mag['UV'][mag['UV'] >= bins[0]], bins=bins, right=False)
-
-  ubins, cnts  =  np.unique(blumuv, return_counts=True)
-
-  cnts         =   cnts[ubins < len(bins)]
-  ubins        =  ubins[ubins < len(bins)]
   
-  missing      =  np.setdiff1d(np.arange(len(bins)), ubins)
+  print(ngal)
 
-  ubins        =  np.concatenate([ubins, missing])
-  cnts         =  np.concatenate([cnts,  np.zeros_like(missing)])
-
-  sortind      =  np.argsort(ubins)    
-
-  ubins        =  ubins[sortind]
-  cnts         =  cnts[sortind]
-
-  cnts         =  cnts / dMUV
+  exit(1)
   
-  assert  len(ubins) == len(bins)
+  ##  Read sample selection.
+  lsst_sample   =  pd.read_pickle("bigdat/{}.pkl".format(name))
+  isin          =  lsst_sample['INSAMPLE'].values
   
-  pl.plot(bins + dMUV/2., np.log10(cnts / vol), lw=1, alpha=0.8, label='$z$ = %.2lf' % redshift)
+  for x, alpha, label in zip([mag['UV'], mag['UV'][isin]], [0.5, 1.0], ['', '$z$ = %.2lf' % redshift]):
+    blumuv      =  np.digitize(x[x >= bins[0]], bins=bins, right=False)
+
+    ubins, cnts =  np.unique(blumuv, return_counts=True)
+
+    cnts         =   cnts[ubins < len(bins)]
+    ubins        =  ubins[ubins < len(bins)]
+    
+    missing      =  np.setdiff1d(np.arange(len(bins)), ubins)
+
+    ubins        =  np.concatenate([ubins, missing])
+    cnts         =  np.concatenate([cnts,  np.zeros_like(missing)])
+
+    sortind      =  np.argsort(ubins)    
+
+    ubins        =  ubins[sortind]
+    cnts         =  cnts[sortind]
+
+    cnts         =  cnts / dMUV
   
+    assert  len(ubins) == len(bins)
+  
+    pl.plot(bins + dMUV/2., np.log10(cnts / vol), lw=1, alpha=alpha, label=label)
+
+    
 pl.legend(loc=4, frameon=False, handlelength=1)
   
 pl.xlim(-22., -16.)

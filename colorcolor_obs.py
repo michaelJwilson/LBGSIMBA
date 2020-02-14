@@ -30,14 +30,15 @@ nrows        =  -1
 prop         =  'hmass'  ## 'smass'     
 
 wave, two    =  get_pyloser(boxsize, 2.024621, nrows=nrows)
+
 wave, three  =  get_pyloser(boxsize, 3.003070, nrows=nrows)
 wave, four   =  get_pyloser(boxsize, 3.963392, nrows=nrows)
 wave, five   =  get_pyloser(boxsize, 5.024400, nrows=nrows)
 
-phys2        =  get_phys(boxsize, 2.024621, nrows=nrows)['hmass']
-phys3        =  get_phys(boxsize, 3.003070, nrows=nrows)['hmass']
-phys4        =  get_phys(boxsize, 3.963392, nrows=nrows)['hmass']
-phys5        =  get_phys(boxsize, 5.024400, nrows=nrows)['hmass']
+phys2        =     get_phys(boxsize, 2.024621, nrows=nrows)['hmass']
+phys3        =     get_phys(boxsize, 3.003070, nrows=nrows)['hmass']
+phys4        =     get_phys(boxsize, 3.963392, nrows=nrows)['hmass']
+phys5        =     get_phys(boxsize, 5.024400, nrows=nrows)['hmass']
 
 ##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]                                                                                                                                                                        
 ##  Available snapshots: ['062',   '078',    '051',    '042']

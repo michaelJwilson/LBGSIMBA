@@ -68,21 +68,21 @@ def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     ##  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'                                                                                                                                                           
     to_return['MUV']         =  p['absmag_19'][:]
 
-    ## Ignore photometry that's not in the pyloser files.
+    ## Ignore photometry that's not in the files.
     ## to_return['lsstu']    =  p['appmag_28'][:]
     ## to_return['lsstg']    =  p['appmag_29'][:]
     ## to_return['lsstr']    =  p['appmag_30'][:]
     ## to_return['lssti']    =  p['appmag_31'][:]
 
     ##                                                                                                                                                                                                                              
-    to_return['sfr']         =  f['galaxy_data']['sfr'][:]
+    to_return['sfr']         =  f['galaxy_data']['sfr'][:] * 1.e9     ##  [Solar masses / Gyr].
 
     to_return['smass_res']   =  1.82e7                                ##  [Solar masses].
 
     to_return['stellarmass'] =  f['galaxy_data']['nstar'][:] * to_return['smass_res']
-    to_return['ssfr']        =  to_return['sfr'] / to_return['stellarmass']
+    to_return['ssfr']        =  to_return['sfr'] / to_return['stellarmass'] 
     
-    ##                                                                                                                                                                                                                              
+    ##                                                                                                                                                                                                         
     to_return['hid']         =  f['halo_data']['GroupID'][:]
     to_return['ndm']         =  f['halo_data']['ndm'][:]
 
@@ -99,6 +99,8 @@ def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     
 
 def get_caesar(boxsize, redshift, load_halo=False):
+    #  https://caesar.readthedocs.io/en/latest/usage.html
+    #
     #  0.330620   2.024621  078
     #  0.249808   3.003070  062
     #  0.201475   3.963392  051
@@ -113,7 +115,7 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False, nrows=-1):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     #  Currently, photometry only. 
     root  = '/home/mjwilson/LBGSIMBA/100/'
     snap  = snaps[redshift]
@@ -121,15 +123,16 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1):
     fpath = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
     
     links = h5py.File(fpath, 'r')
+    
     attrs = links.attrs.items()
     
     bands = list(attrs[14][1])
 
-
-    frame  = pd.DataFrame(data=links['appmag'][:], columns=bands) 
+    frame  = pd.DataFrame(data=links['{}mag'.format(magtype)][:], columns=bands) 
     
     retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
 
+    
     frame  = frame[retain]
     frame  = frame[:nrows]
     
@@ -211,15 +214,12 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    # links       = get_caesar(boxsize, 2.024621)
+    links         = get_caesar(boxsize, 2.024621)
 
-    wave, frame   = get_pyloser(boxsize, 2.024621, printit=True)
-    #wave, links  = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
+    # links       = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
+    # wave, links = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result      = get_phys(boxsize, 2.024621, printit=False)
 
-    print(wave)
-
-    print(frame)
-    
+        
     print('\n\nDone.\n\n')

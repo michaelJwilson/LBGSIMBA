@@ -24,17 +24,18 @@ boxsize      =  100.
 
 redshifts    = [2.024621, 3.00307, 3.963392, 5.0244]
 
-two          =        get_pyloser(boxsize, 2.024621)
-three        =        get_pyloser(boxsize, 3.003070)                       
-four         =        get_pyloser(boxsize, 3.963392)
-five         =        get_pyloser(boxsize, 5.024400)
+nrows        =  -1
+prop         =  'hmass'  ## 'smass'
 
-prop         =  'hmass'  ## 'smass'  
+wave, two    =  get_pyloser(boxsize, 2.024621, nrows=nrows)
+wave, three  =  get_pyloser(boxsize, 3.003070, nrows=nrows)
+wave, four   =  get_pyloser(boxsize, 3.963392, nrows=nrows)
+wave, five   =  get_pyloser(boxsize, 5.024400, nrows=nrows)
 
-phys2        =  get_phys(boxsize, 2.024621)['hmass']
-phys3        =	get_phys(boxsize, 3.003070)['hmass']
-phys4        =	get_phys(boxsize, 3.963392)['hmass']
-phys5        =	get_phys(boxsize, 5.024400)['hmass']
+phys2        =  get_phys(boxsize, 2.024621, nrows=nrows)['hmass']
+phys3        =  get_phys(boxsize, 3.003070, nrows=nrows)['hmass']
+phys4        =  get_phys(boxsize, 3.963392, nrows=nrows)['hmass']
+phys5        =  get_phys(boxsize, 5.024400, nrows=nrows)['hmass']
 
 ##
 umg2         =  two['LSST_u'].values   - two['LSST_g'].values
@@ -59,10 +60,15 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap = 'viridis'
 
-fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-fast_scatter(axes[2], rmi4, gmr4, np.log10(phys4), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-fast_scatter(axes[3], imz5, rmi5, np.log10(phys5), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+
+#fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+#fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+#fast_scatter(axes[2], rmi4, gmr4, np.log10(phys4), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+#fast_scatter(axes[3], imz5, rmi5, np.log10(phys5), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 
 color_box(axes[1], 'u')
 color_box(axes[2], 'g')
@@ -88,8 +94,8 @@ for ax in axes:
   ax.spines['left'].set_color('black')
   ax.spines['right'].set_color('black')
 
-  ax.set_xlim(-1.5, 1.5)
-  ax.set_ylim(-1.0, 3.55)
+  ax.set_xlim(-1.5, 2.00)
+  ax.set_ylim(-2.0, 3.55)
 
   ax.legend(frameon=False, loc=1)
 

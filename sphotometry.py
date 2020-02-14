@@ -1,15 +1,16 @@
 # Reads in the photometry files output by Loser (https://bitbucket.org/romeeld/closer/src/default/)
 # These are ASCII files, with suffix .app for apparent mags, .abs for absolute mags.
 
-import sys
-import os
-import pandas   as pd
-import pylab    as plt
-import numpy    as np
-import function as fu
-import caesar
+import  matplotlib;  matplotlib.use('PDF')
+import  sys
+import  os
+import  pandas    as      pd
+import  pylab     as      plt
+import  numpy     as      np
+import  function  as      fu
+import  caesar
 
-from   get_data import snaps
+from    get_data  import  snaps
 
 
 def read_mags(SNAP, infile=None, magcols=None, SUFF='app'):
@@ -17,7 +18,7 @@ def read_mags(SNAP, infile=None, magcols=None, SUFF='app'):
       infile   = '/home/rad/data/m100n1024/s50/Groups/loser_m100n1024_{}.{}'.format(SNAP, SUFF)
 
     if magcols == None:
-        # 1500A bandpass;  ugrizyYJH
+        #  1500A bandpass;  ugrizyYJH
         magcols = [19, 28, 29, 30, 31, 33, 32, 25, 26, 27]
 
     print('\nReading file: {}'.format(infile))

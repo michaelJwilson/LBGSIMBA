@@ -59,12 +59,10 @@ def sats(test, boxsize, redshift):
     ss          = np.array([np.sqrt(np.sum(x**2.)).value for x in svecs]) 
     ss          = np.sort(ss)
 
-    bins        = np.arange(0., 1.1, 0.05)
+    bins        = np.arange(0., 0.9, 0.075)
     cnts, _     = np.histogram(ss, bins=bins)
-
-    pl.loglog(bins[:-1], cnts, 'k-', label='{:.2f}'.format(redshift))
     
-    return  caesar
+    return  bins[:-1], cnts / 0.05
 
 
 if __name__ == '__main__':
@@ -75,13 +73,18 @@ if __name__ == '__main__':
     boxsize     =  100.           #  [Mpc/h];  hubble      =  0.68                                                                                                                                                                   
     vol         =  boxsize ** 3.
 
-    for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
-      caesar    = sats(test, boxsize, redshift)
-
-      break
+    colors      = plt.rcParams['axes.prop_cycle'].by_key()['color']
     
+    for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
+      rs, cnts  = sats(test, boxsize, redshift)
+
+      pl.loglog(rs, cnts, '-', c=colors[i], label='{:.2f}'.format(redshift))
+
+      np.savetxt('dat/sats_{:.3f}.txt'.format(redshift).replace('.', 'p'), np.c_[rs, cnts])
+      
     pl.xlabel(r'$r / r_{\rm{vir}}$')
-  
+    pl.ylabel(r'$dN_s / dr$')
+    
     pl.legend(frameon=False, loc=3)
   
     pl.savefig('plots/radial.pdf'.format(redshift))
