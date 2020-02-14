@@ -26,7 +26,7 @@ boxsize      =  100.
 
 depths       =  get_depths()
 
-nrows        =  50
+nrows        =  -1
 prop         =  'hmass'  ## 'smass'     
 
 wave, two    =  get_pyloser(boxsize, 2.024621, nrows=nrows)
@@ -112,7 +112,7 @@ for name, frame, phys in zip(['two', 'three', 'four', 'five'], [two, three, four
   print('\n\n')
   print(frame)
 
-  physs[name]       = phys
+  physs[name]       = phys[isin]
   frames[name]      = frame 
 
 ##
@@ -151,10 +151,10 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap         = 'viridis'
 
-axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=1, cmap=cmap)
-axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=1, cmap=cmap)
-axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=1, cmap=cmap)
-axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=1, cmap=cmap)
+axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
 
 #fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)

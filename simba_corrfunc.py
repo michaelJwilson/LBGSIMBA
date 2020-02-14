@@ -46,10 +46,12 @@ def calc_xi(test, boxsize, redshift):
     np.savetxt('dat/corrfuncxi_{:.3f}.txt'.format(redshift), np.c_[rs, results['xi']], fmt='%.6le')
     
 def plot_xi():
-    for redshift in [2.024621, 3.00307, 3.963392, 5.0244]:
+    colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+    for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
         rs, xi = np.loadtxt('dat/corrfuncxi_{:.3f}.txt'.format(redshift), unpack=True)
 
-        pl.loglog(rs, xi, lw=1, alpha=0.8, label='{:.2f}'.format(redshift))
+        pl.loglog(rs, xi, lw=0, alpha=0.8, label='{:.2f}'.format(redshift), c=colors[i], marker='^', markersize=3)
 
         # ZA
         iz     = int(100 * redshift + 0.001)
@@ -65,10 +67,10 @@ def plot_xi():
         _      = _[:,0:8]
         result = np.dot(_, cc)
         
-        pl.loglog(rs, result / rs / rs, lw=1, alpha=0.8, linestyle='--')
+        pl.loglog(rs, result / rs / rs, lw=1, alpha=0.8, linestyle='-', c=colors[i])
         
-    #pl.xlim(0.1,  60.5)
-    #pl.ylim(0.1,  2.e3)
+    pl.xlim(0.5,  10.**1.47)
+    pl.ylim(0.01, 5.e2)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')
