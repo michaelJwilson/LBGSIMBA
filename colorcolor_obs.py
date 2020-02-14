@@ -26,13 +26,13 @@ boxsize      =  100.
 
 depths       =  get_depths()
 
-wave, two    =  get_pyloser(boxsize, 2.024621, nrows=50)
-wave, three  =  get_pyloser(boxsize, 3.003070, nrows=50)
-wave, four   =  get_pyloser(boxsize, 3.963392, nrows=50)
-wave, five   =  get_pyloser(boxsize, 5.024400, nrows=50)
-
 nrows        =  -1
-prop         =  'hmass'  ## 'smass'
+prop         =  'hmass'  ## 'smass'     
+
+wave, two    =  get_pyloser(boxsize, 2.024621, nrows=nrows)
+wave, three  =  get_pyloser(boxsize, 3.003070, nrows=nrows)
+wave, four   =  get_pyloser(boxsize, 3.963392, nrows=nrows)
+wave, five   =  get_pyloser(boxsize, 5.024400, nrows=nrows)
 
 phys2        =  get_phys(boxsize, 2.024621, nrows=nrows)['hmass']
 phys3        =  get_phys(boxsize, 3.003070, nrows=nrows)['hmass']
@@ -44,22 +44,21 @@ phys5        =  get_phys(boxsize, 5.024400, nrows=nrows)['hmass']
 nruns        =  5 * (len(two['LSST_u'])  + len(three['LSST_u']) + len(four['LSST_u']) + len(five['LSST_u']))
 count        =  0
 
-bands        =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z']
+bands        =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
 
-for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.024400], [two, three, four, five]):
-  waves      = dict(zip(bands, wave))
+for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five]):
+  _, dbands   = det_bands(redshift, wave, bands, lim=1500.)
 
-  _, dbands  = det_bands(redshift, waves, bands, lim=1500.)
-
-  x['ISIN']  = np.ones_like(x['LSST_u'], dtype=bool)
-  x['SN2']   = np.zeros_like(x['LSST_u'])
+  x['DBANDS'] = ''.join(x.split('_')[-1] for x in dbands)
+  x['ISIN']   = np.array([''] * len(x['LSST_u']))
+  x['SNR2']   = np.zeros_like(x['LSST_u'])
   
   for band in bands:
     x['LUP_' + band]  = np.zeros_like(x[band])
 
     onesig            = onesig_mag(depths[band])                                                 ##  AB mags.
 
-    print('Solving for {} depth in {}.'.format(onesig, band))
+    print('Solving for {} depth in {} ({}).'.format(onesig, band, ''.join(x.split('_')[-1] for x in dbands)))
 
     ##  Magnitudes.
     x['FIVSIG_' + band] = depths[band]
@@ -87,11 +86,11 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.024400], [two, three, fo
         x.at[i, 'LUP_' + band]   = lup_lim(onesig)
 
       
-      x.at[i, 'SN2']            += (Flux / SigF)**2.
+      x.at[i, 'SNR2']           += (Flux / SigF)**2.
 
       if band in dbands:
         #  https://www.dataquest.io/blog/settingwithcopywarning/
-        x.at[i, 'ISIN']          =  x.at[i, 'ISIN'] & (x.at[i, band] <= depths[band]) 
+        x.at[i, 'ISIN']         +=  band.split('_')[-1] if (x.at[i, band] <= depths[band]).astype(np.int) else ''
       
       # print(100. * count / nruns)
 
@@ -99,6 +98,11 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.024400], [two, three, fo
 
   print('\n\n')
   print(x)
+
+##  Sufficiently detected. 
+for frame in [two, three, four, five]:
+  isin       = [len(x) >= 1 for x in two['ISIN']]
+  frame      = frame.loc[isin, :]
 
 ##
 umg2         =  two['LUP_LSST_u'].values   - two['LUP_LSST_g'].values
@@ -112,7 +116,8 @@ rmi4         =  four['LUP_LSST_r'].values  - four['LUP_LSST_i'].values
 
 imz5         =  five['LUP_LSST_i'].values  - five['LUP_LSST_z'].values
 rmi5         =  five['LUP_LSST_r'].values  - five['LUP_LSST_i'].values
-      
+
+
 ##
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
 
@@ -121,12 +126,12 @@ fig, axes    = plt.subplots(nrows=1, ncols=4, sharey=False)
 
 plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
 
-cmap = 'viridis'
+cmap         = 'viridis'
 
-axes[0].plot(gmr2, umg2, marker='.', c='k', lw=0, markersize=3)
-axes[1].plot(gmr3, umg3, marker='.', c='k', lw=0, markersize=3)
-axes[2].plot(rmi4, gmr4, marker='.', c='k', lw=0, markersize=3)
-axes[3].plot(imz5, rmi5, marker='.', c='k', lw=0, markersize=3)
+axes[0].plot(gmr2, umg2, marker='.', c='k', lw=0, markersize=1)
+axes[1].plot(gmr3, umg3, marker='.', c='k', lw=0, markersize=1)
+axes[2].plot(rmi4, gmr4, marker='.', c='k', lw=0, markersize=1)
+axes[3].plot(imz5, rmi5, marker='.', c='k', lw=0, markersize=1)
 
 #fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
@@ -157,8 +162,8 @@ for ax in axes:
   ax.spines['left'].set_color('black')
   ax.spines['right'].set_color('black')
 
-  #ax.set_xlim(-1.5, 1.5)
-  #ax.set_ylim(-1.0, 3.55)
+  ax.set_xlim(-1.5, 2.00)
+  ax.set_ylim(-2.0, 3.55)
 
   ax.legend(frameon=False, loc=1)
 

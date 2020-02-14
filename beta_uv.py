@@ -36,18 +36,26 @@ def minimize_chi(chi2, waves, flambdas, flambda_errs):
 
 def det_bands(redshift, wave, bands, lim=1500.):
   ##  Eqn. (1) of https://arxiv.org/pdf/1109.0994.pdf                                                                                                                                                                          
-  lowave  = lim * (1. + redshift)        ##  Angstroms
+  lowave  = lim * (1. + redshift)          ##  Angstroms
   
-  bands   = np.array(list(wave.keys()))  ##  Ordered.                                                                                                                                                                          
+  bands   = np.array(list(wave.keys()))    ##  Ordered.                                                                                                                                                                          
   waves   = np.array(list(wave.values()))
 
+  #print(bands)
+  #print(waves)
+  
   indx    = np.argsort(waves)
 
   waves   = waves[indx]
   bands   = bands[indx]
 
+  #print(waves)
+  #print(bands)
+  
   retain  = [True if wave[band] >= lowave else False for band in bands]
 
+  #print(retain)
+  
   ##  Observed. mags. not affectded by IGM (rest-framce wave > 1500. A).                                                                                                                                                       
   bands   = bands[retain]
   waves   = waves[retain]

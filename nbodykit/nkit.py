@@ -65,14 +65,14 @@ for x in snaps.keys():
       setup_logging()
 
       ##  Simba.
-      ##  kmin        = 0.1
-      ##  boxsize     = 100.
-      ##  cat         = get_simba(tracer, x)
+      kmin            = 0.01
+      boxsize         = 100.
+      cat             = get_simba(tracer, x)
 
       ##  Abacus
-      kmin            = 0.01
-      boxsize         = 100.  ##  Natural:  720.
-      cat             = get_abacus(bound=boxsize)
+      ##  kmin        = 0.01
+      ##  boxsize     = 100.  ##  Natural:  720.
+      ##  cat         = get_abacus(bound=boxsize)
       
       ##  Box size in Mpc/h.
       mesh            = cat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
@@ -100,9 +100,9 @@ for x in snaps.keys():
 
           print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
-      #np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
-      #np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
-      #np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
+      np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
+      np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
+      np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    
@@ -112,8 +112,8 @@ for x in snaps.keys():
         if ell == 0:
           P    = P - poles.attrs['shotnoise']
 
-        # np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])            
-        np.savetxt('dat/abacus_pk_100.txt', np.c_[k, P]) 
+        np.savetxt('dat/pk_{:.5f}.txt'.format(x), np.c_[k, P])            
+        # np.savetxt('dat/abacus_pk_100.txt', np.c_[k, P]) 
         
 
         

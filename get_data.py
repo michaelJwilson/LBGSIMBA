@@ -128,7 +128,8 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1):
 
     frame  = pd.DataFrame(data=links['appmag'][:], columns=bands) 
     
-    retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+    retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
+
     frame  = frame[retain]
     frame  = frame[:nrows]
     
@@ -138,8 +139,14 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1):
         
         for x in bands:
             print(x)
-                        
-    return  links['mag_wavelengths'][:], frame
+
+    sel    = [x in retain for x in bands]
+    bands  = np.array(bands)[sel]
+
+    waves  = np.array(links['mag_wavelengths'])[sel]
+    waves  = dict(zip(bands, waves))
+            
+    return  waves, frame
 
 def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     from  depths  import  get_depths
@@ -206,11 +213,13 @@ if __name__ == '__main__':
 
     # links       = get_caesar(boxsize, 2.024621)
 
-    # wave, frame = get_pyloser(boxsize, 2.024621, printit=True)
-    wave, links   = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
+    wave, frame   = get_pyloser(boxsize, 2.024621, printit=True)
+    #wave, links  = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result      = get_phys(boxsize, 2.024621, printit=False)
 
-    print(links)
+    print(wave)
+
+    print(frame)
     
     print('\n\nDone.\n\n')

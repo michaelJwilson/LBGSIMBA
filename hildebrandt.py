@@ -1,7 +1,4 @@
-import  matplotlib;  matplotlib.use('PDF')
 import  numpy as     np
-
-from    utils import latexify
 
 
 @np.vectorize
@@ -52,6 +49,8 @@ if __name__ == '__main__':
   import  matplotlib;  matplotlib.use('PDF')
   import  pylab as pl
 
+  from    utils import latexify
+  
 
   latexify(columns=1, equal=True, fontsize=8, ggplot=True, usetex=True)
 
