@@ -17,7 +17,7 @@ def print_keys(arg):
     print('\n\nAvailable keys for {}:\n{}'.format(arg, arg.keys()))
 
 def get_data(boxsize, getredshift, printit=False):
-    ##  Find the snapshot file closest to the desired redshift, getredshift. 
+    ##  Find the CAESAR snapshot file closest to the desired redshift, getredshift. 
     files      = glob.glob('/home/mjwilson/LBGSIMBA/100/m100n1024_*.hdf5')
     snapshots  = [int(x.split('/')[-1].split('_')[-1].split('.hdf5')[0]) for x in files]
     sortind    = np.argsort(snapshots)
@@ -35,6 +35,8 @@ def get_data(boxsize, getredshift, printit=False):
     parts      = getfile.split('/')
     file       = parts[-1]
     rpath      = '/'.join(parts[:-1])
+
+    ##  DEPRECATED:  use pyloser instead of phot. 
     photfile   = rpath + '/phot_' + file
 
     print('\n\nGetting snapshot {} for redshift {}.'.format(snapshots[index[0]], getredshift))
@@ -43,16 +45,16 @@ def get_data(boxsize, getredshift, printit=False):
 
     ##  Extract desired data from this redshift snapshot. 
     f          = h5py.File(getfile)
-    p          = h5py.File(photfile)
+    _          = h5py.File(photfile)
 
     if printit:
         print_keys(f)
         print_keys(f['galaxy_data'])
         print_keys(f['halo_data'])
     
-        print_keys(p)
+        print_keys(_)
 
-    return f, p 
+    return f, _
 
 def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     f, p                     = get_data(boxsize, getredshift, printit=printit)
