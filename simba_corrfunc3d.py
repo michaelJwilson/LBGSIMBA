@@ -18,28 +18,45 @@ from    Corrfunc.utils      import  convert_3d_counts_to_cf
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
+def get_abacus(bound=720.):
+    from   AbacusCosmos      import Halos
+
+    
+    fpath           = '/disk01/mjwilson/abacus/AbacusCosmos_720box_planck_products/AbacusCosmos_720box_planck_00-0_products/AbacusCosmos_720box_planck_00-0_FoF_halos/z1.500'
+
+    # The path to the catalog will be different on your system                                                                                                                                                                     
+    cat             = Halos.make_catalog_from_dir(dirname=fpath, load_subsamples=False, load_pids=False, halo_type='FoF')
+
+    halos           = cat.halos
+    
+    ##  [-360., 360.] to [0., 720.]
+    halos['pos']    = halos['pos'] + 360.
+
+    isin            = (halos['pos'][:,0] <= bound) & (halos['pos'][:,1] <= bound) & (halos['pos'][:,2] <= bound)
+    sample          =  halos['pos'][isin]
+
+    assert  sample.max() <= bound
+
+    return  sample
+
 def calc_xi(test, boxsize, redshift):    
     caesar      =  get_caesar(boxsize, redshift)
 
     # comoving Mpc/h. 
     pos         =  np.array([list(x.pos.to('Mpc/h')) for x in caesar.galaxies])
     iscentral   =  np.array([x.central               for x in caesar.galaxies]).astype(np.int)
+       
+    pos         =  get_abacus()
     
-    ##  Basic stats.
-    print('\n\nNumber of galaxies found: {}'.format(len(iscentral)))
-
-    print('Number of centrals found: {}'.format(np.sum(iscentral)))
-    print('Number of satellites found: {}'.format(np.sum(1. - iscentral)))
-            
     if test:
-      pos = pos[:100]
-
+      pos = pos[:10000]
+      
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
     nbar        =  ngal / vol
                 
     ##
-    bins        = np.logspace(0., 1.47, 25)
+    bins        = np.arange(0.1, 25., 0.5)
     rs          = (bins[:-1] + bins[1:]) / 2.
 
     ##  Randoms                                                                                                                                                                                              
@@ -58,7 +75,6 @@ def calc_xi(test, boxsize, redshift):
     # Distances along the :math:\pi direction are binned with unit depth. For instance, if pimax=40, then 40 bins will be created along the pi direction.
     DD          = Corrfunc.theory.DDrppi(X1=pos[:,0],  Y1=pos[:,1],  Z1=pos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
     RR          = Corrfunc.theory.DDrppi(X1=rpos[:,0], Y1=rpos[:,1], Z1=rpos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
-
     DR          = Corrfunc.theory.DDrppi(X1=pos[:,0], Y1=pos[:,1], Z1=pos[:,2], X2=rpos[:,0], Y2=rpos[:,0], Z2=rpos[:,0], pimax=25., periodic=True,\
                                          boxsize=boxsize, nthreads=4, binfile=bins, autocorr=False, output_rpavg=True)
 
@@ -68,7 +84,10 @@ def calc_xi(test, boxsize, redshift):
     pis         = np.array([x['pimax'] for x in RR]) - 0.5
     
     ##  Save result:
-    np.savetxt('dat/corrfunc3dxi_{:.3f}.txt'.format(redshift), np.c_[rps, pis, xi], fmt='%.6le')
+    ##  np.savetxt('dat/corrfunc3dxi_{:.3f}.txt'.format(redshift), np.c_[rps, pis, xi], fmt='%.6le')
+
+    ##  Abacus
+    np.savetxt('dat/corrfunc3dxi_abacus.txt', np.c_[rps, pis, xi], fmt='%.6le')   
     
 def plot_xi():
     colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -110,7 +129,7 @@ def plot_xi():
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
-    test        =  False
+    test        = False
 
     #  [Mpc/h];  hubble      =  0.68  
     boxsize     =  100.     
@@ -120,6 +139,8 @@ if __name__ == '__main__':
     
     for redshift in redshifts:
       calc_xi(test, boxsize, redshift)
+
+      break
       
     ##  plot_3dxi()
       

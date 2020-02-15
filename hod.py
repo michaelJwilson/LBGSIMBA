@@ -20,7 +20,7 @@ def run_hod(boxsize=100., getredshift=3.00307):
     
     ##
     gid         =  f['galaxy_data']['GroupID'][:]
-    iscentral   =  f['galaxy_data']['central'][:]
+    iscentral   =  f['galaxy_data']['central'][:].astype(np.float)
     haloindex   =  f['galaxy_data']['parent_halo_index'][:]
 
     ##                                                                                                                                                                                                                              
@@ -64,7 +64,7 @@ def run_hod(boxsize=100., getredshift=3.00307):
       ##  In / out array for the galaxies.
       gsample    = [x in hsample for x in haloindex] 
       
-      result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]).astype(np.float), 'sat': np.sum(1 - iscentral[gsample]).astype(np.float), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
+      result[i]  = {'mean_hmass': mean_mass, 'cen': np.sum(iscentral[gsample]), 'sat': np.sum(1. - iscentral[gsample]), 'ngalaxies': np.sum(gsample), 'nhalos': nhalos}
   
       print(result[i])
 
@@ -80,9 +80,10 @@ def run_hod(boxsize=100., getredshift=3.00307):
     '''
 
     ##
-    masses = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
-    expcen = np.array([result[key]['cen'] / result[key]['nhalos'] for key in range(len(bins))])
-    expsat = np.array([result[key]['sat'] / result[key]['nhalos'] for key in range(len(bins))])
+    masses  = np.array([result[key]['mean_hmass']                  for key in range(len(bins))])
+
+    expcen  = np.array([result[key]['cen']  / result[key]['nhalos'] for key in range(len(bins))])
+    expsat  = np.array([result[key]['sat']  / result[key]['nhalos'] for key in range(len(bins))])
     
     print(masses)
     print(expcen)

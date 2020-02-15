@@ -125,13 +125,14 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     links = h5py.File(fpath, 'r')
     
     attrs = links.attrs.items()
+    bands = list(attrs[0][1])
     
-    bands = list(attrs[14][1])
-
     frame  = pd.DataFrame(data=links['{}mag'.format(magtype)][:], columns=bands) 
     
     retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
 
+    if magtype == 'abs':
+        retain += ['i1500']
     
     frame  = frame[retain]
     frame  = frame[:nrows]

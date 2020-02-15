@@ -15,11 +15,12 @@ from    hildebrandt       import  ferr
 from    depths            import  get_depths, get_depths27
 from    scipy.stats       import  norm       as normal_rand
 from    sphotometry       import  read_mags
-from    fast_scatter      import  fast_scatter
-from    get_data          import  get_pyloser, get_phys
-from    color_box         import  color_box
-from    beta_uv           import  det_bands
-from    hildebrandt       import  onesig_mag
+from    fast_scatter                          import  fast_scatter
+from    get_data                              import  get_pyloser, get_phys
+from    color_box                             import  color_box
+from    beta_uv                               import  det_bands
+from    hildebrandt                           import  onesig_mag
+from    mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 boxsize      =  100.
@@ -152,15 +153,23 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap         = 'viridis'
 
-axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+scatter = axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+scatter = axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+scatter = axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+scatter = axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
 
 #fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[2], rmi4, gmr4, np.log10(phys4), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
 #fast_scatter(axes[3], imz5, rmi5, np.log10(phys5), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+
+axins3 = inset_axes(axes[3], width="70%", height="5%", loc='lower center')
+
+cbar   = fig.colorbar(scatter, cax=axins3, orientation="horizontal", ticks=[9.5, 11.75, 14.0])
+
+cbar.ax.set_yticklabels(['9.5', '11.75', '14.0'])
+
+axins3.xaxis.set_ticks_position("top")
 
 color_box(axes[1], 'u')
 color_box(axes[2], 'g')
@@ -177,6 +186,7 @@ axes[2].set_ylabel(r'$g-r$')
 
 axes[3].set_xlabel(r'$i-z$')
 axes[3].set_ylabel(r'$r-i$')
+
 
 for ax in axes:
   ax.set_axis_on()

@@ -1,5 +1,5 @@
 import pickle
-import pandas                        as      pd
+cimport pandas                        as      pd
 import numpy                         as      np
 import time
 import astropy.io.fits               as      fits

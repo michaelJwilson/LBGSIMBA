@@ -10,7 +10,7 @@ import  matplotlib.pyplot as      plt
 from    scipy.spatial     import  KDTree
 from    itertools         import  product
 from    hod               import  get_data
-from    get_data          import  snaps
+from    get_data          import  snaps, get_pyloser
 from    sphotometry       import  read_mags
 
 
@@ -22,19 +22,16 @@ bins         =  np.arange(-23., -11.5, dMUV)
 
 print('\n\nWelcome to Simba UV luminosity.')
 
-for redshift, name in zip([2.024621, 3.00307, 3.963392, 5.0244], ['two', 'three', 'four', 'five']):
-  wave, frame   =  get_pyloser(boxsize, redshift, nrows=50, magtype='abs')
-  
-  
-  print(ngal)
+colors       = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-  exit(1)
+for i, (redshift, name) in enumerate(zip([2.024621, 3.00307, 3.963392, 5.0244], ['two', 'three', 'four', 'five'])):
+  wave, frame   =  get_pyloser(boxsize, redshift, nrows=-1, magtype='abs')
   
   ##  Read sample selection.
   lsst_sample   =  pd.read_pickle("bigdat/{}.pkl".format(name))
   isin          =  lsst_sample['INSAMPLE'].values
   
-  for x, alpha, label in zip([mag['UV'], mag['UV'][isin]], [0.5, 1.0], ['', '$z$ = %.2lf' % redshift]):
+  for x, alpha, label in zip([frame['i1500'], frame['i1500'][isin]], [0.5, 1.0], ['', '$z$ = %.2lf' % redshift]):
     blumuv      =  np.digitize(x[x >= bins[0]], bins=bins, right=False)
 
     ubins, cnts =  np.unique(blumuv, return_counts=True)
@@ -56,10 +53,10 @@ for redshift, name in zip([2.024621, 3.00307, 3.963392, 5.0244], ['two', 'three'
   
     assert  len(ubins) == len(bins)
   
-    pl.plot(bins + dMUV/2., np.log10(cnts / vol), lw=1, alpha=alpha, label=label)
+    pl.plot(bins + dMUV/2., np.log10(cnts / vol), lw=1, alpha=alpha, label=label, c=colors[i])
 
     
-pl.legend(loc=4, frameon=False, handlelength=1)
+pl.legend(loc=2, frameon=False, handlelength=1)
   
 pl.xlim(-22., -16.)
 pl.ylim(-5., -1.5)
