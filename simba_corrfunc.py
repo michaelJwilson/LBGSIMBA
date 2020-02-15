@@ -12,6 +12,7 @@ from    itertools         import  product
 from    hod               import  get_data
 from    utils             import  latexify
 from    get_data          import  get_caesar, snaps
+from    mcfit             import  P2xi
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
@@ -53,21 +54,29 @@ def plot_xi():
 
         pl.loglog(rs, xi, lw=0, alpha=0.8, label='{:.2f}'.format(redshift), c=colors[i], marker='^', markersize=3)
 
-        # ZA
+        # ZA.
         iz     = int(100 * redshift + 0.001)
         _      = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz))
 
-        b1, b2 = 20.0, 0.0
-
-        # r[Mpc/h]     r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2    
-        cc     = np.array([0., 0., 1.0, b1, b2, b1**2, b1*b2, b2**2])
-        cc     = np.array([0., 0., 1.0, b1, b2, 0.0,   0.0,     0.0])
+        # Lagrangian bias parameters: bE_1 = 1 + bL_1 (e.g. eqn. 213 of 1611.09787).
+        b1, b2 = 10.0, 0.0
         
-        rs     = _[:,0]
-        _      = _[:,0:8]
+        # r[Mpc/h]     r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2    
+        cc     = np.array([0., 1.0, b1, b2, b1**2, b1*b2, b2**2])
+        cc     = np.array([0., 1.0, b1, b2, 0.0,   0.0,     0.0])
+        
+        rs     = _[:,  0]
+        _      = _[:,1:8] / rs[:,None] / rs[:,None]
+        
         result = np.dot(_, cc)
         
-        pl.loglog(rs, result / rs / rs, lw=1, alpha=0.8, linestyle='-', c=colors[i])
+        pl.loglog(rs, result, lw=1, alpha=0.8, linestyle='-', c=colors[i])
+
+        # Linear (MCFIT).                                                                                                                                                                                                           
+        k, P, hf = np.loadtxt('dat/white/pklin_z{}.txt'.format(iz), unpack=True)
+        rs, xi   = P2xi(k)(P)
+
+        pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle='--', c=colors[i])
         
     pl.xlim(0.5,  10.**1.47)
     pl.ylim(0.01, 5.e2)

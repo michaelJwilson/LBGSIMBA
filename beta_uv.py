@@ -1,13 +1,17 @@
 import  matplotlib;  matplotlib.use('PDF')
 
-import  numpy             as     np
-import  pylab             as     pl
-import  matplotlib.pyplot as     plt
+import  json
+import  numpy              as     np
+import  pylab              as     pl
+import  pandas             as     pd
+import  matplotlib.pyplot  as     plt
 
-from    get_data          import get_pyloser, get_pyloser_fluxes
-from    scipy.optimize    import minimize
-from    utils             import latexify
+from    get_data           import get_pyloser, get_pyloser_fluxes
+from    scipy.optimize     import minimize
+from    utils              import latexify
 
+
+colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 def continuum_model(waves, f0, beta):
   return  f0 * waves**beta
@@ -138,26 +142,60 @@ def run(redshift, wave, frame):
   frame['X2'], frame['f0'], frame['beta'], bands = solve_chi2s(chi2, redshift, wave, frame)
 
   return  frame, bands
+
+def plot_betas(nrows=-1):
+  latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+
+  betas     = []
+  beta_err  = []
+
+  sbetas    = []
+  sbeta_err = []
   
+  redshifts = [2.024621, 3.003070, 3.963392, 5.0244]
+  
+  for i, (redshift, name) in enumerate(zip(redshifts, ['two', 'three', 'four', 'five'])):
+    frame   = pd.read_pickle('bigdat/betauv_{:.3f}.pkl'.format(redshift).replace('.', 'p'))
+    bands   = json.load(open('dat/beta_bands_{:.3f}.txt'.format(redshift), 'r'))
 
-if __name__ == '__main__':
-    print('\n\nWelcome to the beta continuum.\n\n')
+    ##  Read sample selection.                                                                                                                                                                                                      
+    lsst_sample =  pd.read_pickle("bigdat/{}.pkl".format(name))
+    isin        =  lsst_sample['INSAMPLE'].values[:nrows]
 
-    boxsize        = 100.
-
-    nrows          = 250
-
-    ##  [2.024621, 3.003070, 3.963392]
-    redshift       = 3.963392
+    print('Percentage meeting selection at z={}: {}'.format(redshift, np.mean(isin)))
     
-    wave, frame    = get_pyloser_fluxes(boxsize, redshift, nrows=nrows)
-    frame, bands   = run(redshift, wave, frame)
+    betas.append(np.mean(frame['beta'].values))
+    beta_err.append(np.std(frame['beta'].values))
 
-    print(frame)
-
-    latexify(columns=1, equal=True, fontsize=8, ggplot=True, usetex=True)
+    sbetas.append(np.mean(frame['beta'].values[isin]))
+    sbeta_err.append(np.std(frame['beta'].values[isin]))
     
-    pl.plot(np.log10(frame['f0']), frame['beta'], marker='x', markersize=3, c='g', lw=0, label=r'$' + bands + '$')
+  ##
+  betas     = np.array(betas)
+  beta_err  = np.array(beta_err)
+
+  sbetas    = np.array(sbetas)
+  sbeta_err = np.array(sbeta_err)
+  
+  pl.errorbar(redshifts,  betas,  beta_err, markersize=3, c=colors[0], alpha=0.5)
+  pl.errorbar(redshifts, sbetas, sbeta_err, markersize=3, c=colors[0])
+  
+  pl.xlabel(r'$z$')
+  pl.ylabel(r'$\beta_{\rm{UV}}$')
+
+  plt.tight_layout()
+
+  pl.savefig('plots/beta.pdf')
+
+def plot_betas2d():
+  latexify(columns=1, equal=True, fontsize=8, ggplot=True, usetex=True)
+
+  for i, redshift in enumerate([2.024621, 3.003070, 3.963392, 5.0244]):
+    frame = pd.read_pickle('bigdat/betauv_{:.3f}.pkl'.format(redshift).replace('.', 'p'))
+    bands = json.load(open('dat/beta_bands_{:.3f}.txt'.format(redshift), 'r'))
+
+    pl.plot(np.log10(frame['f0']), frame['beta'], marker='x', markersize=3, c=colors[i], lw=0, label=r'$' + bands + '$')
+
     pl.legend(loc=1, frameon=False)
 
     pl.xlim(-11., -7.)
@@ -165,9 +203,37 @@ if __name__ == '__main__':
     
     pl.xlabel(r'$\log_{10}|f_0|$')
     pl.ylabel(r'$\beta$')
+    
+    plt.tight_layout()                                                                                                                                                                                                           
 
-    ##  plt.tight_layout()
-    
-    pl.savefig('plots/beta.pdf')
-    
+    pl.savefig('plots/beta_{:.3f}.pdf'.format(redshift))
+
+  
+if __name__ == '__main__':
+    print('\n\nWelcome to the beta continuum.\n\n')
+
+    boxsize        = 100.
+    nrows          = -1
+
+    compute        = False
+
+    if compute:
+      for redshift in [2.024621, 3.003070, 3.963392, 5.0244]:
+        print('\n\nSolving for redshift: {}'.format(redshift))
+
+        wave,  frame = get_pyloser_fluxes(boxsize, redshift, nrows=nrows)
+        frame, bands = run(redshift, wave, frame)
+
+        print(frame)
+
+        with open('dat/beta_bands_{:.3f}.txt'.format(redshift), 'w') as ofile:
+          json.dump(bands, ofile)
+                
+        frame.to_pickle('bigdat/betauv_{:.3f}.pkl'.format(redshift).replace('.', 'p'))
+
+    else:
+      plot_betas(nrows=nrows)
+
+      plot_betas2d()
+        
     print('\n\nDone.\n\n')

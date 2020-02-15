@@ -161,8 +161,6 @@ def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     depths       = get_depths()
     
     wave, frame  = get_pyloser(boxsize, redshift, printit=printit)
-
-    wave         = dict(zip(frame.columns, wave))
     
     retain       = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
     frame        = frame[retain]

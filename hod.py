@@ -20,17 +20,17 @@ def run_hod(boxsize=100., getredshift=3.00307):
 
     f           =  get_caesar(boxsize, getredshift, load_halo=True)
 
-    no_central  = np.array([x.central_galaxy == None for x in links.halos], dtype=np.int)
+    no_central  = np.array([x.central_galaxy == None for x in f.halos], dtype=np.int)
 
     ##  List, one for each halo. 
     Nc          = np.array([(1-x) for x in no_central], dtype=float)
-    Ns          = np.array([np.float(len(x.satellite_galaxies)) for x in links.halos])
+    Ns          = np.array([np.float(len(x.satellite_galaxies)) for x in f.halos])
     
-    nhalo       =  len(links.halos)
-    ncentral    =  np.count_nonzero(central)
+    nhalo       =  len(f.halos)
+    ncentral    =  np.sum(Nc)
     nsats       =  np.sum(Ns)
 
-    hmass       = [x.masses['dm'] for x in links.halos]
+    hmass       = [x.masses['dm'] for x in f.halos]
     hmass       = np.array([np.atleast_1d(x.value)[0] for x in hmass])
     
     ##  Now bin galaxies and halos by halo mass.  
@@ -77,35 +77,66 @@ def run_hod(boxsize=100., getredshift=3.00307):
     ##  Write results.
     np.savetxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), np.c_[masses, expcen, stdcen, expsat, stdsat], fmt='%.6le')
 
-def plot_hod(boxsize=100., getredshift=3.00307, plot_model=False):
-    masses, expcen, stdcen, expsat, stdsat = np.loadtxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), unpack=True)
+def plot_hod(boxsize=100., plot_model=False):
+    ##                                                                                                                                                                                                                              
+    latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
 
-    pl.errorbar(np.log10(masses), expcen, stdcen, label='Centrals',   c='k',        alpha=0.8, lw=0, marker='^', markersize=2)
-    pl.errorbar(np.log10(masses), expsat, stdsat, label='Satellites', c='darkcyan', alpha=0.8, lw=0, marker='^', markersize=2)
+    ##                                                                                                                                                                                                                              
+    fig, axes    = plt.subplots(nrows=1, ncols=3, sharey=False)
+    
+    plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
+    
+    for i, getredshift in enumerate([2.024621, 3.00307, 3.963392]):
+        masses, expcen, stdcen, expsat, stdsat = np.loadtxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), unpack=True)
 
-    if plot_model:
-      ##  Plot best-fit models.                                                                                                                                                                                                   
-      ordinate  = np.logspace(10., 15., num=200)                                                                                                                                                                                                                                                                                                                                                                                                                       
-      cenparams = np.loadtxt('dat/hod-nc-params.txt')                                                                                                                                                                        
-      pl.semilogy(np.log10(ordinate), cen_model(ordinate, cenparams), c='k', alpha=0.8, lw=1)                                                                                                                                                                                                                                                                                                                                                               
-      satparams = np.loadtxt('dat/hod-ns-params.txt')                                                                                                                                                                         
-      pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
-      
-    ## 
-    pl.xscale('log')
-    pl.yscale('log')
+        print(masses)
 
-    pl.xlim(10.5, 14.5)
-    pl.ylim(0.01, 100.)
+        print(expcen)
+        print(expsat)
 
-    pl.xlabel(r'$\log_{10} | M_h / M_\odot|$')
-    pl.ylabel(r'$\langle N_g \rangle$')
+        print(stdcen)
+        print(stdsat)
+        
+        axes[i].errorbar(np.log10(masses), expcen, stdcen, label='Centrals',   c='k',        alpha=0.8, marker='^', markersize=3, lw=0, elinewidth=1)
+        axes[i].errorbar(np.log10(masses), expsat, stdsat, label='Satellites', c='darkcyan', alpha=0.8, marker='^', markersize=3, lw=0, elinewidth=1)
 
-    pl.legend(loc=2, frameon=False)
+        axes[i].set_xticks(ticks=np.logspace(10.5, 14.5, 20))
+        axes[i].set_xticklabels(labels=['{:.1f}'.format(x) for x in np.logspace(10.5, 14.5, 20)])
+        
+        if plot_model:
+            ##  Plot best-fit models.                                                                                                                                                                                              
+            ordinate  = np.logspace(10., 15., num=200)
 
+            cenparams = np.loadtxt('dat/hod-nc-params.txt')                                                                                                                                                                        
+            pl.semilogy(np.log10(ordinate), cen_model(ordinate, cenparams), c='k', alpha=0.8, lw=1)                                                                                                                                                                                                                                                                                                                                                               
+            satparams = np.loadtxt('dat/hod-ns-params.txt')                                                                                                                                                                         
+            pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
+            
+        ## 
+        axes[i].set_xscale('log')
+        axes[i].set_yscale('log')
+
+        axes[i].set_xlim(10.5, 14.5)
+        axes[i].set_ylim(0.01, 100.)
+
+        axes[i].set_xlabel(r'$\log_{10} | M_h / M_\odot|$', labelpad=15)
+
+    axes[0].set_ylabel(r'$\langle N_g \rangle$')
+    axes[0].legend(loc=2, frameon=False)
+    
+    for ax in axes:
+        ax.set_axis_on()
+
+        ax.spines['bottom'].set_color('black')
+        ax.spines['top'].set_color('black')
+        ax.spines['left'].set_color('black')
+        ax.spines['right'].set_color('black')
+
+        ax.tick_params(axis='x', colors='black')
+        
     plt.tight_layout()
-
-    pl.savefig('plots/hod_{:.3f}.pdf'.format(getredshift).replace('.', 'p'))
+    
+    pl.savefig('plots/hod.pdf')
 
     
 if __name__ == '__main__':
@@ -114,9 +145,10 @@ if __name__ == '__main__':
     redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
 
     for redshift in redshifts:
-        run_hod(100., getredshift=redshift)
-
-        plot_hod(100., getredshift=redshift)
+        # run_hod(100., getredshift=redshift)
+        pass
+        
+    plot_hod(boxsize=100.)
         
     print('\n\nDone.\n\n')
     
