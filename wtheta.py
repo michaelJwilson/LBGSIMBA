@@ -14,6 +14,7 @@ from   cosmo              import cosmo
 from   astropy.cosmology  import z_at_value as _z_at_value
 from   scipy.interpolate  import interp1d
 from   scipy.integrate    import quad
+from   pz.hildebrandt_09  import getpz_H09
 
 
 latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
@@ -38,7 +39,10 @@ def pc(chi, pz):
 
     return pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
 
-#@np.vectorize
+def hildebrandt_pz(chi):
+
+
+
 def tophatc(chi, rc=2.e3, dr=1.e2):
     norm = 1. / (2. * dr)
     
@@ -134,10 +138,10 @@ if __name__ == '__main__':
       zz, rs, _  = zel(i)
       
       lwt        = limber_wtheta(cs, tophatc, tophatc, xi)
-      wt         = pow_wtheta(cs, 2.e3, 1.e2)
+      wt         =    pow_wtheta(cs, 2.e3, 1.e2)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
     '''  
-    plot_wtheta()
+    ##  plot_wtheta()
     
     print('\n\nDone.\n\n')

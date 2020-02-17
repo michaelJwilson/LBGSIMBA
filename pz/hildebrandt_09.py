@@ -1,9 +1,15 @@
-import numpy as np
-import pylab as pl
-import os
+import  numpy  as  np
+import  pylab  as  pl
+import  os
+
+import  matplotlib.pyplot  as      plt
+
+from    scipy.interpolate  import  interp1d
 
 
-def getpz_H09(sample='u'):
+colors    = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+def getpz_H09(sample='u', interp=True):
   # Samples at supplied zs (every dz = 0.1)
   if sample == 'u':
     data  = np.loadtxt('dat/udrops_r23p0t25p5_Masim.dat')
@@ -26,13 +32,23 @@ def getpz_H09(sample='u'):
 
   assert  np.isclose(dz * np.sum(pz), 1.00)
 
-  return  midz, pz
+  if interp:
+    return  interp1d(midz, pz, kind='linear', copy=True, bounds_error=False, fill_value=0.0, assume_sorted=False)
+    
+  else:   
+    return  midz, pz
+
 
 
 if __name__ == "__main__":
-  for sample in ['u', 'g']:
-    midz, pz = getpz_H09(sample=sample)
-    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample))
+  for i, sample in enumerate(['u', 'g']):
+    midz, pz = getpz_H09(sample=sample, interp=False)
+    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), marker='^')
 
+    zs       = np.arange(0.0, 10.0, 0.01)
+    ps       = getpz_H09(sample=sample, interp=True)(zs) 
+
+    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), marker='-', alpha=0.5, c=colors[i])
+    
   pl.legend(frameon=False)
   pl.show()
