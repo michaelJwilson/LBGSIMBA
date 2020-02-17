@@ -24,6 +24,8 @@ for field in sorted(halos.dtype.fields):
 bins          = np.logspace(0., 2.23, 75)
 rs            = (bins[:-1] + bins[1:]) / 2.
 
+exit(0)
+
 results       = Corrfunc.theory.xi(X=halos['pos'][:,0], Y=halos['pos'][:,1], Z=halos['pos'][:,2], boxsize=720., nthreads=4, binfile=bins)
 
 plt.loglog(rs, rs * rs * results['xi'])

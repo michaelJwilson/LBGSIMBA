@@ -1,8 +1,10 @@
 import  matplotlib; matplotlib.use('pdf')
 
+import  sys
 import  glob
 import  h5py
 import  Corrfunc 
+import  fitsio
 import  numpy               as      np
 import  pylab               as      pl
 import  matplotlib.pyplot   as      plt
@@ -40,13 +42,22 @@ def get_abacus(bound=720.):
     return  sample
 
 def calc_xi(test, boxsize, redshift):    
-    caesar      =  get_caesar(boxsize, redshift)
+    #  caesar   =  get_caesar(boxsize, redshift)
 
     # comoving Mpc/h. 
-    pos         =  np.array([list(x.pos.to('Mpc/h')) for x in caesar.galaxies])
-    iscentral   =  np.array([x.central               for x in caesar.galaxies]).astype(np.int)
-       
-    pos         =  get_abacus()
+    #  pos      =  np.array([list(x.pos.to('Mpc/h')) for x in caesar.galaxies])
+
+    ff          =  fitsio.read('/home/mjwilson/LBGSIMBA/bigdat/simba_dmzpos_{:.5f}.fits'.format(redshift))
+
+    end         =  sys.byteorder
+
+    ngal        =  700000
+    
+    fx          =  np.array(ff['x'].byteswap().newbyteorder()[:ngal], dtype=np.float32)
+    fy          =  np.array(ff['y'].byteswap().newbyteorder()[:ngal], dtype=np.float32)
+    fz          =  np.array(ff['z'].byteswap().newbyteorder()[:ngal], dtype=np.float32)
+
+    pos         =  np.c_[fx, fy, fz]
     
     if test:
       pos = pos[:10000]
@@ -54,9 +65,9 @@ def calc_xi(test, boxsize, redshift):
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
     nbar        =  ngal / vol
-                
+    
     ##
-    bins        = np.arange(0.1, 25., 0.5)
+    bins        = np.logspace(0., 1.40, 25)
     rs          = (bins[:-1] + bins[1:]) / 2.
 
     ##  Randoms                                                                                                                                                                                              
@@ -64,30 +75,33 @@ def calc_xi(test, boxsize, redshift):
 
     np.random.seed(42)
 
-    randx       = np.random.uniform(0, boxsize, nrand)
-    randy       = np.random.uniform(0, boxsize, nrand)
-    randz       = np.random.uniform(0, boxsize, nrand)
+    randx       = np.random.uniform(0, boxsize, nrand).astype(np.float32)
+    randy       = np.random.uniform(0, boxsize, nrand).astype(np.float32)
+    randz       = np.random.uniform(0, boxsize, nrand).astype(np.float32)
 
     rpos        = np.c_[randx, randy, randz]
-
-    print('Solving for redshift: {} {}'.format(len(pos), nrand))
     
-    # Distances along the :math:\pi direction are binned with unit depth. For instance, if pimax=40, then 40 bins will be created along the pi direction.
-    DD          = Corrfunc.theory.DDrppi(X1=pos[:,0],  Y1=pos[:,1],  Z1=pos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
-    RR          = Corrfunc.theory.DDrppi(X1=rpos[:,0], Y1=rpos[:,1], Z1=rpos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
-    DR          = Corrfunc.theory.DDrppi(X1=pos[:,0], Y1=pos[:,1], Z1=pos[:,2], X2=rpos[:,0], Y2=rpos[:,0], Z2=rpos[:,0], pimax=25., periodic=True,\
-                                         boxsize=boxsize, nthreads=4, binfile=bins, autocorr=False, output_rpavg=True)
+    print('Solving for redshift: {} {}'.format(len(pos), nrand))
 
+    # Distances along the :math:\pi direction are binned with unit depth. For instance, if pimax=40, then 40 bins will be created along the pi direction.
+    DD          = Corrfunc.theory.DDrppi(X1= pos[:,0], Y1= pos[:,1], Z1= pos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
+    RR          = Corrfunc.theory.DDrppi(X1=rpos[:,0], Y1=rpos[:,1], Z1=rpos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)
+    DR          = Corrfunc.theory.DDrppi(X1= pos[:,0], Y1= pos[:,1], Z1= pos[:,2],\
+                                         X2=rpos[:,0], Y2=rpos[:,0], Z2=rpos[:,0],\
+                                         pimax=25., periodic=True, boxsize=boxsize,\
+                                         nthreads=4, binfile=bins, autocorr=False,\
+                                         output_rpavg=True)
+    
     xi          = convert_3d_counts_to_cf(len(pos), len(pos), nrand, nrand, DD, DR, DR, RR, estimator=u'LS')
 
     rps         = np.array([x['rpavg'] for x in RR])
     pis         = np.array([x['pimax'] for x in RR]) - 0.5
     
     ##  Save result:
-    ##  np.savetxt('dat/corrfunc3dxi_{:.3f}.txt'.format(redshift), np.c_[rps, pis, xi], fmt='%.6le')
+    np.savetxt('dat/corrfunc3dxi_{:.3f}.txt'.format(redshift), np.c_[rps, pis, xi], fmt='%.6le')
 
     ##  Abacus
-    np.savetxt('dat/corrfunc3dxi_abacus.txt', np.c_[rps, pis, xi], fmt='%.6le')   
+    ##  np.savetxt('dat/corrfunc3dxi_abacus.txt', np.c_[rps, pis, xi], fmt='%.6le')   
     
 def plot_xi():
     colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -129,7 +143,7 @@ def plot_xi():
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
-    test        = False
+    test        =  False
 
     #  [Mpc/h];  hubble      =  0.68  
     boxsize     =  100.     

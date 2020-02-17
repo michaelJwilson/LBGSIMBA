@@ -8,7 +8,7 @@ from   get_data                           import snaps
 from   utils                              import latexify
 
 
-latexify(columns=1, equal=True, fontsize=8, ggplot=True, usetex=True)
+latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
 
 colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -35,13 +35,13 @@ for i, x in enumerate(zs):
   plt.loglog(k, P, label=r'{:.2f}'.format(x), color=colors[i])
   
 # format the axes                                                                                                                                                                                                                                                                                                       
-plt.legend(loc=0, frameon=False)
+plt.legend(loc=2, frameon=False)
 
 plt.xlabel(r"$k$ [$h \ \mathrm{Mpc}^{-1}$]")
 plt.ylabel(r"$P_0$ [$h^{-3} \ \mathrm{Mpc}^3$]")
 
 plt.xlim(0.01,  1.0)
-plt.ylim(1.e1, 2.e4)
+plt.ylim(1.e1, 5.e4)
 
 plt.tight_layout()
 
