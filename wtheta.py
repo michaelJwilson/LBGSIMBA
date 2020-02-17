@@ -39,9 +39,8 @@ def pc(chi, pz):
 
     return pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
 
-def hildebrandt_pz(chi):
-
-
+def hildebrandt_pz(chi, sample='u'):
+    return  pc(chi, getpz_H09(sample=sample, interp=True))
 
 def tophatc(chi, rc=2.e3, dr=1.e2):
     norm = 1. / (2. * dr)
@@ -133,15 +132,17 @@ if __name__ == '__main__':
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
     ts   = np.arange(0.1, 10., 0.1)  # degs.
     cs   = ts * np.pi / 180.         # radians. 
-    '''    
+    
     for i in np.arange(0, 4, 1):
       zz, rs, _  = zel(i)
+
+      ##  lwt    = limber_wtheta(cs, tophatc, tophatc, xi)
+      lwt        = limber_wtheta(cs, hildebrandt_pz, hildebrandt_pz, xi)
       
-      lwt        = limber_wtheta(cs, tophatc, tophatc, xi)
       wt         =    pow_wtheta(cs, 2.e3, 1.e2)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
-    '''  
+
     ##  plot_wtheta()
     
     print('\n\nDone.\n\n')

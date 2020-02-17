@@ -12,10 +12,12 @@ colors    = plt.rcParams['axes.prop_cycle'].by_key()['color']
 def getpz_H09(sample='u', interp=True):
   # Samples at supplied zs (every dz = 0.1)
   if sample == 'u':
-    data  = np.loadtxt('dat/udrops_r23p0t25p5_Masim.dat')
+    root  = os.environ['LBGSIMBA']
+    data  = np.loadtxt(root + '/pz/dat/udrops_r23p0t25p5_Masim.dat')
     
   elif sample == 'g':
-    data  = np.loadtxt('dat/gdrops_i23p5t26p0_Masim.dat')
+    root  = os.environ['LBGSIMBA']
+    data  = np.loadtxt(root + '/pz/dat/gdrops_i23p5t26p0_Masim.dat')
 
   else:
     raise ValueError('Only u and g drops are aviailable for CARS currently.')
