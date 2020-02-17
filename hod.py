@@ -104,16 +104,16 @@ def plot_hod(boxsize=100., plot_model=False):
         axes[i].set_xticklabels(labels=['{:.1f}'.format(x) for x in np.logspace(10.5, 14.5, 20)])
         
         if plot_model:
-            ##  Plot best-fit models.                                                                                                                                                                                              
+            ##  Plot best-fit models.                                                                                                                                                                                             
             ordinate  = np.logspace(10., 15., num=200)
 
-            cenparams = np.loadtxt('dat/hod-nc-params.txt')                                                                                                                                                                        
-            pl.semilogy(np.log10(ordinate), cen_model(ordinate, cenparams), c='k', alpha=0.8, lw=1)                                                                                                                                                                                                                                                                                                                                                               
-            satparams = np.loadtxt('dat/hod-ns-params.txt')                                                                                                                                                                         
-            pl.semilogy(np.log10(ordinate), sat_model(ordinate, satparams), c='darkcyan', alpha=0.8, lw=1)
+            cenparams = np.loadtxt('dat/hod-nc-params_{}.txt'.format(str(getredshift).replace('.', 'p')))
+            axes[i].semilogy(np.log10(masses), cen_model(masses, cenparams), c='k', alpha=0.8, lw=1)                                                                                                                                                                                                                                                                                                                                       
+            satparams = np.loadtxt('dat/hod-ns-params_{}.txt'.format(str(getredshift).replace('.', 'p')))                                                                                                                        
+            axes[i].semilogy(np.log10(masses), sat_model(masses, satparams), c='darkcyan', alpha=0.8, lw=1)
             
-        ## 
-        axes[i].set_xscale('log')
+        ##
+        axes[i].set_xscale('linear')
         axes[i].set_yscale('log')
 
         axes[i].set_xlim(10.5, 14.5)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
         # run_hod(100., getredshift=redshift)
         pass
         
-    plot_hod(boxsize=100.)
+    plot_hod(boxsize=100., plot_model=True)
         
     print('\n\nDone.\n\n')
     

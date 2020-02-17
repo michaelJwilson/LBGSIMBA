@@ -21,7 +21,7 @@ def sat_model(mhalo, params):
     mcut   = params[0]
     mone   = params[1]
     alpha  = params[2] 
-    
+
     result = (mhalo - mcut) / mone
     result = result**alpha
 
@@ -34,8 +34,8 @@ def chi2(params, args):
     mhalo, Nx = args['mhalo'], args['Nx']
 
     uerr      = args['uerr']
+    err       = args['std']
     
-    err       = np.sqrt(Nx)
     result    = Nx - model(mhalo, params)
 
     if uerr:
@@ -45,60 +45,74 @@ def chi2(params, args):
 
     
 def fit_hod(boxsize=100., getredshift=3.00307):
-    fname      = 'dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p'))
+    print('\n\nLoading measured HOD.\n\n')
 
-    Mh, Nc, Ns = np.loadtxt(fname, unpack=True, dtype=[('Mh', np.float32), ('Nc', np.float32), ('Ns', np.float32)])
-
-    print(Mh)
-    print(Nc)
-    print(Ns)
+    fname                = 'dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p'))
+    Mh, Nc, sNc, Ns, sNs = np.loadtxt(fname, unpack=True, dtype=[('Mh', np.float32), ('Nc', np.float32), ('sNc', np.float32), ('Ns', np.float32), ('sNs', np.float32)])
     
+    isin                 = Ns > 0.0
+    
+    ##  Maximum of the two variance estimates. 
+    sNs                  = np.maximum(sNs, np.sqrt(Ns))
+    
+    for i, _ in enumerate(Mh):
+        print('{:e} \t {:e} \t {:e} \t {:e} \t {:e}'.format(_, Nc[i], sNc[i], Ns[i], sNs[i]))
+
+
     ##  Centrals.
-    args       = {'mhalo': Mh, 'Nx': Nc, 'model': cen_model, 'uerr': 1}
+    print('\n\nSolving for centrals.\n\n')
+
+    args       = {'mhalo': Mh, 'Nx': Nc, 'std': sNc, 'model': cen_model, 'uerr': 1}
     cenparams  = np.array([5.e11, 0.5])
     
     result     = minimize(chi2, cenparams, args=args, options={'disp': True, 'maxiter': 10000}, method='Nelder-Mead')
 
+    print('\n')
     print(result.x)
     print(result.success)
     print(result.message)
-    
-    pl.errorbar(Mh, Nc, yerr=np.sqrt(Nc), c='k', marker='^', linestyle='')
+
+    pl.clf()
+    pl.errorbar(Mh, Nc, yerr=sNc, c='k', marker='^', linestyle='')
     pl.loglog(Mh, cen_model(Mh, result.x), c='k')
 
     np.savetxt('dat/hod-nc-params_{}.txt'.format(str(getredshift).replace('.', 'p')), result.x, fmt='%.6le')
-    
-    ##  Satellites.
-    args       = {'mhalo': Mh, 'Nx': Ns, 'model': sat_model, 'uerr': 0}
-    satparams  = np.array([5.2e11, 1.e12, 0.8])
 
+    ##  Satellites.
+    print('\n\nSolving for satellitess.')
+
+    args       = {'mhalo': Mh[isin], 'Nx': Ns[isin], 'std': sNs[isin], 'model': sat_model, 'uerr': 0}
+    satparams  = np.array([5.2e11, 1.e12, 0.96])
+    
     result     = minimize(chi2, satparams, args=args, options={'disp': True, 'maxiter': 10000}, method='Nelder-Mead')
 
+    print('\n')
     print(result.x)
     print(result.success)
     print(result.message)
     
-    pl.errorbar(Mh, Ns, yerr=np.sqrt(Ns), c='darkcyan', marker='^', linestyle='')
+    pl.errorbar(Mh, Ns, yerr=sNs, c='darkcyan', marker='^', linestyle='')
 
-    # pl.loglog(Mh, sat_model(Mh, result.x),  c='darkcyan')
-    pl.loglog(Mh, sat_model(Mh, satparams), c='darkcyan')
+    pl.loglog(Mh, sat_model(Mh, result.x),  c='darkcyan')
+
+    pl.ylim(1.e-2, 1.e2)
     
     plt.tight_layout()
     
-    pl.savefig('plots/fitted-hod.pdf')
+    pl.savefig('plots/fitted-hod_{}.pdf'.format(str(getredshift).replace('.', 'p')))
 
     np.savetxt('dat/hod-ns-params_{}.txt'.format(str(getredshift).replace('.', 'p')), result.x, fmt='%.6le')
 
 
 if __name__ == '__main__':
-    print('\n\nWelcome to fit hod..\n\n')
+    print('\n\nWelcome to fit hod.')
 
-    redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
+    redshifts = [2.024621, 3.00307, 3.963392]
 
     for redshift in redshifts:
+        print('\n\nSolving for redshift: {}'.format(redshift))
+        
         fit_hod(100., getredshift=redshift)
-
-        break
         
     print('\n\nDone.\n\n')
  
