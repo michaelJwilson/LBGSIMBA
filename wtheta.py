@@ -16,7 +16,9 @@ from   scipy.interpolate  import interp1d
 from   scipy.integrate    import quad
 
 
-latexify(fontsize=6)
+latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
+
+colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 def p(z, z0=2., sigma=0.5):    
     # Normalised Gaussian in z. 
@@ -101,31 +103,41 @@ def zel(index):
 
     return  redshift, rs, interp1d(rs, result, fill_value=0.0, bounds_error=False)
 
+def plot_wtheta():    
+    for i, zz in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
+        ts, lwt, wt = np.loadtxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', unpack=True)
 
-if __name__ == '__main__':    
-    #  https://arxiv.org/pdf/astro-ph/0609165.pdf
+        if i == 0:
+            pl.loglog(ts, lwt, c=colors[i], linestyle='-',  label='Limber', alpha=0.5)
+            pl.loglog(ts,  wt, c=colors[i], linestyle='--', label='Power law')
+
+        else:
+            pl.loglog(ts, lwt, c=colors[i], linestyle='-',  label='', alpha=0.5)
+            pl.loglog(ts,  wt, c=colors[i], linestyle='--', label='')
+
+    pl.legend(frameon=False)
     
+    pl.xlabel(r'$\theta$ [deg.]')                                                                                                                                                                                         
+    pl.ylabel(r'$\omega(\theta$)')                                                                                                                                                                                        
+        
+    plt.tight_layout()                                                                                                                                                                                                   
+
+    pl.savefig('plots/wtheta.pdf')   
+
+    
+if __name__ == '__main__':    
+    #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
     ts   = np.arange(0.1, 10., 0.1)  # degs.
     cs   = ts * np.pi / 180.         # radians. 
-
-    for i in np.arange(2, 3, 1):
-      zz, rs, _  = zel(i)      
-      wt         = limber_wtheta(cs, tophatc, tophatc, xi)
-
-      print(wt)
+    '''    
+    for i in np.arange(0, 4, 1):
+      zz, rs, _  = zel(i)
       
-      pl.loglog(ts, wt, c='k', label='Limber')
-
+      lwt        = limber_wtheta(cs, tophatc, tophatc, xi)
       wt         = pow_wtheta(cs, 2.e3, 1.e2)
-      pl.loglog(ts, wt, c='r', linestyle='--', label='Power law')
 
-    pl.legend()
-      
-    pl.xlabel(r'$\theta$ [deg.]')
-    pl.ylabel(r'$\omega(\theta$)')
-
-    plt.tight_layout()
-
-    pl.savefig('plots/wtheta.pdf')
-
+      np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
+    '''  
+    plot_wtheta()
+    
     print('\n\nDone.\n\n')
