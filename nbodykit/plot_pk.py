@@ -15,13 +15,15 @@ colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
 zs      = [2.024621, 3.00307, 3.963392, 5.0244]
 
 for i, x in enumerate(zs):
+  '''
   fpath = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}.txt'.format(x)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
 
   
   pl.axhline(shot[0], xmin=0, xmax=1, color=colors[i], alpha=0.6, linestyle='-')
   plt.semilogy(k, P, marker='^', color=colors[i], lw=0, markersize=3)
-  
+  '''
+
   fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/dmpk_{:.5f}.txt'.format(x)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
 
