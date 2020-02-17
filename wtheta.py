@@ -134,7 +134,7 @@ if __name__ == '__main__':
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
     ts   = np.arange(0.1, 2.5, 0.5)  # degs.
     cs   = ts * np.pi / 180.         # radians. 
-    
+    '''
     for i in np.arange(0, 4, 1):
       zz, rs, _  = zel(i)
 
@@ -144,7 +144,7 @@ if __name__ == '__main__':
       wt         =    pow_wtheta(cs, 2.e3, 1.e2)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
-
-    ##  plot_wtheta()
+    '''
+    plot_wtheta()
     
     print('\n\nDone.\n\n')
