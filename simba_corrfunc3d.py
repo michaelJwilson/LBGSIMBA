@@ -48,10 +48,11 @@ def calc_xi(test, boxsize, redshift):
     #  pos      =  np.array([list(x.pos.to('Mpc/h')) for x in caesar.galaxies])
 
     ff          =  fitsio.read('/home/mjwilson/LBGSIMBA/bigdat/simba_dmzpos_{:.5f}.fits'.format(redshift))
-
+    olen        =  len(ff['x'])
+    
     end         =  sys.byteorder
 
-    ngal        =  700000
+    ngal        =  5500000
     
     fx          =  np.array(ff['x'].byteswap().newbyteorder()[:ngal], dtype=np.float32)
     fy          =  np.array(ff['y'].byteswap().newbyteorder()[:ngal], dtype=np.float32)
@@ -67,7 +68,7 @@ def calc_xi(test, boxsize, redshift):
     nbar        =  ngal / vol
     
     ##
-    bins        = np.logspace(0., 1.40, 25)
+    bins        = np.arange(0., 26., 1.)
     rs          = (bins[:-1] + bins[1:]) / 2.
 
     ##  Randoms                                                                                                                                                                                              
@@ -81,7 +82,7 @@ def calc_xi(test, boxsize, redshift):
 
     rpos        = np.c_[randx, randy, randz]
     
-    print('Solving for redshift: {} {}'.format(len(pos), nrand))
+    print('Solving for redshift: {}  {}  {}'.format(olen, len(pos), nrand))
 
     # Distances along the :math:\pi direction are binned with unit depth. For instance, if pimax=40, then 40 bins will be created along the pi direction.
     DD          = Corrfunc.theory.DDrppi(X1= pos[:,0], Y1= pos[:,1], Z1= pos[:,2], periodic=True, boxsize=boxsize, nthreads=4, binfile=bins, autocorr=True,  pimax=25.0, output_rpavg=True)

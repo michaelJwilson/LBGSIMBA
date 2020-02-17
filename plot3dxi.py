@@ -16,7 +16,8 @@ fig        =  pl.gcf()
 
 ax.grid(False)
 
-bins       =  np.logspace(0., 1.47, 25)
+bins       =  np.arange(0., 26., 1.)
+
 rs         = (bins[:-1] + bins[1:]) / 2.
 ps         =  np.arange(25.)
 
@@ -29,10 +30,13 @@ for redshift in [2.025]:
 
     Z          = interpolate.griddata((_, pis), xi, (X, Y), method='cubic')
 
-    m          = ax.pcolormesh(X, Y, Z, vmin=-2., vmax=3.)
+    m          = ax.pcolormesh(X, Y, Z, vmin=-2., vmax=5., cmap='coolwarm')
 
     ax.set_xlabel(r'$r_p \ [h^{-1} \ \rm{Mpc}]$')
     ax.set_ylabel(r'$\pi \ [h^{-1} \ \rm{Mpc}]$')
+
+    plt.xticks(np.arange(0, 26, 5))
+    plt.yticks(np.arange(0, 26, 5))
     
     divider    = make_axes_locatable(ax)
     cax        = divider.append_axes("right", size="3%", pad=0.00)
