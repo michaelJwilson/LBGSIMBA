@@ -80,8 +80,10 @@ def inner(theta, rbar, xi):
 @np.vectorize
 def limber_wtheta(theta, p1, p2, xi, zmin=0.01, zmax=6.0):
     def _(x):
-        return p1(x) * p2(x) * inner(theta, x, xi)
+      return p1(x) * p2(x) * inner(theta, x, xi)
 
+    print('Solving for theta: {}'.format(theta))
+    
     lower = cosmo.h * cosmo.comoving_distance(zmin).value # Mpc/h 
     upper = cosmo.h * cosmo.comoving_distance(zmax).value # Mpc/h
 
@@ -130,7 +132,7 @@ def plot_wtheta():
     
 if __name__ == '__main__':    
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
-    ts   = np.arange(0.1, 10., 0.1)  # degs.
+    ts   = np.arange(0.1, 2.5, 0.5)  # degs.
     cs   = ts * np.pi / 180.         # radians. 
     
     for i in np.arange(0, 4, 1):
