@@ -33,22 +33,21 @@ def getpz_H09(sample='u', interp=True):
   assert  np.isclose(dz * np.sum(pz), 1.00)
 
   if interp:
-    return  interp1d(midz, pz, kind='linear', copy=True, bounds_error=False, fill_value=0.0, assume_sorted=False)
+    return  interp1d(midz, pz, copy=True, bounds_error=False, fill_value=0.0, assume_sorted=False, kind='cubic')
     
   else:   
     return  midz, pz
 
 
-
 if __name__ == "__main__":
   for i, sample in enumerate(['u', 'g']):
     midz, pz = getpz_H09(sample=sample, interp=False)
-    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), marker='^')
+    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), marker='^', c=colors[i], markersize=3)
 
     zs       = np.arange(0.0, 10.0, 0.01)
     ps       = getpz_H09(sample=sample, interp=True)(zs) 
 
-    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), marker='-', alpha=0.5, c=colors[i])
+    pl.plot(midz, pz, label=r'${}$-dropouts'.format(sample), alpha=0.5, c=colors[i])
     
   pl.legend(frameon=False)
   pl.show()
