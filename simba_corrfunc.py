@@ -51,16 +51,15 @@ def plot_xi():
 
     for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
         rs, xi = np.loadtxt('dat/corrfuncxi_{:.3f}.txt'.format(redshift), unpack=True)
-
         pl.loglog(rs, xi, lw=0, alpha=0.8, label='{:.2f}'.format(redshift), c=colors[i], marker='^', markersize=3)
-
+        
         # ZA.
         iz     = int(100 * redshift + 0.001)
         _      = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz))
-
+        
         # Lagrangian bias parameters: bE_1 = 1 + bL_1 (e.g. eqn. 213 of 1611.09787).
         b1, b2 = 10.0, 0.0
-        
+        '''
         # r[Mpc/h]     r^2.xiL       xir:1      xir:b1      xir:b2    xir:b1^2   xir:b1.b2    xir:b2^2    
         cc     = np.array([0., 1.0, b1, b2, b1**2, b1*b2, b2**2])
         cc     = np.array([0., 1.0, b1, b2, 0.0,   0.0,     0.0])
@@ -71,15 +70,15 @@ def plot_xi():
         result = np.dot(_, cc)
         
         pl.loglog(rs, result, lw=1, alpha=0.8, linestyle='-', c=colors[i])
-
-        # Linear (MCFIT).                                                                                                                                                                                                           
+        '''
+        # Linear (MCFIT).
         k, P, hf = np.loadtxt('dat/white/pklin_z{}.txt'.format(iz), unpack=True)
         rs, xi   = P2xi(k)(P)
 
         pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle='--', c=colors[i])
         
-    pl.xlim(0.5,  10.**1.47)
-    pl.ylim(0.01, 5.e2)
+    pl.xlim(1.e-3,  5.e3)
+    pl.ylim(0.01,   5.e2)
 
     pl.xlabel(r'$r \ [h^{-1} \rm{Mpc}]$')
     pl.ylabel(r'$\xi(r)$')

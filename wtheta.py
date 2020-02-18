@@ -1,20 +1,24 @@
-import matplotlib; matplotlib.use('PDF')
+import matplotlib;                matplotlib.use('PDF')
 
+import time
 import scipy
-import numpy              as     np
-import pylab              as     pl
-import matplotlib.pyplot  as     plt
-import astropy.units      as     u
-import astropy.constants  as     const
+import numpy              as      np
+import pylab              as      pl
+import matplotlib.pyplot  as      plt
+import astropy.units      as      u
+import astropy.constants  as      const
 
-from   scipy              import signal
-from   scipy.special      import gamma  as gammaf
-from   utils              import latexify
-from   cosmo              import cosmo
-from   astropy.cosmology  import z_at_value as _z_at_value
-from   scipy.interpolate  import interp1d
-from   scipy.integrate    import quad
-from   pz.hildebrandt_09  import getpz_H09
+from   scipy              import  signal
+from   scipy.special      import  gamma  as gammaf
+from   utils              import  latexify
+from   cosmo              import  cosmo
+from   astropy.cosmology  import  z_at_value as _z_at_value
+from   scipy.interpolate  import  interp1d
+from   scipy.integrate    import  quad
+from   pz.hildebrandt_09  import  getpz_H09
+from   xi_hankel          import  get_linearxi
+
+MAXITER  = 50
 
 
 latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
@@ -35,9 +39,9 @@ def z_at_value(vals, func):
     return np.array([_z_at_value(func, x * u.Mpc / cosmo.h, zmax=10.) for x in vals])
 
 def pc(chi, pz):
-    zee    = z_at_value(chi, cosmo.comoving_distance)    
+    zee  = z_at_value(chi, cosmo.comoving_distance)    
 
-    return pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
+    return  pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
 
 def hildebrandt_pz(chi, sample='u'):
     return  pc(chi, getpz_H09(sample=sample, interp=True))
@@ -51,7 +55,7 @@ def tophatc(chi, rc=2.e3, dr=1.e2):
     
 def xi(r, r0=5., gamma=1.8):
     # r0 in Mpc/h
-    return (r / r0) ** -gamma
+    return  (r / r0) ** -gamma
 
 def Aw(rc, dr, gamma, r0): 
     # narrow slice, eqn. (19) of Simon.
@@ -71,11 +75,18 @@ def inner(theta, rbar, xi):
     Rmin = rbar	* theta
 
     def _(dr):
-        R  = np.sqrt(rbar**2. * theta**2. + dr**2.)
+        ##  Eqn. (5) of www.aanda.org/articles/aa/pdf/2007/39/aa6352-06.pdf
+        R = np.sqrt(rbar**2. * theta**2. + dr**2.)
 
         return  xi(R)
+
+    ##  scipy.integrate.quad(_, Rmin, 5.e2, limit=MAXITER)[0]
     
-    return  2. * scipy.integrate.quad(_, 0., 4.e3, limit=50)[0]
+    drs      = np.arange(Rmin, 5.e2, 0.1)
+    xis      = _(drs)
+    I        = np.sum(xis)
+
+    return  2. * I
 
 @np.vectorize
 def limber_wtheta(theta, p1, p2, xi, zmin=0.01, zmax=6.0):
@@ -87,7 +98,7 @@ def limber_wtheta(theta, p1, p2, xi, zmin=0.01, zmax=6.0):
     lower = cosmo.h * cosmo.comoving_distance(zmin).value # Mpc/h 
     upper = cosmo.h * cosmo.comoving_distance(zmax).value # Mpc/h
 
-    return  scipy.integrate.quad(_, lower, upper, limit=50)[0]
+    return  scipy.integrate.quad(_, lower, upper, limit=MAXITER)[0]
 
 def zel(index):
     redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
@@ -112,19 +123,19 @@ def plot_wtheta():
     for i, zz in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
         ts, lwt, wt = np.loadtxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', unpack=True)
 
+        prefac = 60. * 60.
+        
         if i == 0:
-            pl.loglog(ts, lwt, c=colors[i], linestyle='-',  label='Limber', alpha=0.5)
-            pl.loglog(ts,  wt, c=colors[i], linestyle='--', label='Power law')
+            pl.loglog(prefac * ts, lwt, c=colors[i], marker='^',  label='Limber', alpha=0.5)
 
         else:
-            pl.loglog(ts, lwt, c=colors[i], linestyle='-',  label='', alpha=0.5)
-            pl.loglog(ts,  wt, c=colors[i], linestyle='--', label='')
+            pl.loglog(prefac * ts, lwt, c=colors[i], marker='^',  label='', alpha=0.5)
 
     pl.legend(frameon=False)
     
-    pl.xlabel(r'$\theta$ [deg.]')                                                                                                                                                                                         
-    pl.ylabel(r'$\omega(\theta$)')                                                                                                                                                                                        
-        
+    pl.xlabel(r'$\theta$ [arcsec.]')                                                                                                                                                                                         
+    pl.ylabel(r'$\omega(\theta$)')                                                                                                                                                                                             
+
     plt.tight_layout()                                                                                                                                                                                                   
 
     pl.savefig('plots/wtheta.pdf')   
@@ -132,11 +143,13 @@ def plot_wtheta():
     
 if __name__ == '__main__':    
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
-    ts   = np.arange(0.1, 2.5, 0.5)  # degs.
-    cs   = ts * np.pi / 180.         # radians. 
-    '''
-    for i in np.arange(0, 4, 1):
+    ts = np.arange(0.001, 0.02, 0.0001)  # degs.
+    cs = ts * np.pi / 180.               # radians. 
+    
+    for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
       zz, rs, _  = zel(i)
+
+      xi         = get_linearxi(redshift)
 
       ##  lwt    = limber_wtheta(cs, tophatc, tophatc, xi)
       lwt        = limber_wtheta(cs, hildebrandt_pz, hildebrandt_pz, xi)
@@ -144,7 +157,7 @@ if __name__ == '__main__':
       wt         =    pow_wtheta(cs, 2.e3, 1.e2)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
-    '''
+    
     plot_wtheta()
     
     print('\n\nDone.\n\n')
