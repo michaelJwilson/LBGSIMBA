@@ -14,15 +14,14 @@ from   utils              import  latexify
 from   cosmo              import  cosmo
 from   astropy.cosmology  import  z_at_value as _z_at_value
 from   scipy.interpolate  import  interp1d
-from   scipy.integrate    import  quad
+from   scipy.integrate    import  quad, quadrature
 from   pz.hildebrandt_09  import  getpz_H09
 from   xi_hankel          import  get_linearxi
-
-MAXITER  = 50
 
 
 latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
 
+MAXITER  = 500
 colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 def p(z, z0=2., sigma=0.5):    
@@ -74,31 +73,35 @@ def pow_wtheta(theta, rc, dr, gamma=1.8, r0=5.):
 def inner(theta, rbar, xi):
     Rmin = rbar	* theta
 
-    def _(dr):
+    def _(dlnr):
+        dr = np.exp(dlnr)
+
         ##  Eqn. (5) of www.aanda.org/articles/aa/pdf/2007/39/aa6352-06.pdf
-        R = np.sqrt(rbar**2. * theta**2. + dr**2.)
+        R  = np.sqrt(rbar**2. * theta**2. + dr**2.)
 
-        return  xi(R)
-
-    ##  scipy.integrate.quad(_, Rmin, 5.e2, limit=MAXITER)[0]
+        return  xi(R) / dr
+   
+    ##  scipy.integrate.quad(_, np.log(Rmin), np.log(30.), limit=MAXITER)[0] 
+    I = scipy.integrate.quadrature(_, np.log(Rmin), np.log(30.), tol=1.5e-05, rtol=1.5e-05, maxiter=MAXITER, vec_func=True)[0]
     
-    drs      = np.arange(Rmin, 5.e2, 0.1)
-    xis      = _(drs)
-    I        = np.sum(xis)
-
     return  2. * I
 
 @np.vectorize
-def limber_wtheta(theta, p1, p2, xi, zmin=0.01, zmax=6.0):
-    def _(x):
-      return p1(x) * p2(x) * inner(theta, x, xi)
+def limber_wtheta(theta, p1, p2, xi, zmin=1.0, zmax=5.0):
+    def _(lnx):
+      x = np.exp(lnx)
+        
+      return  p1(x) * p2(x) * inner(theta, x, xi)
 
-    print('Solving for theta: {}'.format(theta))
+    print('Solving for theta: {} arcsec.'.format(3600. * theta))
     
-    lower = cosmo.h * cosmo.comoving_distance(zmin).value # Mpc/h 
-    upper = cosmo.h * cosmo.comoving_distance(zmax).value # Mpc/h
+    lower = cosmo.h * cosmo.comoving_distance(zmin).value  # Mpc/h 
+    upper = cosmo.h * cosmo.comoving_distance(zmax).value  # Mpc/h
 
-    return  scipy.integrate.quad(_, lower, upper, limit=MAXITER)[0]
+    ##  scipy.integrate.quad(_, np.log(lower), np.log(upper), limit=MAXITER)[0]
+    I     = scipy.integrate.quadrature(_, np.log(lower), np.log(upper), tol=1.5e-08, rtol=1.5e-08, maxiter=MAXITER, vec_func=False)[0]
+    
+    return  I
 
 def zel(index):
     redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
@@ -126,10 +129,12 @@ def plot_wtheta():
         prefac = 60. * 60.
         
         if i == 0:
-            pl.loglog(prefac * ts, lwt, c=colors[i], marker='^',  label='Limber', alpha=0.5)
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='Limber', alpha=0.5)
 
         else:
-            pl.loglog(prefac * ts, lwt, c=colors[i], marker='^',  label='', alpha=0.5)
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='', alpha=0.5)
+
+        break
 
     pl.legend(frameon=False)
     
@@ -140,7 +145,7 @@ def plot_wtheta():
 
     pl.savefig('plots/wtheta.pdf')   
 
-    
+
 if __name__ == '__main__':    
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
     ts = np.arange(0.001, 0.02, 0.0001)  # degs.
@@ -157,7 +162,9 @@ if __name__ == '__main__':
       wt         =    pow_wtheta(cs, 2.e3, 1.e2)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
-    
+
+      break
+      
     plot_wtheta()
     
     print('\n\nDone.\n\n')
