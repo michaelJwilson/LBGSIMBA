@@ -15,14 +15,12 @@ colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
 zs      = [2.024621, 3.00307, 3.963392, 5.0244]
 
 for i, x in enumerate(zs):
-  '''
   fpath = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}.txt'.format(x)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
 
   
   pl.axhline(shot[0], xmin=0, xmax=1, color=colors[i], alpha=0.6, linestyle='-')
   plt.semilogy(k, P, marker='^', color=colors[i], lw=0, markersize=3)
-  '''
 
   fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/dmpk_{:.5f}.txt'.format(x)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
@@ -34,9 +32,10 @@ for i, x in enumerate(zs):
   
   # linear theory.
   iz      = int(100 * x + 0.001)
-  k, P, _ = np.loadtxt('/home/mjwilson/LBGSIMBA/linpk/dat/pklin_z{:03d}.txt'.format(iz), unpack=True)
+  k, P, H = np.loadtxt('/home/mjwilson/LBGSIMBA/linpk/dat/pklin_z{:03d}.txt'.format(iz), unpack=True)
   
-  plt.loglog(k, P, label=r'{:.2f}'.format(x), color=colors[i])
+  plt.loglog(k, P, label=r'', color=colors[i], alpha=0.3)
+  plt.loglog(k, H, label=r'{:.2f}'.format(x), color=colors[i])
   
 # format the axes                                                                                                                                                                                                                                                                                                       
 plt.legend(loc=2, frameon=False)

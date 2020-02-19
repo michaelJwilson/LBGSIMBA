@@ -20,12 +20,10 @@ def get_linearxi(redshift, sigma_8=False):
 
     return  interp1d(r, xi, kind='cubic', copy=True, assume_sorted=False, bounds_error=False, fill_value=0.0)
 
-
 def plot_linearxi():
     pl.loglog(r, xi, label=r'$\sigma_8: {:.3f}$'.format(sigma8))
     pl.legend(loc=2, frameon=False)
     pl.savefig('plots/test_hankel.pdf')
-
 
 if __name__ == '__main__':
     print('\n\nWelcome to linear xi.\n\n')

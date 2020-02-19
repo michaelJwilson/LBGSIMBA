@@ -8,9 +8,7 @@ from    astropy.cosmology import  FlatLambdaCDM
 
 
 cosmo      = FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
-
-tracer     = 'dm'                                                                          # ['gal', 'dm']
-
+tracer     = 'dm'                                                                        
 
 def write_all(boxsize=100.):
   for x in snaps.keys():
@@ -35,11 +33,11 @@ def write_all(boxsize=100.):
     print(pos)
     
     # Velocity
-    vel     =  readsnap(fpath, 'vel', tracer, units=1, suppress=1, nth=32, debug=True)     # vel. in physical km/s; peculiar?
-    vel    *= (1. + x)
-    vel    /=  100. * cosmo.efunc(x)                                                       # [Mpc/h].
+    vel   =  readsnap(fpath, 'vel', tracer, units=1, suppress=1, nth=32, debug=True)       # vel. in physical km/s; peculiar?
+    vel  *= (1. + x)
+    vel  /=  100. * cosmo.efunc(x)                                                         # [Mpc/h].
 
-    vel     =  Table(vel, names=('vx', 'vy', 'vz'))
+    vel   =  Table(vel, names=('vx', 'vy', 'vz'))
     
     vel['vx'].unit = 'Mpc/h'
     vel['vy'].unit = 'Mpc/h'

@@ -22,8 +22,8 @@ from   AbacusCosmos                  import  Halos
 ##                                                                                                                                                                                                                                  
 ##  python3 nkit.py   
 
-def get_simba(tracer, x):
-    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}pos_{:.5f}.fits'.format(tracer, x))
+def get_simba(tracer, x, space=''):
+    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
 
     ##  Comoving Mpc/h.
     cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
@@ -62,10 +62,11 @@ t0         = time.time()
 ##  Simba. 
 cols       = ['x', 'y', 'z']
 
-##  ['dm', 'g']    
-tracer     =  'dm'
+tracer     =  'g'  ##  ['dm', 'g'] 
 
-for x in snaps.keys():
+##  Real or redshift space. 
+for space in ['z', '']:
+  for x in snaps.keys():
     if compute:
       setup_logging()
 
@@ -78,6 +79,8 @@ for x in snaps.keys():
       ##  kmin        = 0.01
       ##  boxsize     = 100.  ##  Natural:  720.
       ##  cat         = get_abacus(bound=boxsize)
+
+      print('Solving for redshift:  {}, tracer:  {} and space: {}.'.format(x, tracer, space))
       
       ##  Box size in Mpc/h.
       mesh            = cat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
@@ -105,9 +108,9 @@ for x in snaps.keys():
 
           print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
-      #np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
-      #np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
-      #np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
+      np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
+      np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
+      np.save('dat/{}tdpk_{}_{:.5f}_Pk.npy'.format(space, tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    
@@ -117,8 +120,8 @@ for x in snaps.keys():
         if ell == 0:
           P    = P - poles.attrs['shotnoise']
 
-        np.savetxt('dat/{}pk_{:.5f}.txt'.format(tracer, x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
-        # np.savetxt('dat/abacus_pk_100.txt', np.c_[k, P]) 
+        np.savetxt('dat/{}{}pk_{:.5f}.txt'.format(space, tracer, x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
+      
         
 
         
