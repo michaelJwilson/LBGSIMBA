@@ -33,17 +33,10 @@ def p(z, z0=2., sigma=0.5):
     
     return  np.exp(exp) / norm
 
-def z_at_value(vals, func):
-    vals = np.array([vals])    
-    return np.array([_z_at_value(func, x * u.Mpc / cosmo.h, zmax=10.) for x in vals])
-
 def pc(chi, pz):
     zee  = z_at_value(chi, cosmo.comoving_distance)    
 
     return  pz(zee) * 100. * cosmo.efunc(zee) / const.c.to('km/s').value
-
-def hildebrandt_pz(chi, sample='u'):
-    return  pc(chi, getpz_H09(sample=sample, interp=True))
 
 def tophatc(chi, rc=2.e3, dr=1.e2):
     norm = 1. / (2. * dr)
@@ -88,18 +81,16 @@ def inner(theta, rbar, xi):
 
 @np.vectorize
 def limber_wtheta(theta, p1, p2, xi, zmin=1.0, zmax=5.0):
-    def _(lnx):
-      x = np.exp(lnx)
-        
-      return  p1(x) * p2(x) * inner(theta, x, xi)
+    print('Solving for theta: {} arcsec.'.format(3600. * theta * 180. / np.pi))
 
-    print('Solving for theta: {} arcsec.'.format(3600. * theta))
+    def _(z):
+      x  = cosmo.h * cosmo.comoving_distance(z).value        # Mpc/h
+      Hz = 100. * cosmo.efunc(z) / const.c.to('km/s').value  # (Mpc/h)^-1.
+
+      ##  return  p1(z) * p2(z) / Hz
+      return  p1(z) * p2(z) * inner(theta, x, xi) / Hz
     
-    lower = cosmo.h * cosmo.comoving_distance(zmin).value  # Mpc/h 
-    upper = cosmo.h * cosmo.comoving_distance(zmax).value  # Mpc/h
-
-    ##  scipy.integrate.quad(_, np.log(lower), np.log(upper), limit=MAXITER)[0]
-    I     = scipy.integrate.quadrature(_, np.log(lower), np.log(upper), tol=1.5e-08, rtol=1.5e-08, maxiter=MAXITER, vec_func=False)[0]
+    I = scipy.integrate.quadrature(_, zmin, zmax, tol=1.5e-05, rtol=1.5e-05, maxiter=MAXITER, vec_func=False)[0]
     
     return  I
 
@@ -129,10 +120,10 @@ def plot_wtheta():
         prefac = 60. * 60.
         
         if i == 0:
-            pl.loglog(prefac * ts, lwt, c=colors[i],  label='Limber', alpha=0.5)
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='Limber', alpha=0.5, marker='^', lw=0)
 
         else:
-            pl.loglog(prefac * ts, lwt, c=colors[i],  label='', alpha=0.5)
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='', alpha=0.5, marker='^', lw=0)
 
         break
 
@@ -148,20 +139,23 @@ def plot_wtheta():
 
 if __name__ == '__main__':    
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
-    ts = np.arange(0.001, 0.02, 0.0001)  # degs.
-    cs = ts * np.pi / 180.               # radians. 
+    ts  = np.logspace(0., np.log10(50.), 15)
+    ts /= 3600.                           # degs. 
+    cs  = ts * np.pi / 180.               # radians. 
+
+    hildebrandt_pz   = getpz_H09(sample='u', interp=True)
     
     for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
-      zz, rs, _  = zel(i)
+      ##  zz, rs, _  = zel(i)
 
-      xi         = get_linearxi(redshift)
-
-      ##  lwt    = limber_wtheta(cs, tophatc, tophatc, xi)
-      lwt        = limber_wtheta(cs, hildebrandt_pz, hildebrandt_pz, xi)
+      xi             = get_linearxi(redshift)
       
-      wt         =    pow_wtheta(cs, 2.e3, 1.e2)
+      ##  lwt        = limber_wtheta(cs, tophatc, tophatc, xi)
+      lwt            = limber_wtheta(cs, hildebrandt_pz, hildebrandt_pz, xi)
+      
+      wt             = pow_wtheta(cs, 2.e3, 1.e2)
 
-      np.savetxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
+      np.savetxt('dat/wtheta_{:.3f}'.format(redshift).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
 
       break
       
