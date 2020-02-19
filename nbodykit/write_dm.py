@@ -12,14 +12,8 @@ cosmo      = FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
 tracer     = 'dm'                                                                          # ['gal', 'dm']
 
 
-def read_zpos(boxsize, redshift):
-    caesar      =  get_caesar(boxsize, redshift)
-    pos         =  [x.pos.to('Mpc/h') for x in caesar.galaxies]  # comoving Mpc/h.         
-    vel         =  [x.vel.to('Mpc/h') for x in caesar.galaxies]  # comoving Mpc/h.
-    
-    return  0 
-
-for x in snaps.keys():
+def write_all(boxsize=100.):
+  for x in snaps.keys():
     snap   = snaps[x]    
     fpath  = '/home/rad/data/m100n1024/s50/snap_m100n1024_{}.hdf5'.format(snap)
     
@@ -30,6 +24,9 @@ for x in snaps.keys():
 
     pos    = Table(pos, names=('x', 'y', 'z'))
 
+    for _ in ['x', 'y', 'z']: 
+      assert  np.isclose(boxsize, np.max(pos[_]), atol=1.e-4, rtol=0.0)
+    
     pos['x'].unit = 'Mpc/h'
     pos['y'].unit = 'Mpc/h'
     pos['z'].unit = 'Mpc/h'
@@ -42,7 +39,7 @@ for x in snaps.keys():
     vel    *= (1. + x)
     vel    /=  100. * cosmo.efunc(x)                                                       # [Mpc/h].
 
-    vel     = Table(vel, names=('vx', 'vy', 'vz'))
+    vel     =  Table(vel, names=('vx', 'vy', 'vz'))
     
     vel['vx'].unit = 'Mpc/h'
     vel['vy'].unit = 'Mpc/h'
@@ -55,8 +52,17 @@ for x in snaps.keys():
     # Redshift-space position. 
     zpos      = Table(pos, copy=True)
     zpos['z'] = pos['z'] + vel['vz']
+
+    # Wrap redshift-space position.
+    zpos['z'] = np.mod(zpos['z'], boxsize)
     
     pos.write('../dat/simba_{}pos_{:.5f}.fits'.format(tracer, x),   format='fits', overwrite=True)
     zpos.write('../dat/simba_{}zpos_{:.5f}.fits'.format(tracer, x), format='fits', overwrite=True)
+
+
+if __name__ == '__main__':
+    print('\n\nWriting Simba dark matter.\n\n')
     
-print('\n\nDone.\n\n')
+    pos = write_all()
+    
+    print('\n\nDone.\n\n')

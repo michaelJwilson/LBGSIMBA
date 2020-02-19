@@ -23,7 +23,7 @@ from   AbacusCosmos                  import  Halos
 ##  python3 nkit.py   
 
 def get_simba(tracer, x):
-    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}zpos_{:.5f}.fits'.format(tracer, x))
+    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}pos_{:.5f}.fits'.format(tracer, x))
 
     ##  Comoving Mpc/h.
     cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
@@ -105,9 +105,9 @@ for x in snaps.keys():
 
           print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
-      np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
-      np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
-      np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
+      #np.save('dat/ztdpk_{}_{:.5f}_k.npy'.format(tracer, x),  r.power['k'])
+      #np.save('dat/ztdpk_{}_{:.5f}_mu.npy'.format(tracer, x), r.power['mu'])
+      #np.save('dat/ztdpk_{}_{:.5f}_Pk.npy'.format(tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    

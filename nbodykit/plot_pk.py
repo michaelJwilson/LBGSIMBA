@@ -27,6 +27,8 @@ for i, x in enumerate(zs):
   fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/dmpk_{:.5f}.txt'.format(x)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
 
+  print('\nLoading {}'.format(fpath))
+  
   pl.axhline(shot[0], xmin=0, xmax=1, color=colors[i], alpha=0.3)
   plt.semilogy(k, P, marker='s', color=colors[i], lw=0, markersize=3)
   
