@@ -19,8 +19,10 @@ from    mcfit                         import  P2xi
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
+bs = [5.500000, 10.50000, 18.00000, 30.000]
+
 def get_simba(tracer, x, space=''):
-    cat             = fitsio.read('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
+    cat = fitsio.read('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
 
     ##  Comoving Mpc/h.                                                                                                                                                                   
     return  np.c_[cat['x'], cat['y'], cat['z']]
@@ -80,11 +82,12 @@ def plot_xi():
 
         pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle='--', c=colors[i])
 
-        # Linear (MCFIT).                                                                                                                                                                 
-	k, P, hf = np.loadtxt('dat/white/pklin_z{}.txt'.format(iz), unpack=True)
+        # Halofit (MCFIT).                                                                                                                                                                 
         rs, xi   = P2xi(k)(hf)
-
         pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle=':', c=colors[i])
+
+        # Halofit (MCFIT).
+        pl.loglog(rs, bs[i] * bs[i] * xi, lw=1, alpha=0.8, linestyle=':', c=colors[i])
         
     ##
     pl.xlim(0.5,  3.e1)
