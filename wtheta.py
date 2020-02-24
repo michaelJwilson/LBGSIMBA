@@ -24,7 +24,8 @@ latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
 MAXITER  = 500
 colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-def p(z, z0=2., sigma=0.5):    
+@np.vectorize
+def Gaussian_pz(z, z0=2., sigma=0.5):    
     # Normalised Gaussian in z. 
     norm = 1. / sigma / np.sqrt(2. * sigma)
     exp  = (z - z0) / sigma
@@ -63,34 +64,40 @@ def pow_wtheta(theta, rc, dr, gamma=1.8, r0=5.):
     ##  theta in radians. 
     return  Aw(rc, dr, gamma, r0) * theta ** (1. - gamma)
 
+@np.vectorize
 def inner(theta, rbar, xi):
-    Rmin = rbar	* theta
-
-    def _(dlnr):
-        dr = np.exp(dlnr)
+    def _(lndr):
+        dr = np.exp(lndr)
 
         ##  Eqn. (5) of www.aanda.org/articles/aa/pdf/2007/39/aa6352-06.pdf
         R  = np.sqrt(rbar**2. * theta**2. + dr**2.)
 
-        return  xi(R) / dr
+        return  dr * xi(R)
    
     ##  scipy.integrate.quad(_, np.log(Rmin), np.log(30.), limit=MAXITER)[0] 
-    I = scipy.integrate.quadrature(_, np.log(Rmin), np.log(30.), tol=1.5e-05, rtol=1.5e-05, maxiter=MAXITER, vec_func=True)[0]
+    I = scipy.integrate.quadrature(_, np.log(0.1), np.log(100.), tol=1.5e-05, rtol=1.5e-05, maxiter=MAXITER, vec_func=True)[0]
     
     return  2. * I
+
+@np.vectorize
+def test_inner(theta, z, xi):
+    x  = cosmo.h * cosmo.comoving_distance(z).value         # Mpc/h  
+    Hz = 100. * cosmo.efunc(z) / const.c.to('km/s').value   # (Mpc/h)^-1.
+
+    return  inner(theta, x, xi) / Hz
+
 
 @np.vectorize
 def limber_wtheta(theta, p1, p2, xi, zmin=1.0, zmax=5.0):
     print('Solving for theta: {} arcsec.'.format(3600. * theta * 180. / np.pi))
 
     def _(z):
-      x  = cosmo.h * cosmo.comoving_distance(z).value        # Mpc/h
-      Hz = 100. * cosmo.efunc(z) / const.c.to('km/s').value  # (Mpc/h)^-1.
+      x  = cosmo.h * cosmo.comoving_distance(z).value           # [Mpc/h].
+      Hz =    100. * cosmo.efunc(z) / const.c.to('km/s').value  # [(Mpc/h)^-1].
 
-      ##  return  p1(z) * p2(z) / Hz
       return  p1(z) * p2(z) * inner(theta, x, xi) / Hz
     
-    I = scipy.integrate.quadrature(_, zmin, zmax, tol=1.5e-05, rtol=1.5e-05, maxiter=MAXITER, vec_func=False)[0]
+    I = scipy.integrate.quadrature(_, zmin, zmax, tol=1.5e-06, rtol=1.5e-06, maxiter=MAXITER, vec_func=True)[0]
     
     return  I
 
@@ -109,23 +116,29 @@ def zel(index):
     rs        = _[:,0]
     _         = _[:, 0:8]
 
+
+
+
+
+
     result    = np.dot(_, cc)
 
     return  redshift, rs, interp1d(rs, result, fill_value=0.0, bounds_error=False)
 
 def plot_wtheta():    
-    for i, zz in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
+    zs = [2.024621, 3.00307, 3.963392, 5.0244] 
+    zs = np.arange(0.1, 0.2, 0.1)
+
+    for i, zz in enumerate(zs):
         ts, lwt, wt = np.loadtxt('dat/wtheta_{:.3f}'.format(zz).replace('.', 'p') + '.txt', unpack=True)
 
         prefac = 60. * 60.
         
         if i == 0:
-            pl.loglog(prefac * ts, lwt, c=colors[i],  label='Limber', alpha=0.5, marker='^', lw=0)
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='Limber', alpha=1., linestyle='-', lw=0.1)
 
         else:
-            pl.loglog(prefac * ts, lwt, c=colors[i],  label='', alpha=0.5, marker='^', lw=0)
-
-        break
+            pl.loglog(prefac * ts, lwt, c=colors[i],  label='', alpha=1., linestyle='-', lw=0.1)
 
     pl.legend(frameon=False)
     
@@ -139,26 +152,30 @@ def plot_wtheta():
 
 if __name__ == '__main__':    
     #  https://arxiv.org/pdf/astro-ph/0609165.pdf    
-    ts  = np.logspace(0., np.log10(50.), 15)
-    ts /= 3600.                           # degs. 
-    cs  = ts * np.pi / 180.               # radians. 
+    ts  = np.logspace(np.log10(6.), np.log10(600.), 25)       # arcseconds
+    ts /= 3600.                                               # degs. 
+    cs  = ts * np.pi / 180.                                   # radians. 
 
-    hildebrandt_pz   = getpz_H09(sample='u', interp=True)
+    ##  hildebrandt_pz   = getpz_H09(sample='u', interp=True)
+
+    zs = [2.024621, 3.00307, 3.963392, 5.0244]
+    zs = np.arange(0.1, 0.2, 0.1)
     
-    for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
+    for i, redshift in enumerate(zs):
       ##  zz, rs, _  = zel(i)
 
-      xi             = get_linearxi(redshift)
+      xi             = get_linearxi(redshift, root='/Users/MJWilson/Work/LBGSIMBA/white/dat/')
       
+      ##  Ts         = test_inner(cs, redshift, xi)
+
       ##  lwt        = limber_wtheta(cs, tophatc, tophatc, xi)
-      lwt            = limber_wtheta(cs, hildebrandt_pz, hildebrandt_pz, xi)
+      lwt            = limber_wtheta(cs, Gaussian_pz, Gaussian_pz, xi)
       
-      wt             = pow_wtheta(cs, 2.e3, 1.e2)
+      ##  wt         = pow_wtheta(cs, 2.e3, 1.e2)
+      wt             = np.zeros_like(lwt)
 
       np.savetxt('dat/wtheta_{:.3f}'.format(redshift).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
 
-      break
-      
     plot_wtheta()
     
     print('\n\nDone.\n\n')

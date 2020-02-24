@@ -7,16 +7,21 @@ from   mcfit             import  P2xi, TophatVar
 from   scipy.interpolate import  CubicSpline, interp1d
 
 
-def get_linearxi(redshift, sigma_8=False):
+def get_linearxi(redshift, sigma_8=False, root='dat/white', halofit=False):
     iz        = int(100 * redshift + 0.001)
     
-    k, P, hf  = np.loadtxt('dat/white/pklin_z{}.txt'.format(iz), unpack=True)    
-    r, xi     = P2xi(k)(P)
+    k, P, hf  = np.loadtxt(root + '/pklin_z{:03d}.txt'.format(iz), unpack=True)    
+
+    if halofit:
+      r, xi    = P2xi(k)(hf)
+
+    else:
+      r, xi    = P2xi(k)(P)
 
     if sigma_8:
-        R, var    = TophatVar(k)(P, extrap=True)
-        varR      = CubicSpline(R, var)
-        sigma8    = np.sqrt(varR(8))
+        R, var = TophatVar(k)(P, extrap=True)
+        varR   = CubicSpline(R, var)
+        sigma8 = np.sqrt(varR(8))
 
     return  interp1d(r, xi, kind='cubic', copy=True, assume_sorted=False, bounds_error=False, fill_value=0.0)
 
