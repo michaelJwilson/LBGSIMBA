@@ -38,7 +38,7 @@ def gen_shuffled(seed, boxsize, getredshift):
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     snap           =  snaps[getredshift]
     
-    cc             =  quick_load('/home/rad/data/m100n1024/s50/Groups/m100n1024_{}.hdf5'.format(snap))
+    cc             =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
 
     halos          =  cc.halos
 
@@ -112,9 +112,7 @@ def gen_shuffled(seed, boxsize, getredshift):
       for x in newtree[i]:
         print(x[0], x[1], x[2])
 
-    ##  Write shuffled catalogue.
-    fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}.fits'.format(getredshift, seed)
-
+    ##
     centrals   = []
     satellites = []
 
@@ -136,12 +134,14 @@ def gen_shuffled(seed, boxsize, getredshift):
     assert  len(satellites) == _nsatellite
 
     result     = np.vstack((centrals, satellites))
-
-    fits       = fitsio.FITS(fpath, 'rw')
-    names      = ['x', 'y', 'z']
     
-    ##  np.savetxt(fpath, np.vstack((centrals, satellites)), fmt='%.6f')
-    fitsio.write([result[:,0], result[:,1], result[:,2]], names=names)
+    ##  Write shuffled catalogue.                                                                                                                                                                                                 
+    fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}.fits'.format(getredshift, seed)
+        
+    names      = ['x', 'y', 'z']
+    towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2]}
+        
+    fitsio.write(fpath, data=towrite, names=names, clobber=True)
     
 
 if __name__ == '__main__':
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     boxsize = 100.
 
     ##  zs  = snaps.keys()
-    zs      = [3.00307]
+    zs      = [5.0244]
     
     for getredshift in zs:
       print('\n\nSolving for redshift: {}.'.format(getredshift))
