@@ -9,7 +9,7 @@ import  matplotlib.pyplot  as      plt
 
 from    scipy.spatial      import  KDTree 
 from    itertools          import  product
-from    get_data           import  get_data, print_keys
+from    get_data           import  get_data, print_keys, get_caesar
 from    utils              import  latexify
 from    fithod             import  cen_model, sat_model
 
@@ -45,14 +45,10 @@ if __name__ == '__main__':
     boxsize        =  100.
     getredshift    =  3.00307
 
-    f, p           =  get_data(boxsize, getredshift)
-    
-    ##  ID for each galaxy. 
 
-    _gid           =  f['galaxy_data']['GroupID'][:]
+    cc             =  caesar.quickload('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
 
-    ##  Is this galaxy a central. 
-    _iscentral     =  f['galaxy_data']['central'][:]
+    exit(0)
     
     ##  Positions in kpc.
     _pos           =  f['galaxy_data']['pos'][:]

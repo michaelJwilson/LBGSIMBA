@@ -1,5 +1,5 @@
 import pickle
-import pandas                        as      pd
+1;95;0cimport pandas                        as      pd
 import numpy                         as      np
 import time
 import astropy.io.fits               as      fits
@@ -85,7 +85,7 @@ for space in ['z', '']:
       ##  Box size in Mpc/h.
       mesh            = cat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
       
-      r               = FFTPower(mesh, mode='2d', dk=0.05, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=1024)
+      r               = FFTPower(mesh, mode='2d', dk=0.1, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=1024)
 
       poles           = r.poles
 

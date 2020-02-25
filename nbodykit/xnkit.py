@@ -38,26 +38,28 @@ t0         = time.time()
 ##  Simba. 
 cols       = ['x', 'y', 'z']
 
-##  Real or redshift space. 
-for space in ['z', '']:
+Nmesh      = 1024
+
+##  Real or redshift space, ['z', ''].
+for space in ['']:
   for x in snaps.keys():
     if compute:
       setup_logging()
 
       ##  Simba.
       kmin            = 0.01
-      boxsize         = 100.
+      boxsize         =  100.
 
-      gcat            = get_simba('g',  x)
+      gcat            = get_simba( 'g', x)
       dmcat           = get_simba('dm', x)
       
       print('Solving for redshift:  {}, cross-spectra  and space: {}.'.format(x, space))
       
       ##  Box size in Mpc/h.
-      gmesh           = gcat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
-      dmmesh          = dmcat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
+      gmesh           =  gcat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
+      dmmesh          = dmcat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
       
-      r               = FFTPower(gmesh, mode='2d', dk=0.05, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=1024, second=dmmesh)
+      r               = FFTPower(first=gmesh, mode='2d', dk=0.1, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=Nmesh, second=dmmesh)
 
       poles           = r.poles
 
@@ -71,7 +73,7 @@ for space in ['z', '']:
       for _ in r.power.attrs:
           print("%s = %s" %(_, str(r.power.attrs[_])))
 
-      # The 2D power spectrum results
+      # The 2D power spectrum results.
       print("power = ", r.power)
       print("variables = ", r.power.variables)
 
@@ -83,10 +85,10 @@ for space in ['z', '']:
       # The multipoles. 
       for ell in [0]:    
         k      = poles['k']
-        P      = poles['power_%d' % ell].real
 
-        np.savetxt('dat/{}{}pk_{:.5f}.txt'.format(space, 'c', x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
-      
+        ##  https://arxiv.org/pdf/1309.5556.pdf:  eqn. A41.
+        P      = 0.5 * (poles['power_%d' % ell] + np.conjugate(poles['power_%d' % ell]))
+        P      = P.real
         
-
+        np.savetxt('dat/{}{}pk_{:.5f}.txt'.format(space, 'c', x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
         
