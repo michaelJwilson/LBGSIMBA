@@ -113,14 +113,14 @@ if __name__ == '__main__':
 
     redshifts   = [2.024621, 3.00307, 3.963392, 5.0244]
     
-    tracer      = 'g'
-    '''
-    for space in ['z', '']:
-      for redshift in redshifts:
-        print('Solving for {} space at redshift {}.'.format(space, redshift))
+    tracer      = 'dm'  ##  ['g', 'dm']
+    space       = ''    ##  ['z', '']
+    
+    for redshift in redshifts:
+      print('Solving for {} space at redshift {}.'.format(space, redshift))
           
-        calc_xi(test, boxsize, redshift, tracer, space)
-    '''
+      calc_xi(test, boxsize, redshift, tracer, space)
+    
     plot_xi()
       
     print('\n\nDone.\n\n')

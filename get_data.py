@@ -119,15 +119,19 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
 def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     #  Currently, photometry only. 
-    root  = '/home/mjwilson/LBGSIMBA/100/'
-    snap  = snaps[redshift]
+    root   = '/home/mjwilson/LBGSIMBA/100/'
+    snap   = snaps[redshift]
 
-    fpath = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+    fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
     
-    links = h5py.File(fpath, 'r')
+    links  = h5py.File(fpath, 'r')
     
-    attrs = links.attrs.items()
-    bands = list(attrs[0][1])
+    attrs  = links.attrs.items()
+
+    bands  = list(links.attrs['bands'])
+
+    for x in bands:
+        print(x)
     
     frame  = pd.DataFrame(data=links['{}mag'.format(magtype)][:], columns=bands) 
     
@@ -215,9 +219,9 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    links         = get_caesar(boxsize, 2.024621)
+    # links       = get_caesar(boxsize, 2.024621)
 
-    # links       = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
+    waves, frame  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
     # wave, links = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result      = get_phys(boxsize, 2.024621, printit=False)

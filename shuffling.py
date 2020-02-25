@@ -38,7 +38,7 @@ def gen_shuffled(seed, boxsize, getredshift):
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     snap           =  snaps[getredshift]
     
-    cc             =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_{}.hdf5'.format(snap))
+    cc             =  quick_load('/home/rad/data/m100n1024/s50/Groups/m100n1024_{}.hdf5'.format(snap))
 
     halos          =  cc.halos
 
@@ -136,16 +136,18 @@ def gen_shuffled(seed, boxsize, getredshift):
     assert  len(satellites) == _nsatellite
 
     result     = np.vstack((centrals, satellites))
-    result     = np.array(result, dtype=[('x', 'f16'),('y', 'f16'),('x', 'f16')])
+
+    fits       = fitsio.FITS(fpath, 'rw')
+    names      = ['x', 'y', 'z']
     
     ##  np.savetxt(fpath, np.vstack((centrals, satellites)), fmt='%.6f')
-    fitsio.write(filename, result)
+    fitsio.write([result[:,0], result[:,1], result[:,2]], names=names)
     
 
 if __name__ == '__main__':
     print('\n\nWelcome to Simba shuffled HOD.')
 
-    ##  Greater than zero for shuffling.                                                                                                                                                                                               
+    ##  Greater than zero for shuffling.                                                                                                                                                                                         
     seed = 1
 
     np.random.seed(seed)
