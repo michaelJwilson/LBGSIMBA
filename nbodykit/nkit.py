@@ -1,10 +1,10 @@
 import pickle
-1;95;0cimport pandas                        as      pd
+import pandas                        as      pd
 import numpy                         as      np
 import time
 import astropy.io.fits               as      fits
 
-from   get_data                      import  snaps
+from   snaps                         import  snaps
 
 from   nbodykit.lab                  import  *
 from   nbodykit.io.fits              import  FITSFile
@@ -62,17 +62,20 @@ t0         = time.time()
 ##  Simba. 
 cols       = ['x', 'y', 'z']
 
-tracer     =  'g'  ##  ['dm', 'g'] 
+tracer     =  'dm'  ##  ['dm', 'g'] 
 
 ##  Real or redshift space. 
-for space in ['z', '']:
+for space in ['']:
   for x in snaps.keys():
     if compute:
       setup_logging()
 
       ##  Simba.
+      dk              =  0.1
       kmin            = 0.01
-      boxsize         = 100.
+      boxsize         =  100.
+      Nmesh           = 1024
+
       cat             = get_simba(tracer, x)
 
       ##  Abacus
@@ -83,9 +86,9 @@ for space in ['z', '']:
       print('Solving for redshift:  {}, tracer:  {} and space: {}.'.format(x, tracer, space))
       
       ##  Box size in Mpc/h.
-      mesh            = cat.to_mesh(resampler='tsc', Nmesh=1024, compensated=True, BoxSize=boxsize)
+      mesh            = cat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
       
-      r               = FFTPower(mesh, mode='2d', dk=0.1, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=1024)
+      r               = FFTPower(mesh, mode='2d', dk=dk, kmin=kmin, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=Nmesh)
 
       poles           = r.poles
 
@@ -108,9 +111,9 @@ for space in ['z', '']:
 
           print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
-      np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
-      np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
-      np.save('dat/{}tdpk_{}_{:.5f}_Pk.npy'.format(space, tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
+      #np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
+      #np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
+      #np.save('dat/{}tdpk_{}_{:.5f}_Pk.npy'.format(space, tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    

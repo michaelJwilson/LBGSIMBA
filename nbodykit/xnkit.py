@@ -47,9 +47,11 @@ for space in ['']:
       setup_logging()
 
       ##  Simba.
+      dk              =  0.1
       kmin            = 0.01
       boxsize         =  100.
-
+      Nmesh           = 1024
+      
       gcat            = get_simba( 'g', x)
       dmcat           = get_simba('dm', x)
       
@@ -59,7 +61,7 @@ for space in ['']:
       gmesh           =  gcat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
       dmmesh          = dmcat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
       
-      r               = FFTPower(first=gmesh, mode='2d', dk=0.1, kmin=0.01, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=Nmesh, second=dmmesh)
+      r               = FFTPower(first=gmesh, mode='2d', dk=dk, kmin=kmin, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=Nmesh, second=dmmesh)
 
       poles           = r.poles
 

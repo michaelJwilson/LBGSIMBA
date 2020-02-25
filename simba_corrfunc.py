@@ -11,9 +11,8 @@ import  matplotlib.pyplot             as      plt
 from    astropy.table                 import  Table
 from    scipy.spatial                 import  KDTree 
 from    itertools                     import  product
-from    hod                           import  get_data
 from    utils                         import  latexify
-from    get_data                      import  get_caesar, snaps
+from    snaps                         import  snaps
 from    mcfit                         import  P2xi
 
 
@@ -87,7 +86,7 @@ def plot_xi():
         pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle=':', c=colors[i])
 
         # Halofit (MCFIT).
-        pl.loglog(rs, bs[i] * bs[i] * xi, lw=1, alpha=0.8, linestyle=':', c=colors[i])
+        pl.loglog(rs, bs[i] * bs[i] * xi, lw=1, alpha=0.8, linestyle='-', c=colors[i])
         
     ##
     pl.xlim(0.5,  3.e1)

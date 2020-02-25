@@ -3,18 +3,17 @@ import  matplotlib;  matplotlib.use('PDF')
 import  copy
 import  glob
 import  h5py
-import  numpy              as      np
-import  pylab              as      pl
-import  matplotlib.pyplot  as      plt
+import  numpy               as      np
+import  pylab               as      pl
+import  matplotlib.pyplot   as      plt
 
-from    scipy.spatial      import  KDTree 
-from    itertools          import  product
-from    get_data           import  get_data, print_keys, get_caesar
-from    utils              import  latexify
-from    fithod             import  cen_model, sat_model
+from    scipy.spatial       import  KDTree 
+from    itertools           import  product
+## from    utils               import  latexify
+from    fithod              import  cen_model, sat_model
+from    caesar.quick_loader import  quick_load
 
-
-latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+## latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
 def plot_tree(shuffled, seed):
   for key in shuffled.keys():
@@ -45,145 +44,66 @@ if __name__ == '__main__':
     boxsize        =  100.
     getredshift    =  3.00307
 
+    cc             =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
 
-    cc             =  caesar.quickload('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
+    halos          =  cc.halos
 
-    exit(0)
+    ##  Now bin galaxies and halos by halo mass.                                                                                                                                                                    
+    bins           =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
+
+    ## 
+    tree           =  {}
+    newtree        =  {}
     
-    ##  Positions in kpc.
-    _pos           =  f['galaxy_data']['pos'][:]
-    _pos          /=  1.e3  ##  [Mpc].                                                                                                                                                                                                                                                                                                      
-    _pos          *=  0.68  ##  [Mpc/h].
-    
-    ##  What is the corresponding halo ID. 
-    _haloindex     =  f['galaxy_data']['parent_halo_index'][:]
-
-    ##  Keep those galaxies within 5 Mpc/h of sim. wall.
-    lim            =                        1.0
- 
-    isin           =            _pos[:,0] < lim
-    pos            =       _pos[_pos[:,0] < lim]
-    
-    gid            =       _gid[_pos[:,0] < lim]
-    iscentral      = _iscentral[_pos[:,0] < lim]
-    haloindex      = _haloindex[_pos[:,0] < lim]
-    
-    ##
-    hid            =  f['halo_data']['GroupID'][:]
-
-    ##  Number of dark matter particles in this halo. 
-    ndm            =  f['halo_data']['ndm'][:]
-
-    ##  DM particle mass: 9.6e7 [Solar Mass]                                                                                                                                                                                        
-    pmass          =  9.6e7
-    hmass          =  ndm * pmass
-
-    ##
-    hpos           =  f['halo_data']['pos'][:]
-    hpos          /=  1.e3  ##  [Mpc].
-    hpos          *=  0.68  ##  [Mpc/h].        
-
-    ##  Basic galaxy stats.
-    print('\n\n')
-    print('Number of galaxies found:   {}'.format(len(iscentral)))
-    print('Number of centrals found:   {}'.format(np.sum(iscentral)))
-    print('Number of satellites found: {}'.format(np.sum(1 - iscentral)))
-
-    ##  Basic halo stats.                                                                                                                                                                                           
-    print('\n\nNumber of halos found: {}M.'.format(len(hid) / 1e6))
-    print('Range of halo masses: {} [10^9] to {} [10^13].'.format(hmass.min() / 1e9, hmass.max() / 1e13))
-
-    ##  Now bin galaxies and halos by halo mass.  
-    bins        =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
-
-    ##  Binned mass. 
-    bmass       =  np.digitize(hmass, bins=bins)
-    
-    ##
-    result      =  {}
-
-    for i, _bin in enumerate(bins):
-      ##  Number of haloes in this mass bin.   
-      nhalos       = np.sum(bmass == i)
-
-      ##  Mean halo mass of this sample.
-      mean_mass    = np.mean(hmass[bmass == i])
-
-      ##  Halo IDs that make the sample. 
-      hsample      = hid[bmass == i]
-
-      uhalos, cnts = np.unique(hsample, return_counts=True)
-
-      ##  Each halo is included only once. 
-      assert np.all(cnts == 1)
-
-      ##  All the galaxies in this mass range. 
-      ids_in      = gid[[x in uhalos for x in haloindex]] 
-
-      ##  IDs of centrals in this halo mass range. 
-      cids_in     = ids_in[iscentral[[x in uhalos for x in haloindex]]]
-
-      ##  Sort these IDs. 
-      cids_in     = np.sort(cids_in)
+    for i in np.arange(len(bins)):
+      tree[i]      = []
+      newtree[i]   = []
       
-      ##  Loop through haloes in this mass range, to pair centrals to satellites based on the same halo (ID).
-      for u in uhalos:
-        ##  Of the galaxies in this halo, which is the central. 
-        _central  = iscentral[haloindex == u]
+    for hh in halos:
+      hmass        = hh.masses['dm']                                          # Solar. ['baryon', 'dm', 'gas', 'stellar', 'total']
+      digmass      = np.digitize(hmass, bins=bins)
+      
+      central      = hh.central_galaxy
+      satellites   = hh.satellite_galaxies     
 
-        ##  ID of the central.
-        _cid      = gid[haloindex == u][_central]
+      hpos         = hh.pos.to('Mpccm/h').value                               # comoving Mpc/h. 
+
+      if central is not None:
+        cpos       = central.pos.to('Mpccm/h').value - hpos                   # comoving Mpc/h. 
+
+      else:
+        cpos       = None
         
-        if len(_cid) > 0:
-            ##  One central per halo.
-            assert (len(_cid) == 1) & (_cid in cids_in)
+      if len(satellites) > 0:
+        spos       = [x.pos.to('Mpccm/h').value -hpos for x in satellites]    # comoving Mpc/h. 
 
-            _cid      = _cid[0]
+      else:
+        spos       = []
 
-            ##  Position of parent halo.
-            _hpos     = hpos[hid == u]
-            
-            ##  Position of central.                                                                                                                                                                                                    
-            _cpos     = pos[haloindex == u][_central]
-            
-            ##  IDs of the satellites.
-            _sid      = gid[haloindex == u][~_central]
+      if central is not None:
+        tree[digmass].append([hmass, hpos, cpos, spos])
 
-            ##  Save Position of satellites relative to their central.
-            result[_cid] = []
+        
+    for i in np.arange(len(bins)):
+      print('\n\n---------------------------------------------------------------\n\n')
 
-            result[_cid].append(_hpos)
-            result[_cid].append(_cpos - _hpos)
-            result[_cid].append(pos[haloindex == u][~_central] - _hpos)
+      for x in tree[i]:
+        print(x[0], x[1], x[2])
       
-    ##  Sorted keys.
-    cids_srtd   = np.sort(result.keys())
-    
-    ##  Shuffled version of the central IDs.
-    cids_in_shf = np.copy(cids_srtd)
+      ncentral     = len(tree[i])
 
-    shuffled    = copy.copy(result)
+      order        = np.arange(ncentral)  
 
-    processed   = []
-    
-    if seed == 0:    
-      ##  No shuffling.
-      pass
+      np.random.shuffle(order)
       
-    else:  
-      np.random.shuffle(cids_in_shf)  
+      for j in np.arange(ncentral):
+        entry      = tree[i][j] 
+        swap       = tree[i][order[j]]
+        
+        # Append new halos masses. 
+        newtree[i].append([entry[0], entry[1], swap[2], swap[3]])
       
-      for i, cid in enumerate(cids_srtd):
-        if cid not in processed:
-          shuffled[cid][1]            = result[cids_in_shf[i]][1]
-          shuffled[cids_in_shf[i]][1] = result[cid][1]
-          
-          shuffled[cid][2]            = result[cids_in_shf[i]][2]
-          shuffled[cids_in_shf[i]][2] = result[cid][2]
+      print('\n\n')
 
-          processed.append(cid)
-          processed.append(cids_in_shf[i])
-                        
-    plot_tree(shuffled, seed)
-                
-    print('\n\nDone.\n\n')
+      for x in newtree[i]:
+        print(x[0], x[1], x[2])

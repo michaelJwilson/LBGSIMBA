@@ -4,11 +4,12 @@ import numpy                              as np
 import matplotlib.pyplot                  as plt
 import pylab                              as pl
 
-from   get_data                           import snaps
-from   utils                              import latexify
+##  from   utils                              import latexify
 
 
-latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
+##  latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
+
+snaps   = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
 
 colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -40,18 +41,21 @@ for i, x in enumerate(zs):
   dP           += shot
   
   print('Dark matter solved.')
-  
+
+  print(len(gP), len(xP), len(dP))
+
+  '''
   assert  np.all(gk == xk)
   assert  np.all(dk == xk)
 
   rcc           = xP / np.sqrt(gP * dP)
-
-  pl.loglog(gk, gP, 'k-')
-  pl.loglog(xk, xP, 'b-')
-  pl.loglog(dk, dP, 'r-')
+  '''
+  pl.loglog(gk, gP,         'k^', markersize=3)
+  pl.loglog(xk, np.abs(xP), 'b^', markersize=3)
+  pl.loglog(dk, dP,         'r^', markersize=3)
   
   # pl.semilogx(dk, rcc, label=r'$z={:.2f}$'.format(x))
-
+  
   break
   
 plt.legend(loc=1, frameon=False)
