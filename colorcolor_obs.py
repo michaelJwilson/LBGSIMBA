@@ -15,12 +15,13 @@ from    hildebrandt       import  ferr
 from    depths            import  get_depths, get_depths27
 from    scipy.stats       import  norm       as normal_rand
 from    sphotometry       import  read_mags
+from    insample                              import  insample
 from    fast_scatter                          import  fast_scatter
 from    get_data                              import  get_pyloser, get_phys
 from    color_box                             import  color_box
 from    beta_uv                               import  det_bands
 from    hildebrandt                           import  onesig_mag
-from    mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from    mpl_toolkits.axes_grid1.inset_locator import  inset_axes
 
 
 boxsize      =  100.

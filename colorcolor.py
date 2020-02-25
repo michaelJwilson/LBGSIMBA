@@ -14,6 +14,7 @@ from    sphotometry       import  read_mags
 from    fast_scatter      import  fast_scatter
 from    color_box         import  color_box
 from    get_data          import  get_phys
+from    insample          import  insample
 
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
