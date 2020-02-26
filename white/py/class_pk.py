@@ -16,7 +16,7 @@ def make_pk(zlist):
     
     params = {
     'output': 'mPk',
-    'P_k_max_h/Mpc': 150.,
+    'P_k_max_h/Mpc': 600.,
     'z_pk': '0,10',
     'A_s': 2.1353046867600372e-09,
     'n_s': 0.97,
@@ -52,7 +52,7 @@ def make_pk(zlist):
     fout.close()
 
     # Now compute P(k) at each zz and write each to a file.
-    kk = np.logspace(-4.0,2.0,300)
+    kk = np.logspace(-4.0, np.log10(600.), 500)
 
     for zz in zlist:
         iz = int(100*zz+0.001)
@@ -72,6 +72,8 @@ def make_pk(zlist):
 
 
 if __name__=="__main__":
-    zlist = np.arange(0.0, 5.0, 0.1)
+    ##  zlist = np.arange(0.0, 5.0, 0.1)
+    zlist = [2.024621, 3.00307, 3.963392, 5.0244]
+    
     make_pk(zlist)
     

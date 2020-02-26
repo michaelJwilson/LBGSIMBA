@@ -44,7 +44,7 @@ def calc_xi(test, boxsize, redshift, tracer, space):
     rs          = (bins[:-1] + bins[1:]) / 2.
 
     # periodic=True
-    results     = Corrfunc.theory.xi(X=pos[:,0], Y=pos[:,1], Z=pos[:,2], boxsize=boxsize, nthreads=4, binfile=bins)
+    results     = Corrfunc.theory.xi(X=pos[:,0], Y=pos[:,1], Z=pos[:,2], boxsize=boxsize, nthreads=32, binfile=bins)
 
     ##  Save result:
     np.savetxt('dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, tracer, redshift), np.c_[rs, results['xi']], fmt='%.6le')

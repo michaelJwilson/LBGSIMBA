@@ -83,9 +83,7 @@ def gen_shuffled(seed, boxsize, getredshift):
       if central is not None:
         tree[digmass].append([hmass, hpos, cpos, spos])
 
-    ##  Seed the shuffled tree.
-    seed = 42
-    
+    ##  Seed the shuffled tree.    
     np.random.seed(seed=seed)
         
     for i in np.arange(len(bins)):
@@ -148,14 +146,13 @@ if __name__ == '__main__':
     print('\n\nWelcome to Simba shuffled HOD.')
 
     ##  Greater than zero for shuffling.                                                                                                                                                                                         
-    seed = 1
+    seed    = 42
 
     np.random.seed(seed)
 
     boxsize = 100.
 
-    ##  zs  = snaps.keys()
-    zs      = [5.0244]
+    zs      = snaps.keys()
     
     for getredshift in zs:
       print('\n\nSolving for redshift: {}.'.format(getredshift))
