@@ -34,6 +34,8 @@ def insample(selection, u, g, r, i, z, y):
         isin = isin & ((u-g) >= (g-r) + 0.2)
         isin = isin & ((u-g) <  (g-r) + 1.0)
         isin = isin & ((g-r) <= 0.2 * (u-g) + 0.4)
+
+        return isin
         
     else:
         raise  ValueWarning('Specific selection ({}) is not available.'.format(selection))

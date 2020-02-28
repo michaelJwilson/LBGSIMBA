@@ -7,7 +7,6 @@ import  os
 import  pandas    as      pd
 import  pylab     as      plt
 import  numpy     as      np
-import  function  as      fu
 import  caesar
 
 from    get_data  import  snaps

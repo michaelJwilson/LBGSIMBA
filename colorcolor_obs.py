@@ -9,7 +9,7 @@ import  matplotlib.pyplot as      plt
 from    scipy.spatial     import  KDTree
 from    itertools         import  product
 from    get_data          import  get_data
-from    utils             import  latexify
+from    sutils            import  latexify
 from    luptitudes        import  luptitude, lup_lim
 from    hildebrandt       import  ferr
 from    depths            import  get_depths, get_depths27
@@ -99,25 +99,24 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four
 
       count += 1
 
-
 physs  = {}
 frames = {}
-      
+
 ##  Sufficiently detected. 
-for name, frame, phys in zip(['two', 'three', 'four', 'five'], [two, three, four, five], [phys2, phys3, phys4, phys5]):
+for name, frame, phys, selection in zip(['two', 'three', 'four', 'five'], [two, three, four, five], [phys2, phys3, phys4, phys5], ['BM', 'u', 'g', 'r']):
   isin              = [len(x) >= 1 for x in frame['ISIN']]
+  isin              = isin & insample(selection, frame['LUP_LSST_u'].values, frame['LUP_LSST_g'].values, frame['LUP_LSST_r'].values, frame['LUP_LSST_i'].values, frame['LUP_LSST_z'].values, frame['LUP_LSST_y'].values)
+
   frame['INSAMPLE'] = isin
 
   frame.to_pickle('bigdat/{}.pkl'.format(name))
   
-  frame             = frame.loc[isin, :]
-
   print('\n\n')
-  print(frame)
+  print(frame.loc[isin, :])
 
-  physs[name]       = phys[isin]
+  physs[name]       = phys
   frames[name]      = frame 
-
+  
 ##
 two          =  frames['two']
 three        =  frames['three']
@@ -154,16 +153,24 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap         = 'viridis'
 
-scatter = axes[0].scatter(gmr2, umg2, marker='.', c=np.log10(phys2), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-scatter = axes[1].scatter(gmr3, umg3, marker='.', c=np.log10(phys3), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-scatter = axes[2].scatter(rmi4, gmr4, marker='.', c=np.log10(phys4), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
-scatter = axes[3].scatter(imz5, rmi5, marker='.', c=np.log10(phys5), lw=0, s=3, cmap=cmap, vmin=9.5, vmax=14.)
+isin         = two['INSAMPLE'].values
+scatter      = axes[0].scatter(gmr2[ isin], umg2[ isin], marker='.', c=np.log10(phys2[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+scatter      = axes[0].scatter(gmr2[~isin], umg2[~isin], marker='x', c=np.log10(phys2[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.5)
 
-#fast_scatter(axes[0], gmr2, umg2, np.log10(phys2), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-#fast_scatter(axes[1], gmr3, umg3, np.log10(phys3), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-#fast_scatter(axes[2], rmi4, gmr4, np.log10(phys4), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
-#fast_scatter(axes[3], imz5, rmi5, np.log10(phys5), 9.5, 14., 20, markersize=0.1, cmap=cmap, printit=False, alpha=1.0)
+isin         = three['INSAMPLE'].values
+scatter      = axes[1].scatter(gmr3[ isin], umg3[ isin], marker='.', c=np.log10(phys3[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+scatter      = axes[1].scatter(gmr3[~isin], umg3[~isin], marker='x', c=np.log10(phys3[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
 
+isin         = four['INSAMPLE'].values
+scatter      = axes[2].scatter(rmi4[ isin], gmr4[ isin], marker='.', c=np.log10(phys4[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+scatter      = axes[2].scatter(rmi4[~isin], gmr4[~isin], marker='x', c=np.log10(phys4[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
+
+isin         = five['INSAMPLE'].values
+scatter      = axes[3].scatter(imz5[ isin], rmi5[ isin], marker='.', c=np.log10(phys5[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+scatter      = axes[3].scatter(imz5[~isin], rmi5[~isin], marker='x', c=np.log10(phys5[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
+
+
+##  
 axins3 = inset_axes(axes[3], width="70%", height="5%", loc='lower center')
 
 cbar   = fig.colorbar(scatter, cax=axins3, orientation="horizontal", ticks=[9.5, 11.75, 14.0])

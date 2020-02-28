@@ -8,7 +8,7 @@ import  matplotlib.pyplot  as     plt
 
 from    get_data           import get_pyloser, get_pyloser_fluxes
 from    scipy.optimize     import minimize
-from    utils              import latexify
+from    sutils             import latexify
 
 
 colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
