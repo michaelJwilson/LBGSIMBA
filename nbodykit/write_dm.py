@@ -7,8 +7,7 @@ from    get_data          import  snaps, get_caesar
 from    astropy.cosmology import  FlatLambdaCDM
 
 
-cosmo      = FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
-tracer     = 'dm'                                                                        
+cosmo      = FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)                                                                        
 
 def write_all(boxsize=100.):
   for x in snaps.keys():
@@ -17,7 +16,7 @@ def write_all(boxsize=100.):
     
     # https://bitbucket.org/rthompson/pygadgetreader/src/default/#markdown-header-readsnap
     # readsnap(snapfile,'pos','star',units=1,suppress=1)/(1+redshift)/h # pkpc
-    pos    = readsnap(fpath, 'pos', tracer, units=1, nth=32, debug=True)                   # in comoving kpc/h.
+    pos    = readsnap(fpath, 'pos','dm', units=1, nth=32, debug=True)                      # in comoving kpc/h.
     pos   /= 1.e3                                                                          # in comoving Mpc/h.   
 
     pos    = Table(pos, names=('x', 'y', 'z'))
@@ -33,7 +32,7 @@ def write_all(boxsize=100.):
     print(pos)
     
     # Velocity
-    vel   =  readsnap(fpath, 'vel', tracer, units=1, suppress=1, nth=32, debug=True)       # vel. in physical km/s; peculiar?
+    vel   =  readsnap(fpath, 'vel', 'dm', units=1, suppress=1, nth=32, debug=True)         # vel. in physical km/s; peculiar?
     vel  *= (1. + x)
     vel  /=  100. * cosmo.efunc(x)                                                         # [Mpc/h].
 
@@ -54,8 +53,8 @@ def write_all(boxsize=100.):
     # Wrap redshift-space position.
     zpos['z'] = np.mod(zpos['z'], boxsize)
     
-    pos.write('../dat/simba_{}pos_{:.5f}.fits'.format(tracer, x),   format='fits', overwrite=True)
-    zpos.write('../dat/simba_{}zpos_{:.5f}.fits'.format(tracer, x), format='fits', overwrite=True)
+    pos.write('../bigdat/simba_dmpos_{:.5f}.fits'.format(x),   format='fits', overwrite=True)
+    zpos.write('../bigdat/simba_dmzpos_{:.5f}.fits'.format(x), format='fits', overwrite=True)
 
 
 if __name__ == '__main__':

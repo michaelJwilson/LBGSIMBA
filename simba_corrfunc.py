@@ -13,21 +13,32 @@ from    scipy.spatial                 import  KDTree
 from    itertools                     import  product
 from    utils                         import  latexify
 from    snaps                         import  snaps
-from    mcfit                         import  P2xi
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
-bs = [5.500000, 10.50000, 18.00000, 30.000]
+bs = [2.200000, 3.200000, 4.200000, 5.5000]
 
 def get_simba(tracer, x, space=''):
-    cat = fitsio.read('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
+    fpath = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
+
+    print('Retrieving {}.'.format(fpath))
+
+    cat   = fitsio.read(fpath)
 
     ##  Comoving Mpc/h.                                                                                                                                                                   
-    return  np.c_[cat['x'], cat['y'], cat['z']]
+    cat   = np.c_[cat['x'], cat['y'], cat['z']]
 
+    if tracer == 'dm':
+        # sub-sample.
+        cat   = cat[::10] 
+
+    return  cat
+        
 def calc_xi(test, boxsize, redshift, tracer, space):    
-    # comoving Mpc/h. 
+    print('Solving for Test: {}, boxsize: {}, redshift: {}, tracer: {} and space: {}.'.format(test, boxsize, redshift, tracer, space))
+
+    # Comoving Mpc/h. 
     pos         =  get_simba(tracer, redshift, space=space)
     
     if test:
@@ -40,23 +51,34 @@ def calc_xi(test, boxsize, redshift, tracer, space):
     nbar        =  ngal / vol
                 
     ##
-    bins        = np.logspace(0., 1.47, 25)
-    rs          = (bins[:-1] + bins[1:]) / 2.
+    bins        = np.logspace(-1., 1.47, 30)
 
-    # periodic=True
-    results     = Corrfunc.theory.xi(X=pos[:,0], Y=pos[:,1], Z=pos[:,2], boxsize=boxsize, nthreads=32, binfile=bins)
+    results     = Corrfunc.theory.xi(X=pos[:,0], Y=pos[:,1], Z=pos[:,2], boxsize=boxsize, nthreads=32, binfile=bins, output_ravg=True, verbose=True)
 
+    print(results)
+    
     ##  Save result:
+    rs          = results['ravg']
+    
     np.savetxt('dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, tracer, redshift), np.c_[rs, results['xi']], fmt='%.6le')
     
+def plot_xi(space=''):
+    from  mcfit  import  P2xi
 
-def plot_xi():
-    colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
     for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
-        rs, xi = np.loadtxt('dat/corrfuncxi_{:.3f}.txt'.format(redshift), unpack=True)
+        fpath  = 'dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, 'g', redshift)
+                
+        rs, xi = np.loadtxt(fpath, unpack=True)
         pl.loglog(rs, xi, lw=0, alpha=0.8, label='{:.2f}'.format(redshift), c=colors[i], marker='^', markersize=3)
-        
+
+        fpath  = 'dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, 'dm', redshift)
+
+        rs, xi = np.loadtxt(fpath, unpack=True)
+        pl.loglog(rs, xi, lw=0, alpha=0.8, c=colors[i], marker='s', markersize=3)
+                
         # ZA.
         iz     = int(100 * redshift + 0.001)
         _      = np.loadtxt('/home/mjwilson/LBGSIMBA/dat/white/zeld_z{}.txt'.format(iz))
@@ -77,9 +99,8 @@ def plot_xi():
         
         # Linear (MCFIT).
         k, P, hf = np.loadtxt('dat/white/pklin_z{}.txt'.format(iz), unpack=True)
-        rs, xi   = P2xi(k)(P)
-
-        pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle='--', c=colors[i])
+        # rs, xi = P2xi(k)(P)
+        # pl.loglog(rs, (1. + b1) * (1. + b1) * xi, lw=1, alpha=0.8, linestyle='--', c=colors[i])
 
         # Halofit (MCFIT).                                                                                                                                                                 
         rs, xi   = P2xi(k)(hf)
@@ -116,11 +137,9 @@ if __name__ == '__main__':
     tracer      = 'dm'  ##  ['g', 'dm']
     space       = ''    ##  ['z', '']
     
-    for redshift in redshifts:
-      print('Solving for {} space at redshift {}.'.format(space, redshift))
-          
+    for redshift in redshifts:          
       calc_xi(test, boxsize, redshift, tracer, space)
     
-    plot_xi()
+    plot_xi(space='')
       
     print('\n\nDone.\n\n')

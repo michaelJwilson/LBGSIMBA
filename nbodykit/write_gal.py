@@ -3,11 +3,12 @@ import  astropy.io.fits   as      fits
 
 from    readgadget        import  *
 from    astropy.table     import  Table
-from    get_data          import  snaps, get_caesar
+from    snaps             import  snaps
+from    get_data          import  get_caesar
 from    astropy.cosmology import  FlatLambdaCDM
 
 
-cosmo = FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
+cosmo              =  FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
 
 def read_zpos(boxsize, redshift):
     caesar         =  get_caesar(boxsize, redshift)
@@ -19,7 +20,12 @@ def read_zpos(boxsize, redshift):
     pos['x'].unit  = 'Mpc/h'
     pos['y'].unit  = 'Mpc/h'
     pos['z'].unit  = 'Mpc/h'
-        
+
+    print(boxsize, np.max(pos['x']), np.max(pos['y']), np.max(pos['z']))
+    
+    for _ in ['x', 'y', 'z']:
+      assert  np.isclose(boxsize, np.max(pos[_]), atol=1.e-1, rtol=0.0)
+    
     # Velocity
     vel            =  [list(x.vel.to('km/s').value * (1. + redshift) / 100. / cosmo.efunc(redshift)) for x in caesar.galaxies]  # km/s.  
     vel            =  Table(np.array(vel), names=('vx', 'vy', 'vz'))
@@ -40,8 +46,8 @@ def read_zpos(boxsize, redshift):
     
     # print(vel)
 
-    pos.write('../dat/simba_gpos_{:.5f}.fits'.format(redshift),   format='fits', overwrite=True)
-    zpos.write('../dat/simba_gzpos_{:.5f}.fits'.format(redshift), format='fits', overwrite=True)
+    pos.write('../bigdat/simba_gpos_{:.5f}.fits'.format(redshift),   format='fits', overwrite=True)
+    zpos.write('../bigdat/simba_gzpos_{:.5f}.fits'.format(redshift), format='fits', overwrite=True)
 
     return  0 
 

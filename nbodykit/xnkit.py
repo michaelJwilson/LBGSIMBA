@@ -4,7 +4,7 @@ import numpy                         as      np
 import time
 import astropy.io.fits               as      fits
 
-from   get_data                      import  snaps
+from   snaps                         import  snaps
 
 from   nbodykit.lab                  import  *
 from   nbodykit.io.fits              import  FITSFile
@@ -14,6 +14,7 @@ from   nbodykit.source.catalog.array import  ArrayCatalog
 from   nbodykit.transform            import  StackColumns
 from   nbodykit                      import  setup_logging
 from   AbacusCosmos                  import  Halos
+from   nkit                          import  get_abacus
 
 
 ##  source activate nbodykit-env                                                                                                                                                                                                   
@@ -23,8 +24,11 @@ from   AbacusCosmos                  import  Halos
 ##  python3 nkit.py   
 
 def get_simba(tracer, x, space=''):
-    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
-
+    fpath           = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
+    cat             = FITSCatalog(fpath)
+    
+    print('Found:  {}.'.format(fpath))
+    
     ##  Comoving Mpc/h.
     cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
 
@@ -54,6 +58,12 @@ for space in ['']:
       
       gcat            = get_simba( 'g', x)
       dmcat           = get_simba('dm', x)
+
+      ##  Abacus                                                                                                                                                                                                                        
+      ##  dk          = 0.05
+      ##  kmin        = 0.01                                                                                                                                                                                                            
+      ##  boxsize     = 720.  ##  Natural:  720.                                                                                                                                                                                        
+      ##  cat         = get_abacus(bound=boxsize) 
       
       print('Solving for redshift:  {}, cross-spectra  and space: {}.'.format(x, space))
       
@@ -62,7 +72,6 @@ for space in ['']:
       dmmesh          = dmcat.to_mesh(resampler='tsc', Nmesh=Nmesh, compensated=True, BoxSize=boxsize)
       
       r               = FFTPower(first=gmesh, mode='2d', dk=dk, kmin=kmin, Nmu=60, los=[0,0,1], poles=[0,2,4], BoxSize=boxsize, Nmesh=Nmesh, second=dmmesh)
-
       poles           = r.poles
 
       t1              = time.time()
@@ -70,6 +79,7 @@ for space in ['']:
       print(t1 - t0)
 
       print('Number of galaxies: {}'.format(len(gcat['Position'])))
+      print('Number of point dark matter {}'.format(len(dmcat['Position'])))
       print('Shotnoise: {}'.format(poles.attrs['shotnoise']))
 
       for _ in r.power.attrs:

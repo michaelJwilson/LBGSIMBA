@@ -12,7 +12,7 @@ latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
 
 colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-zs      = [2.024621, 3.003070, 3.963392, 5.0244]
+
 bs      = [2.200000, 3.200000, 4.200000, 5.5000]
 
 for i, x in enumerate(zs):

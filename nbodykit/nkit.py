@@ -23,8 +23,11 @@ from   AbacusCosmos                  import  Halos
 ##  python3 nkit.py   
 
 def get_simba(tracer, x, space=''):
-    cat             = FITSCatalog('/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x))
+    fpath           = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
+    cat             = FITSCatalog(fpath)
 
+    print('Retrieved {}.'.format(fpath))
+    
     ##  Comoving Mpc/h.
     cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
 
@@ -111,9 +114,9 @@ for space in ['']:
 
           print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
-      #np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
-      #np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
-      #np.save('dat/{}tdpk_{}_{:.5f}_Pk.npy'.format(space, tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
+      # np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
+      # np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
+      # np.save('dat/{}tdpk_{}_{:.5f}_Pk.npy'.format(space, tracer, x), r.power['power'].real - poles.attrs['shotnoise'])
       
       # The multipoles. 
       for ell in [0]:    
