@@ -11,7 +11,7 @@ import astropy.constants  as      const
 
 from   scipy              import  signal
 from   scipy.special      import  gamma  as gammaf
-from   utils              import  latexify
+from   sutils             import  latexify
 from   cosmo              import  cosmo
 from   astropy.cosmology  import  z_at_value as _z_at_value
 from   scipy.interpolate  import  interp1d
@@ -60,10 +60,20 @@ def Aw(rc, dr, gamma, r0):
     norm /= gammaf(gamma / 2.)
 
     return  _ * norm
-        
-def pow_wtheta(theta, rc, dr, gamma=1.8, r0=5.):
+
+def beta2gamma(beta):
+    ##  -beta  = 1. - gamma
+    return  1. + beta
+
+def pow_wtheta(theta, rc=None, dr=None, gamma=1.8, r0=5., Aw=None):
     ##  theta in radians. 
-    return  Aw(rc, dr, gamma, r0) * theta ** (1. - gamma)
+    if Aw is None:
+      Aw = Aw(rc, dr, gamma, r0)
+
+    if (rc is None) & (dr is None) & (Aw is None):
+        raise ValueError('Provide either Aw or rc and dr.')
+      
+    return  Aw * theta ** (1. - gamma)
 
 @np.vectorize
 def inner(theta, rbar, xi):
@@ -113,7 +123,7 @@ def zel(index):
 
     return  redshift, rs, interp1d(rs, result, fill_value=0.0, bounds_error=False)
 
-def plot_wtheta():    
+def plot_wtheta(park=False, qiu=False):    
     zs = [2.024621, 3.00307, 3.963392, 5.0244]
     
     for i, zz in enumerate(zs):
@@ -121,15 +131,43 @@ def plot_wtheta():
 
       prefac = 60. * 60.
         
-      pl.loglog(prefac * ts, lwt, c=colors[i],  label='$z$={:.2f}'.format(zz), alpha=1., linestyle='-', lw=0.3)
+      # pl.loglog(prefac * ts, lwt, c=colors[i],  label='$z$={:.2f}'.format(zz), alpha=1., linestyle='-', lw=0.3)
 
+    if park:
+        Aw, beta = np.loadtxt('dat/park16_wtheta.dat', unpack=True, usecols=(0,1))
+        gamma    = beta2gamma(beta)
+
+        for j, (A, g) in enumerate(zip(Aw, gamma)):
+          wt     = pow_wtheta(3600. * ts, rc=None, dr=None, gamma=g, r0=5., Aw=A)
+          
+          if j == 0:
+              label = 'Park16: $z\simeq 4.0$'
+
+          else:
+              label = ''
+              
+          pl.loglog(prefac * ts, wt, linestyle='dashdot', c=colors[2], label=label)
+
+    if qiu:
+        Aw, beta = np.loadtxt('dat/qiu18_wtheta.dat', unpack=True, usecols=(0,1))
+        gamma    = beta2gamma(beta)
+
+        for j, (A, g) in enumerate(zip(Aw, gamma)):
+          wt     = pow_wtheta(3600. * ts, rc=None, dr=None, gamma=g, r0=5., Aw=A)
+
+          if j == 0:
+              label = 'Qiu18: $z\simeq 3.8$'
+
+          else:
+              label = ''
+
+          pl.loglog(prefac * ts, wt, linestyle='dotted', c=colors[2], label=label)
+          
     pl.legend(frameon=False, loc=3)
     
     pl.xlabel(r'$\theta$ [arcsec.]')                                                                                                                                                                                         
     pl.ylabel(r'$\omega(\theta$)')                                                                                                                                                                                             
-
     plt.tight_layout()                                                                                                                                                                                                   
-
     pl.savefig('plots/wtheta.pdf')   
 
 def test_xi():
@@ -209,6 +247,6 @@ if __name__ == '__main__':
 
       np.savetxt('dat/wtheta_{:.3f}'.format(redshift).replace('.', 'p') + '.txt', np.c_[ts, lwt, wt], fmt='%.6le')
     '''
-    plot_wtheta()
+    plot_wtheta(park=True, qiu=True)
     
     print('\n\nDone.\n\n')

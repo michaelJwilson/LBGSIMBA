@@ -9,9 +9,8 @@ from    scipy.spatial   import  KDTree
 from    itertools       import  product
 from    astropy.table   import  Table
 from    hildebrandt     import  ferr
+from    snaps           import  snaps
 
-
-snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
 
 def print_keys(arg):
     print('\n\nAvailable keys for {}:\n{}'.format(arg, arg.keys()))
@@ -107,13 +106,11 @@ def get_caesar(boxsize, redshift, load_halo=False):
     #  0.249808   3.003070  062
     #  0.201475   3.963392  051
     #  0.165992   5.024400  042
-
-    assert  boxsize == 100.
     
-    root  = '/home/mjwilson/LBGSIMBA/100/'
+    root  = '/home/rad/data/m{}n1024/s50/Groups/'.format(np.int(np.floor(boxsize)))
+    
     snap  = snaps[redshift]
-    
-    fpath = root + 'm100n1024_{}.hdf5'.format(snap)
+    fpath = root + 'm{}n1024_{}.hdf5'.format(np.int(np.floor(boxsize)), snap)
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 

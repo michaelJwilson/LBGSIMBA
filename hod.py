@@ -2,6 +2,7 @@ import  matplotlib;  matplotlib.use('PDF')
 
 import  glob
 import  h5py
+import  pandas            as   pd
 import  numpy             as   np
 import  pylab             as   pl
 import  matplotlib.pyplot as   plt
@@ -17,10 +18,9 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
 def run_hod(boxsize=100., getredshift=3.00307):
     ##  https://caesar.readthedocs.io/en/latest/usage.html  
-
     f           =  get_caesar(boxsize, getredshift, load_halo=True)
 
-    no_central  = np.array([x.central_galaxy == None for x in f.halos], dtype=np.int)
+    no_central  =    np.array([x.central_galaxy == None for x in f.halos], dtype=np.int)
 
     ##  List, one for each halo. 
     Nc          = np.array([(1-x) for x in no_central], dtype=float)
@@ -142,13 +142,20 @@ def plot_hod(boxsize=100., plot_model=False):
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
-    redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
-
-    for redshift in redshifts:
-        # run_hod(100., getredshift=redshift)
-        pass
+    test          = True
+    
+    if test:
+        boxsize   = 50.
+        redshifts = [5.929968] 
+    
+    else:
+        boxsize   = 100.
+        redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
         
-    plot_hod(boxsize=100., plot_model=True)
+    for redshift in redshifts:
+        run_hod(boxsize, getredshift=redshift)
+        
+    # plot_hod(boxsize=100., plot_model=True)
         
     print('\n\nDone.\n\n')
     

@@ -1,9 +1,9 @@
 import matplotlib;  matplotlib.use('PDF')
 
+import os
 import numpy    as     np
 import pylab    as     pl
-
-from   get_data import get_pyloser
+import pandas   as     pd
 
 
 def insample(selection, u, g, r, i, z, y):
@@ -40,9 +40,22 @@ def insample(selection, u, g, r, i, z, y):
     else:
         raise  ValueWarning('Specific selection ({}) is not available.'.format(selection))
 
+def read_insample(getredshift, protocol=2):
+    ##  Read insample and luptitudes.
+    root   = os.environ['LBGSIMBA']
+    fpaths = {2.024621: '/bigdat/insample_two.h5', 3.00307: '/bigdat/insample_three.h5', 3.963392: '/bigdat/insample_four.h5', 5.0244: '/bigdat/insample_five.h5'}
 
-if __name__ == '__main__':
-    import pylab as pl
+    fpath  = root + fpaths[getredshift] 
+
+    print('Reading in sample: {}.'.format(fpath))
+
+    frame  = pd.read_hdf(fpath, 'df')
+
+    return  frame
+
+def test_colorcolor():
+    import pylab    as     pl
+    from   get_data import get_pyloser
 
     
     nrows     =  -1
@@ -73,4 +86,13 @@ if __name__ == '__main__':
     
     pl.savefig('plots/insample.pdf')
     
+
+if __name__ == '__main__':
+    snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
+
+    for key in snaps.keys():
+      frame = read_insample(key)
+
+      print(frame)
+      
     print('\n\nDone.\n\n')

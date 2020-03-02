@@ -168,7 +168,7 @@ def gen_shuffled(seed, boxsize, getredshift):
     fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}.fits'.format(getredshift, seed)
         
     names      = ['x', 'y', 'z']
-    towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2]}
+    towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2], 'cen'}
         
     fitsio.write(fpath, data=towrite, names=names, clobber=True)
     

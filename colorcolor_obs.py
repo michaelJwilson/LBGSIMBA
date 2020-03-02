@@ -58,7 +58,7 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four
   
   for band in bands:
     x['LUP_' + band]  = np.zeros_like(x[band])
-
+    
     onesig            = onesig_mag(depths[band])                                                 ##  AB mags.
 
     print('Solving for {} depth in {} ({}).'.format(onesig, band, ''.join(x.split('_')[-1] for x in dbands)))
@@ -70,7 +70,7 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four
     ##  Fvs.
     onesig              = 10. ** -((onesig + 48.60) / 2.5)
     x['LUPLIM_' + band] = lup_lim(onesig)
-
+  
     for i, y in enumerate(x[band]):    
       Flux       =  10. ** (-(y + 48.60) / 2.5)                                                 ##  Fv.
 
@@ -96,8 +96,9 @@ for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four
         x.at[i, 'ISIN']         +=  band.split('_')[-1] if (x.at[i, band] <= depths[band]).astype(np.int) else ''
       
       # print(100. * count / nruns)
-
+      
       count += 1
+    
 
 physs  = {}
 frames = {}
@@ -108,8 +109,10 @@ for name, frame, phys, selection in zip(['two', 'three', 'four', 'five'], [two, 
   isin              = isin & insample(selection, frame['LUP_LSST_u'].values, frame['LUP_LSST_g'].values, frame['LUP_LSST_r'].values, frame['LUP_LSST_i'].values, frame['LUP_LSST_z'].values, frame['LUP_LSST_y'].values)
 
   frame['INSAMPLE'] = isin
-
-  frame.to_pickle('bigdat/{}.pkl'.format(name))
+  frame.drop(['ISIN'], axis=1)
+  
+  ##  frame.to_pickle('bigdat/insample_{}.pkl'.format(name))
+  frame.to_hdf('bigdat/insample_{}.h5'.format(name), key='df', mode='w')  
   
   print('\n\n')
   print(frame.loc[isin, :])
@@ -130,17 +133,17 @@ phys5        =	physs['five']
 
 
 ##
-umg2         =  two['LUP_LSST_u'].values   - two['LUP_LSST_g'].values
-gmr2         =  two['LUP_LSST_g'].values   - two['LUP_LSST_r'].values
+umg2         =    two['LUP_LSST_u'].values - two['LUP_LSST_g'].values
+gmr2         =    two['LUP_LSST_g'].values - two['LUP_LSST_r'].values
 
 umg3         =  three['LUP_LSST_u'].values - three['LUP_LSST_g'].values
 gmr3         =  three['LUP_LSST_g'].values - three['LUP_LSST_r'].values
 
-gmr4         =  four['LUP_LSST_g'].values  - four['LUP_LSST_r'].values
-rmi4         =  four['LUP_LSST_r'].values  - four['LUP_LSST_i'].values
+gmr4         =   four['LUP_LSST_g'].values - four['LUP_LSST_r'].values
+rmi4         =   four['LUP_LSST_r'].values - four['LUP_LSST_i'].values
 
-imz5         =  five['LUP_LSST_i'].values  - five['LUP_LSST_z'].values
-rmi5         =  five['LUP_LSST_r'].values  - five['LUP_LSST_i'].values
+imz5         =   five['LUP_LSST_i'].values - five['LUP_LSST_z'].values
+rmi5         =   five['LUP_LSST_r'].values - five['LUP_LSST_i'].values
 
 
 ##
