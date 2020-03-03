@@ -196,5 +196,7 @@ if __name__ == '__main__':
       print('\n\nSolving for redshift: {}.'.format(getredshift))
 
       gen_shuffled(seed, boxsize, getredshift)
+
+      break
       
     print('\n\nDone.\n\n')

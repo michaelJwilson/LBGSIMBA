@@ -40,7 +40,7 @@ def insample(selection, u, g, r, i, z, y):
     else:
         raise  ValueWarning('Specific selection ({}) is not available.'.format(selection))
 
-def read_insample(getredshift, protocol=2):
+def read_insample(getredshift):
     ##  Read insample and luptitudes.
     root   = os.environ['LBGSIMBA']
     fpaths = {2.024621: '/bigdat/insample_two.h5', 3.00307: '/bigdat/insample_three.h5', 3.963392: '/bigdat/insample_four.h5', 5.0244: '/bigdat/insample_five.h5'}

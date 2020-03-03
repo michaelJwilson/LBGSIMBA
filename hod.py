@@ -10,8 +10,9 @@ import  matplotlib.pyplot as   plt
 from    scipy.spatial  import  KDTree 
 from    itertools      import  product
 from    get_data       import  get_data, print_keys, get_caesar
-from    utils          import  latexify
+from    sutils         import  latexify
 from    fithod         import  cen_model, sat_model
+from    insample       import  read_insample
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
@@ -19,17 +20,22 @@ latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 def run_hod(boxsize=100., getredshift=3.00307):
     ##  https://caesar.readthedocs.io/en/latest/usage.html  
     f           =  get_caesar(boxsize, getredshift, load_halo=True)
-
-    no_central  =    np.array([x.central_galaxy == None for x in f.halos], dtype=np.int)
+        
+    no_central  =  np.array([x.central_galaxy == None for x in f.halos], dtype=np.int)
 
     ##  List, one for each halo. 
-    Nc          = np.array([(1-x) for x in no_central], dtype=float)
-    Ns          = np.array([np.float(len(x.satellite_galaxies)) for x in f.halos])
+    Nc          =  np.array([(1-x) for x in no_central], dtype=float)
+    Ns          =  np.array([np.float(len(x.satellite_galaxies)) for x in f.halos])
     
     nhalo       =  len(f.halos)
     ncentral    =  np.sum(Nc)
     nsats       =  np.sum(Ns)
+    ngal        =  ncentral + nsats
 
+    ##  Get in sample.                                                                                                                                                                                                    
+    insample    =  read_insample(getredshift)
+    insample    =  insample[:ngal]
+    
     hmass       = [x.masses['dm'] for x in f.halos]
     hmass       = np.array([np.atleast_1d(x.value)[0] for x in hmass])
     
@@ -143,17 +149,18 @@ if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
     test          = True
+    redshifts     = [2.024621, 3.00307, 3.963392, 5.0244]
     
     if test:
         boxsize   = 50.
-        redshifts = [5.929968] 
     
     else:
         boxsize   = 100.
-        redshifts = [2.024621, 3.00307, 3.963392, 5.0244]
         
     for redshift in redshifts:
         run_hod(boxsize, getredshift=redshift)
+        
+        break
         
     # plot_hod(boxsize=100., plot_model=True)
         
