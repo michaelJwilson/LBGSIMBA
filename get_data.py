@@ -92,9 +92,10 @@ def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     to_return['_hmass']      =  to_return['ndm'] * to_return['dm_pmass']
     to_return['hmass']       =  np.array([to_return['_hmass'][to_return['hid'] == x][0] for x in to_return['haloindex']])
 
-    for key in to_return.keys():
-      if key not in ['smass_res', 'dm_pmass']:    
-        to_return[key]       =  to_return[key][:nrows] 
+    if nrows > -1:
+      for key in to_return.keys():
+        if key not in ['smass_res', 'dm_pmass']:    
+          to_return[key]     =  to_return[key][:nrows] 
     
     return  to_return  
     

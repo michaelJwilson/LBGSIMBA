@@ -1,50 +1,47 @@
-import  matplotlib; matplotlib.use('pdf')
-
 import  glob
 import  h5py
 import  Corrfunc
 import  fitsio
 import  numpy                         as      np
-import  pylab                         as      pl
-import  matplotlib.pyplot             as      plt
 
 from    astropy.table                 import  Table
 from    scipy.spatial                 import  KDTree 
 from    itertools                     import  product
-from    utils                         import  latexify
 from    snaps                         import  snaps
 
 
-latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
-
-bs = [2.200000, 3.200000, 4.200000, 5.5000]
-
-def get_simba(tracer, x, space=''):
-    fpath = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
+def get_simba(tracer, x, space='', insample=0):
+    fpath  = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
 
     print('Retrieving {}.'.format(fpath))
 
-    cat   = fitsio.read(fpath)
+    cat    = fitsio.read(fpath)
 
+    if tracer == 'g':
+      isin = cat['INSAMPLE']
+      
     ##  Comoving Mpc/h.                                                                                                                                                                   
-    cat   = np.c_[cat['x'], cat['y'], cat['z']]
+    cat    = np.c_[cat['x'], cat['y'], cat['z']]
 
     if tracer == 'dm':
         # sub-sample.
         cat   = cat[::10] 
 
+    if (tracer == 'g') & insample:
+        print('Retaining {} of {} in sample.'.format(np.count_nonzero(isin), len(cat)))
+
+        cat   =  cat[isin.astype(bool)]
+        
     return  cat
         
-def calc_xi(test, boxsize, redshift, tracer, space):    
+def calc_xi(test, boxsize, redshift, tracer, space, insample=0):    
     print('Solving for Test: {}, boxsize: {}, redshift: {}, tracer: {} and space: {}.'.format(test, boxsize, redshift, tracer, space))
 
     # Comoving Mpc/h. 
-    pos         =  get_simba(tracer, redshift, space=space)
+    pos         =  get_simba(tracer, redshift, space=space, insample=insample)
     
     if test:
       pos = pos[:1000]
-
-    print(len(pos))
     
     ngal        =  len(pos)
     vol         =  boxsize ** 3.
@@ -60,11 +57,20 @@ def calc_xi(test, boxsize, redshift, tracer, space):
     ##  Save result:
     rs          = results['ravg']
     
-    np.savetxt('dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, tracer, redshift), np.c_[rs, results['xi']], fmt='%.6le')
+    np.savetxt('dat/corrfuncxi_{}space_{}_{:.3f}_insample_{}.txt'.format(space, tracer, redshift, insample), np.c_[rs, results['xi']], fmt='%.6le')
     
 def plot_xi(space=''):
-    from  mcfit  import  P2xi
+    import  matplotlib; matplotlib.use('pdf')
+    import  pylab                         as      pl
+    import  matplotlib.pyplot             as      plt
 
+    from    sutils                        import latexify
+    from    mcfit                         import  P2xi
+
+    
+    latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+
+    bs     = [2.200000, 3.200000, 4.200000, 5.5000]
     
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -126,6 +132,7 @@ def plot_xi(space=''):
 if __name__ == '__main__':
     print('\n\nWelcome to Simba xi.')
 
+    insample    =      1
     test        =  False
 
     #  [Mpc/h];  hubble      =  0.68  
@@ -134,12 +141,12 @@ if __name__ == '__main__':
 
     redshifts   = [2.024621, 3.00307, 3.963392, 5.0244]
     
-    tracer      = 'dm'  ##  ['g', 'dm']
+    tracer      = 'g'   ##  ['g', 'dm']
     space       = ''    ##  ['z', '']
     
     for redshift in redshifts:          
-      calc_xi(test, boxsize, redshift, tracer, space)
+      calc_xi(test, boxsize, redshift, tracer, space, insample=insample)
     
-    plot_xi(space='')
+    ##  plot_xi(space='')
       
     print('\n\nDone.\n\n')

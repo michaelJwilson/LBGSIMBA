@@ -12,6 +12,8 @@ from    insample          import  read_insample
 cosmo              =  FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
 
 def read_zpos(boxsize, redshift, set_insample=0):
+    print('\n\nSolving for redshift {}.'.format(redshift))
+
     caesar         =  get_caesar(boxsize, redshift)
 
     pos            =  [list([x.GroupID]) + list(x.pos.to('Mpccm/h').value) for x in caesar.galaxies]  # comoving Mpc/h.             
@@ -60,7 +62,6 @@ def read_zpos(boxsize, redshift, set_insample=0):
 
       pos['INSAMPLE']  = insample
       zpos['INSAMPLE'] = insample
-
       
     pos.write('../bigdat/simba_gpos_{:.5f}.fits'.format(redshift),   format='fits', overwrite=True)
     zpos.write('../bigdat/simba_gzpos_{:.5f}.fits'.format(redshift), format='fits', overwrite=True)
