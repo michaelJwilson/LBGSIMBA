@@ -124,6 +124,8 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
     
     links  = h5py.File(fpath, 'r')
+
+    ids    = links['iobjs'][:]
     
     attrs  = links.attrs.items()
 
@@ -155,7 +157,7 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     waves  = np.array(links['mag_wavelengths'])[sel]
     waves  = dict(zip(bands, waves))
             
-    return  waves, frame
+    return  waves, frame, ids
 
 def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     from  depths  import  get_depths
@@ -218,11 +220,11 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    # links       = get_caesar(boxsize, 2.024621)
+    # links           = get_caesar(boxsize, 2.024621)
 
-    waves, frame  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
-    # wave, links = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
+    wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
+    # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
-    # result      = get_phys(boxsize, 2.024621, printit=False)
+    # result          = get_phys(boxsize, 2.024621, printit=False)
         
     print('\n\nDone.\n\n')

@@ -17,7 +17,7 @@ from    insample       import  read_insample
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
-def run_hod(boxsize=100., getredshift=3.00307):
+def run_hod(boxsize=100., getredshift=3.00307, set_insample=0):
     ##  https://caesar.readthedocs.io/en/latest/usage.html  
     f           =  get_caesar(boxsize, getredshift, load_halo=True)
         
@@ -28,16 +28,27 @@ def run_hod(boxsize=100., getredshift=3.00307):
     Ns          =  np.array([np.float(len(x.satellite_galaxies)) for x in f.halos])
     
     nhalo       =  len(f.halos)
+
     ncentral    =  np.sum(Nc)
     nsats       =  np.sum(Ns)
-    ngal        =  ncentral + nsats
 
-    ##  Get in sample.                                                                                                                                                                                                    
-    insample    =  read_insample(getredshift)
-    insample    =  insample[:ngal]
-    
+    ngal        =  np.int(ncentral + nsats)
+
+    if set_insample:
+      ##  Get in sample.
+      insample  =  read_insample(getredshift)
+      insample  =  insample.head(n=ngal)
+
+      print(insample)
+          
+      insample  =  insample['INSAMPLE']
+      
+    else:
+      insample  =  np.ones_like(Nc)
+
+    ##
     hmass       = [x.masses['dm'] for x in f.halos]
-    hmass       = np.array([np.atleast_1d(x.value)[0] for x in hmass])
+    hmass       =  np.array([np.atleast_1d(x.value)[0] for x in hmass])
     
     ##  Now bin galaxies and halos by halo mass.  
     bins        =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
@@ -56,8 +67,10 @@ def run_hod(boxsize=100., getredshift=3.00307):
       mean_mass  = np.mean(hmass[bmass == i])
 
       result[i]  = {'mean_hmass': mean_mass,\
-                    'cen':   np.mean(Nc[bmass == i]), 'sat':   np.mean(Ns[bmass == i]),\
-                    'cen2':   np.var(Nc[bmass == i]), 'sat2':   np.var(Ns[bmass == i]),\
+                    'cen':   np.mean(Nc[(bmass == i) & insample]),\
+                    'sat':   np.mean(Ns[(bmass == i) & insample]),\
+                    'cen2':   np.var(Nc[(bmass == i) & insample]),\
+                    'sat2':   np.var(Ns[(bmass == i) & insample]),\
                     'nhalo':  nhalos}  
 
       for x in result.keys():
@@ -81,7 +94,7 @@ def run_hod(boxsize=100., getredshift=3.00307):
     print(stdsat)
 
     ##  Write results.
-    np.savetxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), np.c_[masses, expcen, stdcen, expsat, stdsat], fmt='%.6le')
+    np.savetxt('dat/hod_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), set_insample), np.c_[masses, expcen, stdcen, expsat, stdsat], fmt='%.6le')
 
 def plot_hod(boxsize=100., plot_model=False):
     ##                                                                                                                                                                                                                              
@@ -148,7 +161,8 @@ def plot_hod(boxsize=100., plot_model=False):
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
-    test          = True
+    test          =  True
+    insample      =  1
     redshifts     = [2.024621, 3.00307, 3.963392, 5.0244]
     
     if test:
@@ -158,7 +172,7 @@ if __name__ == '__main__':
         boxsize   = 100.
         
     for redshift in redshifts:
-        run_hod(boxsize, getredshift=redshift)
+        run_hod(boxsize, getredshift=redshift, set_insample=insample)
         
         break
         

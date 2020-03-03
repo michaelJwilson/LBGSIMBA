@@ -44,10 +44,10 @@ def chi2(params, args):
     return  np.sum((result / err) ** 2.)
 
     
-def fit_hod(boxsize=100., getredshift=3.00307):
+def fit_hod(boxsize=100., getredshift=3.00307, set_insample=0):
     print('\n\nLoading measured HOD.\n\n')
 
-    fname                = 'dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p'))
+    fname                = 'dat/hod_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), set_insample)
     Mh, Nc, sNc, Ns, sNs = np.loadtxt(fname, unpack=True, dtype=[('Mh', np.float32), ('Nc', np.float32), ('sNc', np.float32), ('Ns', np.float32), ('sNs', np.float32)])
     
     isin                 = Ns > 0.0
@@ -58,11 +58,15 @@ def fit_hod(boxsize=100., getredshift=3.00307):
     for i, _ in enumerate(Mh):
         print('{:e} \t {:e} \t {:e} \t {:e} \t {:e}'.format(_, Nc[i], sNc[i], Ns[i], sNs[i]))
 
-
     ##  Centrals.
     print('\n\nSolving for centrals.\n\n')
 
-    args       = {'mhalo': Mh, 'Nx': Nc, 'std': sNc, 'model': cen_model, 'uerr': 1}
+    args       = {'mhalo': Mh,\
+                  'Nx': Nc,\
+                  'std': sNc,\
+                  'model': cen_model,\
+                  'uerr': 1}
+
     cenparams  = np.array([5.e11, 0.5])
     
     result     = minimize(chi2, cenparams, args=args, options={'disp': True, 'maxiter': 10000}, method='Nelder-Mead')
@@ -76,7 +80,7 @@ def fit_hod(boxsize=100., getredshift=3.00307):
     pl.errorbar(Mh, Nc, yerr=sNc, c='k', marker='^', linestyle='')
     pl.loglog(Mh, cen_model(Mh, result.x), c='k')
 
-    np.savetxt('dat/hod-nc-params_{}.txt'.format(str(getredshift).replace('.', 'p')), result.x, fmt='%.6le')
+    np.savetxt('dat/hod-nc-params_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), set_insample), result.x, fmt='%.6le')
 
     ##  Satellites.
     print('\n\nSolving for satellitess.')
@@ -99,20 +103,21 @@ def fit_hod(boxsize=100., getredshift=3.00307):
     
     plt.tight_layout()
     
-    pl.savefig('plots/fitted-hod_{}.pdf'.format(str(getredshift).replace('.', 'p')))
+    pl.savefig('plots/fitted-hod_{}_insample_{}.pdf'.format(str(getredshift).replace('.', 'p'), set_insample))
 
-    np.savetxt('dat/hod-ns-params_{}.txt'.format(str(getredshift).replace('.', 'p')), result.x, fmt='%.6le')
+    np.savetxt('dat/hod-ns-params_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), set_insample), result.x, fmt='%.6le')
 
 
 if __name__ == '__main__':
     print('\n\nWelcome to fit hod.')
 
-    redshifts = [2.024621, 3.00307, 3.963392]
+    set_insample =  1 
+    redshifts    = [2.024621, 3.00307, 3.963392]
 
     for redshift in redshifts:
         print('\n\nSolving for redshift: {}'.format(redshift))
         
-        fit_hod(100., getredshift=redshift)
+        fit_hod(100., getredshift=redshift, set_insample=set_insample)
         
     print('\n\nDone.\n\n')
  
