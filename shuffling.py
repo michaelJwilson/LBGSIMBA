@@ -11,11 +11,13 @@ import  matplotlib.pyplot   as      plt
 from    snaps               import  snaps
 from    scipy.spatial       import  KDTree 
 from    itertools           import  product
-## from    utils               import  latexify
+from    sutils              import  latexify
 from    fithod              import  cen_model, sat_model
-from    caesar.quick_loader import  quick_load
+from    get_data            import  get_caesar
+##  from    caesar.quick_loader import  quick_load
 
-## latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
+
+latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
 def plot_tree(shuffled, seed):
   for key in shuffled.keys():
@@ -34,15 +36,16 @@ def plot_tree(shuffled, seed):
   pl.savefig('plots/shuffled_{}.pdf'.format(seed))
 
 
-def gen_shuffled(seed, boxsize, getredshift):    
+def gen_shuffled(seed, boxsize, getredshift, print_tree=False):    
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     snap           =  snaps[getredshift]
     
-    cc             =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
-
+    ##  cc         =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
+    cc             =  get_caesar(boxsize, getredshift, load_halo=True)
+    
     halos          =  cc.halos
 
-    ##  Now bin galaxies and halos by halo mass.                                                                                                                                                                    
+    ##  Now bin galaxies and halos by halo mass.    
     bins           =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
 
     ## 
@@ -88,10 +91,11 @@ def gen_shuffled(seed, boxsize, getredshift):
     np.random.seed(seed=seed)
         
     for i in np.arange(len(bins)):
-      print('\n\n---------------------------------------------------------------\n\n')
+      if print_tree:
+        print('\n\n---------------------------------------------------------------\n\n')
 
-      for x in tree[i]:
-        print(x[0], x[1], x[2])
+        for x in tree[i]:
+          print(x[0], x[1], x[2])
       
       nhalo        = len(tree[i])
 
@@ -124,25 +128,26 @@ def gen_shuffled(seed, boxsize, getredshift):
             ##  Declare central, satellite have same relative position to halo.  
             newtree[i][order[j]][2] =      0.0
             newtree[i][order[j]][3] = entry[3]
- 
-      print('\n\n')
 
-      for x in newtree[i]:
-        print(x[0], x[1], x[2])
+      if print_tree:
+        print('\n\n')
+
+        for x in newtree[i]:
+          print(x[0], x[1], x[2])
 
     ##
     centrals         = []
     satellites       = []
 
     for i in np.arange(len(bins)):
-       nhalo         = len(tree[i])    
+       nhalo         = len(newtree[i])    
        has_central   = [x[2] is not None for x in newtree[i]]
        
        for j in np.arange(nhalo):
          if has_central[j]:          
-           entry     = tree[i][j]
+           entry     = newtree[i][j]
            centrals.append(list(entry[1] + entry[2]))
-         
+                        
            for sat in entry[3]:
              satellites.append(list(entry[1] + sat))
 
@@ -151,8 +156,8 @@ def gen_shuffled(seed, boxsize, getredshift):
 
     assert  len(centrals)   == _ncentral
     assert  len(satellites) == _nsatellite
-
-    iscentral  = np.vstack((np.ones_like(centrals), np.zeros_like(satellites)))
+    
+    iscentral  = np.vstack((np.ones_like(centrals[:,0]).reshape(len(centrals), 1), np.zeros_like(satellites[:,0]).reshape(len(satellites), 1)))
     
     result     = np.vstack((centrals, satellites))
     result     = np.hstack((result, iscentral))
@@ -163,12 +168,15 @@ def gen_shuffled(seed, boxsize, getredshift):
     np.random.shuffle(order)
 
     result     = result[order,:]
-    
-    ##  Write shuffled catalogue.                                                                                                                                                                                                 
+
+    print(result.shape)
+    print(result)
+
+    ##  Write shuffled catalogue.                                                                                                                                                                                                
     fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}.fits'.format(getredshift, seed)
         
-    names      = ['x', 'y', 'z']
-    towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2]}
+    names      = ['x', 'y', 'z', 'central']
+    towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2], 'central': result[:,3]}
         
     fitsio.write(fpath, data=towrite, names=names, clobber=True)
     
@@ -181,13 +189,12 @@ if __name__ == '__main__':
 
     np.random.seed(seed)
 
-    boxsize = 100.
-
+    boxsize = 50.
     zs      = snaps.keys()
     
     for getredshift in zs:
       print('\n\nSolving for redshift: {}.'.format(getredshift))
 
       gen_shuffled(seed, boxsize, getredshift)
-    
+      
     print('\n\nDone.\n\n')

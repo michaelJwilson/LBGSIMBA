@@ -106,11 +106,13 @@ def get_caesar(boxsize, redshift, load_halo=False):
     #  0.249808   3.003070  062
     #  0.201475   3.963392  051
     #  0.165992   5.024400  042
+
+    nn    = {100.: '1024', 50.: '512'}[boxsize]
     
-    root  = '/home/rad/data/m{}n1024/s50/Groups/'.format(np.int(np.floor(boxsize)))
+    root  = '/home/rad/data/m{}n{}/s50/Groups/'.format(np.int(np.floor(boxsize)), nn)
     
     snap  = snaps[redshift]
-    fpath = root + 'm{}n1024_{}.hdf5'.format(np.int(np.floor(boxsize)), snap)
+    fpath = root + 'm{}n{}_{}.hdf5'.format(np.int(np.floor(boxsize)), nn, snap)
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
