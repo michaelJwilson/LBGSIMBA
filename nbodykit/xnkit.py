@@ -32,7 +32,7 @@ cols       = ['x', 'y', 'z']
 
 Nmesh      = 1024
 
-insample   = 0
+insample   = 1
 
 ##  Real or redshift space, ['z', ''].
 for space in ['']:
@@ -92,5 +92,5 @@ for space in ['']:
         P      = 0.5 * (poles['power_%d' % ell] + np.conjugate(poles['power_%d' % ell]))
         P      = P.real
         
-        np.savetxt('dat/{}{}pk_{:.5f}.txt'.format(space, 'c', x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
+        np.savetxt('dat/{}{}pk_{:.5f}_insample_{}.txt'.format(space, 'c', x, insample), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
         

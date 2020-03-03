@@ -1,11 +1,11 @@
 import matplotlib; matplotlib.use('PDF')
 
-import numpy                              as np
-import matplotlib.pyplot                  as plt
-import pylab                              as pl
+import numpy                              as     np
+import matplotlib.pyplot                  as     plt
+import pylab                              as     pl
 
 from   snaps                              import snaps
-from   utils                              import latexify
+from   sutils                             import latexify
 
 
 latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
@@ -15,7 +15,7 @@ colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 zs       = [2.024621, 3.003070, 3.963392, 5.0244]
 bs       = [2.200000, 3.200000, 4.200000, 5.5000]
 
-insample = 0
+insample = 1
 
 for i, x in enumerate(zs):
   # Theory.                                                                                                                                                                                                                             
@@ -33,7 +33,7 @@ for i, x in enumerate(zs):
 
 
   # Galaxies.
-  fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}_insample.txt'.format(x, insample)
+  fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}_insample_{}.txt'.format(x, insample)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
   
   pl.axhline(shot[0], xmin=0, xmax=1, color=colors[i], alpha=0.6, linestyle='-')
@@ -62,6 +62,6 @@ plt.ylim(1.e0, 2.e4)
 
 plt.tight_layout()
 
-pl.savefig('plots/pk.pdf'.format(x))
+pl.savefig('plots/pk_insample_{}.pdf'.format(insample))
 
 

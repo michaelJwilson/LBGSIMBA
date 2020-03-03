@@ -40,7 +40,7 @@ def run_hod(boxsize=100., getredshift=3.00307, set_insample=0):
           sat_ids = [y.GroupID for y in x.satellite_galaxies]
 
           ins     = [x in sat_ids for x in targetids]
-          Ns.append(np.count_nonzero(insample[ins]).astype(np.float))
+          Ns.append(np.float(np.count_nonzero(insample[ins])))
                     
         else:
           Ns.append(0.0)
@@ -111,7 +111,7 @@ def run_hod(boxsize=100., getredshift=3.00307, set_insample=0):
     ##  Write results.
     np.savetxt('dat/hod_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), set_insample), np.c_[masses, expcen, stdcen, expsat, stdsat], fmt='%.6le')
 
-def plot_hod(boxsize=100., plot_model=False):
+def plot_hod(boxsize=100., plot_model=False, insample=0):
     ##                                                                                                                                                                                                                              
     latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
 
@@ -121,7 +121,7 @@ def plot_hod(boxsize=100., plot_model=False):
     plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
     
     for i, getredshift in enumerate([2.024621, 3.00307, 3.963392]):
-        masses, expcen, stdcen, expsat, stdsat = np.loadtxt('dat/hod_{}.txt'.format(str(getredshift).replace('.', 'p')), unpack=True)
+        masses, expcen, stdcen, expsat, stdsat = np.loadtxt('dat/hod_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), insample), unpack=True)
 
         print(masses)
 
@@ -141,9 +141,9 @@ def plot_hod(boxsize=100., plot_model=False):
             ##  Plot best-fit models.                                                                                                                                                                                             
             ordinate  = np.logspace(10., 15., num=200)
 
-            cenparams = np.loadtxt('dat/hod-nc-params_{}.txt'.format(str(getredshift).replace('.', 'p')))
+            cenparams = np.loadtxt('dat/hod-nc-params_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), insample))
             axes[i].semilogy(np.log10(masses), cen_model(masses, cenparams), c='k', alpha=0.8, lw=1)                                                                                                                                                                                                                                                                                                                                       
-            satparams = np.loadtxt('dat/hod-ns-params_{}.txt'.format(str(getredshift).replace('.', 'p')))                                                                                                                        
+            satparams = np.loadtxt('dat/hod-ns-params_{}_insample_{}.txt'.format(str(getredshift).replace('.', 'p'), insample))                                                                                                                        
             axes[i].semilogy(np.log10(masses), sat_model(masses, satparams), c='darkcyan', alpha=0.8, lw=1)
             
         ##
@@ -155,6 +155,8 @@ def plot_hod(boxsize=100., plot_model=False):
 
         axes[i].set_xlabel(r'$\log_{10} | M_h / M_\odot|$', labelpad=15)
 
+        break
+        
     axes[0].set_ylabel(r'$\langle N_g \rangle$')
     axes[0].legend(loc=2, frameon=False)
     
@@ -170,16 +172,17 @@ def plot_hod(boxsize=100., plot_model=False):
         
     plt.tight_layout()
     
-    pl.savefig('plots/hod.pdf')
+    pl.savefig('plots/hod_insample_{}.pdf'.format(insample))
 
     
 if __name__ == '__main__':
     print('\n\nWelcome to Simba HOD.')
 
     test          =  False
-    insample      =  1
+    insample      =  0
     redshifts     = [2.024621, 3.00307, 3.963392, 5.0244]
-    
+    redshifts     = [3.963392, 5.0244]
+
     if test:
         boxsize   = 50.
     
@@ -188,8 +191,8 @@ if __name__ == '__main__':
         
     for redshift in redshifts:
         run_hod(boxsize, getredshift=redshift, set_insample=insample)
-        
-    # plot_hod(boxsize=100., plot_model=True)
+    
+    plot_hod(boxsize=100., plot_model=True, insample=insample)
         
     print('\n\nDone.\n\n')
     

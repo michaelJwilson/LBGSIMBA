@@ -111,13 +111,15 @@ def fit_hod(boxsize=100., getredshift=3.00307, set_insample=0):
 if __name__ == '__main__':
     print('\n\nWelcome to fit hod.')
 
-    set_insample =  0
+    set_insample =  1
     redshifts    = [2.024621, 3.00307, 3.963392]
 
     for redshift in redshifts:
         print('\n\nSolving for redshift: {}'.format(redshift))
         
         fit_hod(100., getredshift=redshift, set_insample=set_insample)
+
+        break
         
     print('\n\nDone.\n\n')
  

@@ -216,7 +216,7 @@ if __name__ == '__main__':
     boxsize        = 100.
 
     nrows          = -1
-    compute        = True
+    compute        = False
 
     if compute:
       for redshift in [2.024621, 3.003070, 3.963392, 5.0244]:
