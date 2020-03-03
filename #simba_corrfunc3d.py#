@@ -105,7 +105,7 @@ if __name__ == '__main__':
     vol         =  boxsize ** 3.
 
     ##  5.0244
-    redshifts   = [2.024621, 3.00307, 3.963392]
+    redshifts   = [2.024621, 3.00307, 3.96339]
 
     tracer      = 'g'
     space       = ''
