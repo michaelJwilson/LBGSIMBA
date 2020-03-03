@@ -59,7 +59,7 @@ def calc_xi(test, boxsize, redshift, tracer, space, insample=0):
     
     np.savetxt('dat/corrfuncxi_{}space_{}_{:.3f}_insample_{}.txt'.format(space, tracer, redshift, insample), np.c_[rs, results['xi']], fmt='%.6le')
     
-def plot_xi(space=''):
+def plot_xi(space='', insample=0):
     import  matplotlib; matplotlib.use('pdf')
     import  pylab                         as      pl
     import  matplotlib.pyplot             as      plt
@@ -75,7 +75,7 @@ def plot_xi(space=''):
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
     for i, redshift in enumerate([2.024621, 3.00307, 3.963392, 5.0244]):
-        fpath  = 'dat/corrfuncxi_{}space_{}_{:.3f}.txt'.format(space, 'g', redshift)
+        fpath  = 'dat/corrfuncxi_{}space_{}_{:.3f}_insample_{}.txt'.format(space, 'g', redshift, insample)
                 
         rs, xi = np.loadtxt(fpath, unpack=True)
         pl.loglog(rs, xi, lw=0, alpha=0.8, label='{:.2f}'.format(redshift), c=colors[i], marker='^', markersize=3)
@@ -126,7 +126,7 @@ def plot_xi(space=''):
     
     plt.tight_layout()
 
-    pl.savefig('plots/simba_corrfunc_xi.pdf')
+    pl.savefig('plots/simba_corrfunc_xi_insample_{}.pdf'.format(insample))
     
     
 if __name__ == '__main__':
@@ -143,10 +143,10 @@ if __name__ == '__main__':
     
     tracer      = 'g'   ##  ['g', 'dm']
     space       = ''    ##  ['z', '']
-    
+    '''
     for redshift in redshifts:          
       calc_xi(test, boxsize, redshift, tracer, space, insample=insample)
-    
-    ##  plot_xi(space='')
+    '''
+    plot_xi(space='', insample=1)
       
     print('\n\nDone.\n\n')

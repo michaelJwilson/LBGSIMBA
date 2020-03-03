@@ -9,6 +9,7 @@ import  matplotlib.pyplot  as     plt
 from    get_data           import get_pyloser, get_pyloser_fluxes
 from    scipy.optimize     import minimize
 from    sutils             import latexify
+from    insample           import read_insample
 
 
 colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -143,7 +144,7 @@ def run(redshift, wave, frame):
 
   return  frame, bands
 
-def plot_betas(nrows=-1):
+def plot_betas():
   latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
 
   betas     = []
@@ -159,8 +160,8 @@ def plot_betas(nrows=-1):
     bands   = json.load(open('dat/beta_bands_{:.3f}.txt'.format(redshift), 'r'))
 
     ##  Read sample selection.                                                                                                                                                                                                      
-    lsst_sample =  pd.read_pickle("bigdat/{}.pkl".format(name))
-    isin        =  lsst_sample['INSAMPLE'].values[:nrows]
+    lsst_sample =  read_insample(redshift)
+    isin        =  lsst_sample['INSAMPLE'].values
 
     print('Percentage meeting selection at z={}: {}'.format(redshift, np.mean(isin)))
     
@@ -213,9 +214,9 @@ if __name__ == '__main__':
     print('\n\nWelcome to the beta continuum.\n\n')
 
     boxsize        = 100.
-    nrows          = -1
 
-    compute        = False
+    nrows          = -1
+    compute        = True
 
     if compute:
       for redshift in [2.024621, 3.003070, 3.963392, 5.0244]:
@@ -232,8 +233,8 @@ if __name__ == '__main__':
         frame.to_pickle('bigdat/betauv_{:.3f}.pkl'.format(redshift).replace('.', 'p'))
 
     else:
-      plot_betas(nrows=nrows)
+      plot_betas()
 
-      plot_betas2d()
+      ##  plot_betas2d()
         
     print('\n\nDone.\n\n')

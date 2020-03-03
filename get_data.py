@@ -167,15 +167,17 @@ def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     from  depths  import  get_depths
 
 
-    depths       = get_depths()
+    depths            = get_depths()
     
-    wave, frame  = get_pyloser(boxsize, redshift, printit=printit)
+    wave, frame, ids  = get_pyloser(boxsize, redshift, printit=printit)
     
-    retain       = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
-    frame        = frame[retain]
-    frame        = frame[:nrows]
+    retain            = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+    frame             = frame[retain]
 
-    wave         = dict(zip(retain, [wave[x] for x in retain]))
+    if nrows > -1:
+      frame           = frame[:nrows]
+    
+    wave              = dict(zip(retain, [wave[x] for x in retain]))
     
     for band in retain:
       print('Solving for {}.'.format(band))

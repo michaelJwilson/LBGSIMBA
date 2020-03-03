@@ -1,4 +1,5 @@
 import pickle
+import fitsio
 import pandas                        as      pd
 import numpy                         as      np
 import time
@@ -22,7 +23,7 @@ from   AbacusCosmos                  import  Halos
 ##                                                                                                                                                                                                                                  
 ##  python3 nkit.py   
 
-def get_simba(tracer, x, space=''):
+def get_simba(tracer, x, space='', insample=0):
     fpath           = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
     cat             = FITSCatalog(fpath)
 
@@ -31,8 +32,15 @@ def get_simba(tracer, x, space=''):
     ##  Comoving Mpc/h.
     cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
 
+    if (tracer == 'g') & insample:
+      isin  = cat['INSAMPLE'].compute()
+        
+      print('Retaining {} of {} in sample.'.format(np.count_nonzero(isin), len(cat)))
+
+      cat   = cat[isin.astype(bool)]
+      
     return  cat
-    
+
 def get_abacus(bound=720., ArrayCatalog=True):
     fpath           = '/disk01/mjwilson/abacus/AbacusCosmos_720box_planck_products/AbacusCosmos_720box_planck_00-0_products/AbacusCosmos_720box_planck_00-0_FoF_halos/z1.500'
 
@@ -65,7 +73,9 @@ t0         = time.time()
 ##  Simba. 
 cols       = ['x', 'y', 'z']
 
-tracer     =  'dm'  ##  ['dm', 'g'] 
+tracer     =  'g'  ##  ['dm', 'g'] 
+
+insample   =  1
 
 ##  Real or redshift space. 
 for space in ['']:
@@ -79,7 +89,7 @@ for space in ['']:
       boxsize         =  100.
       Nmesh           = 1024
 
-      cat             = get_simba(tracer, x)
+      cat             = get_simba(tracer, x, insample=insample)
 
       ##  Abacus
       ##  kmin        = 0.01
@@ -103,16 +113,16 @@ for space in ['']:
       print('Shotnoise: {}'.format(poles.attrs['shotnoise']))
 
       for _ in r.power.attrs:
-          print("%s = %s" %(_, str(r.power.attrs[_])))
+        print("%s = %s" %(_, str(r.power.attrs[_])))
 
       # The 2D power spectrum results
       print("power = ", r.power)
       print("variables = ", r.power.variables)
 
       for name in r.power.variables:
-          var = r.power[name]
+        var = r.power[name]
 
-          print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
+        print("'%s' has shape %s and dtype %s" % (name, var.shape, var.dtype))
 
       # np.save('dat/{}tdpk_{}_{:.5f}_k.npy'.format(space, tracer, x),  r.power['k'])
       # np.save('dat/{}tdpk_{}_{:.5f}_mu.npy'.format(space, tracer, x), r.power['mu'])
@@ -126,7 +136,7 @@ for space in ['']:
         if ell == 0:
           P    = P - poles.attrs['shotnoise']
 
-        np.savetxt('dat/{}{}pk_{:.5f}.txt'.format(space, tracer, x), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
+        np.savetxt('dat/{}{}pk_{:.5f}_insample_{}.txt'.format(space, tracer, x, insample), np.c_[k, P, poles.attrs['shotnoise'] * np.ones_like(P)])            
       
         
 

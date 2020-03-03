@@ -29,16 +29,18 @@ def run_hod(boxsize=100., getredshift=3.00307, set_insample=0):
       print(insample)
 
       targetids =  insample['TARGETIDS'].to_numpy()
-      insample  =  insample['INSAMPLE'].to_numpy()
+      insample  =  insample['INSAMPLE'].to_numpy().astype(np.float)
 
-      Nc        =  [insample[targetids == x.central_galaxy.GroupID] if x is not None else 0.0 for x in f.halos]
+      Nc        =  [insample[targetids == x.central_galaxy.GroupID] if x.central_galaxy is not None else 0.0 for x in f.halos]
 
       Ns        =  []
 
       for x in f.halos:
         if len(x.satellite_galaxies) > 0.0:          
-          sat_ids = [y.GroupId for y in x.satellite_galaxies]
-          Ns.append(np.count_nonzero(insample[targetids in sat_ids]))
+          sat_ids = [y.GroupID for y in x.satellite_galaxies]
+
+          ins     = [x in sat_ids for x in targetids]
+          Ns.append(np.count_nonzero(insample[ins]).astype(np.float))
                     
         else:
           Ns.append(0.0)
@@ -186,8 +188,6 @@ if __name__ == '__main__':
         
     for redshift in redshifts:
         run_hod(boxsize, getredshift=redshift, set_insample=insample)
-
-        break
         
     # plot_hod(boxsize=100., plot_model=True)
         

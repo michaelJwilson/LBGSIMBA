@@ -12,6 +12,7 @@ from    itertools         import  product
 from    hod               import  get_data
 from    get_data          import  snaps, get_pyloser
 from    sphotometry       import  read_mags
+from    insample          import  read_insample
 
 
 boxsize      =  100.              ##  Mpc/h.
@@ -25,10 +26,10 @@ print('\n\nWelcome to Simba UV luminosity.')
 colors       = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 for i, (redshift, name) in enumerate(zip([2.024621, 3.00307, 3.963392, 5.0244], ['two', 'three', 'four', 'five'])):
-  wave, frame   =  get_pyloser(boxsize, redshift, nrows=-1, magtype='abs')
+  wave, frame, ids = get_pyloser(boxsize, redshift, nrows=-1, magtype='abs')
   
   ##  Read sample selection.
-  lsst_sample   =  pd.read_pickle("bigdat/{}.pkl".format(name))
+  lsst_sample   =  read_insample(redshift)
   isin          =  lsst_sample['INSAMPLE'].values
   
   for x, alpha, label in zip([frame['i1500'], frame['i1500'][isin]], [0.5, 1.0], ['', '$z$ = %.2lf' % redshift]):

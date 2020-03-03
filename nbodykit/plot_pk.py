@@ -10,10 +10,12 @@ from   utils                              import latexify
 
 latexify(columns=1, equal=True, fontsize=12, ggplot=True, usetex=True)
 
-colors  = plt.rcParams['axes.prop_cycle'].by_key()['color']
+colors   = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-zs      = [2.024621, 3.003070, 3.963392, 5.0244]
-bs      = [2.200000, 3.200000, 4.200000, 5.5000]
+zs       = [2.024621, 3.003070, 3.963392, 5.0244]
+bs       = [2.200000, 3.200000, 4.200000, 5.5000]
+
+insample = 0
 
 for i, x in enumerate(zs):
   # Theory.                                                                                                                                                                                                                             
@@ -31,7 +33,7 @@ for i, x in enumerate(zs):
 
 
   # Galaxies.
-  fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}.txt'.format(x)
+  fpath       = '/home/mjwilson/LBGSIMBA/nbodykit/dat/gpk_{:.5f}_insample.txt'.format(x, insample)
   k, P, shot  = np.loadtxt(fpath, unpack=True)
   
   pl.axhline(shot[0], xmin=0, xmax=1, color=colors[i], alpha=0.6, linestyle='-')

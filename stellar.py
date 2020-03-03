@@ -10,7 +10,8 @@ import  matplotlib.pyplot     as      plt
 from    scipy.spatial         import  KDTree 
 from    itertools             import  product
 from    get_data              import  get_data, print_keys, get_phys
-from    utils                 import  latexify
+from    sutils                import  latexify
+from    insample              import  read_insample
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
@@ -37,7 +38,7 @@ for boxsize, linestyle, min_smass, label in zip([100., 50.], ['-', '--'], [1.82e
     print('\n\nRange of stellar mass: {} to {} solar masses.'.format(stellarmass.min() / 1e10, stellarmass.max() / 1e10))
 
     ##  Read sample selection.                                                                                                                                                        
-    lsst_sample   =  pd.read_pickle("bigdat/{}.pkl".format(name))
+    lsst_sample   =  read_insample(getredshift)
     isin          =  lsst_sample['INSAMPLE'].values
 
     for x, alpha, label in zip([stellarmass, stellarmass[isin]], [0.5, 1.0], ['', r'$z$ = %.2lf' % getredshift]):

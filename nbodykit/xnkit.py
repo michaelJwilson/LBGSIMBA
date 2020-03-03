@@ -14,7 +14,7 @@ from   nbodykit.source.catalog.array import  ArrayCatalog
 from   nbodykit.transform            import  StackColumns
 from   nbodykit                      import  setup_logging
 from   AbacusCosmos                  import  Halos
-from   nkit                          import  get_abacus
+from   nkit                          import  get_abacus, get_simba
 
 
 ##  source activate nbodykit-env                                                                                                                                                                                                   
@@ -22,18 +22,6 @@ from   nkit                          import  get_abacus
 ##  export PYTHONPATH=/home/mjwilson/LBGSIMBA/:/home/mjwilson/LBGSIMBA/AbacusCosmos/:$PYTHONPATH                                                                                                                                     
 ##                                                                                                                                                                                                                                  
 ##  python3 nkit.py   
-
-def get_simba(tracer, x, space=''):
-    fpath           = '/home/mjwilson/LBGSIMBA/bigdat/simba_{}{}pos_{:.5f}.fits'.format(tracer, space, x)
-    cat             = FITSCatalog(fpath)
-    
-    print('Found:  {}.'.format(fpath))
-    
-    ##  Comoving Mpc/h.
-    cat['Position'] = StackColumns(cat['x'], cat['y'], cat['z'])
-
-    return  cat
-    
 
 compute    = True
 
@@ -43,6 +31,8 @@ t0         = time.time()
 cols       = ['x', 'y', 'z']
 
 Nmesh      = 1024
+
+insample   = 0
 
 ##  Real or redshift space, ['z', ''].
 for space in ['']:
@@ -56,7 +46,7 @@ for space in ['']:
       boxsize         =  100.
       Nmesh           = 1024
       
-      gcat            = get_simba( 'g', x)
+      gcat            = get_simba( 'g', x, insample=insample)
       dmcat           = get_simba('dm', x)
 
       ##  Abacus                                                                                                                                                                                                                        
