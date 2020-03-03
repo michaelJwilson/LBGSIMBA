@@ -220,9 +220,9 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    # links           = get_caesar(boxsize, 2.024621)
+    links           = get_caesar(boxsize, 2.024621)
 
-    wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
+    # wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
     # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result          = get_phys(boxsize, 2.024621, printit=False)

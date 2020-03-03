@@ -47,7 +47,7 @@ def read_insample(getredshift):
 
     fpath  = root + fpaths[getredshift] 
 
-    print('Reading in sample: {}.'.format(fpath))
+    print('\n\nReading in sample: {}.'.format(fpath))
 
     frame  = pd.read_hdf(fpath, 'df')
 

@@ -49,12 +49,14 @@ count        =  0
 
 bands        =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
 
-for redshift, x in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five]):
-  _, dbands   = det_bands(redshift, wave, bands, lim=1500.)
+for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five], [ids2, ids3, ids4, ids5]):
+  _, dbands      = det_bands(redshift, wave, bands, lim=1500.)
 
-  x['DBANDS'] = ''.join(x.split('_')[-1] for x in dbands)
-  x['ISIN']   = np.array([''] * len(x['LSST_u']))
-  x['SNR2']   = np.zeros_like(x['LSST_u'])
+  x['TARGETIDS'] = ids[:nrows]
+
+  x['DBANDS']    = ''.join(x.split('_')[-1] for x in dbands)
+  x['ISIN']      = np.array([''] * len(x['LSST_u']))
+  x['SNR2']      = np.zeros_like(x['LSST_u'])
   
   for band in bands:
     x['LUP_' + band]  = np.zeros_like(x[band])

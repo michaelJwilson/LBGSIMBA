@@ -13,10 +13,9 @@ cosmo              =  FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
 def read_zpos(boxsize, redshift):
     caesar         =  get_caesar(boxsize, redshift)
 
-    pos            =  [list(x.pos.to('Mpccm/h').value) for x in caesar.galaxies]  # comoving Mpc/h.         
+    pos            =  [list([x.GroupID]) + list(x.pos.to('Mpccm/h').value) for x in caesar.galaxies]  # comoving Mpc/h.             
+    pos            =  Table(np.array(pos), names=('id', 'x', 'y', 'z'))
     
-    pos            =  Table(np.array(pos), names=('x', 'y', 'z'))
-
     pos['x'].unit  = 'Mpc/h'
     pos['y'].unit  = 'Mpc/h'
     pos['z'].unit  = 'Mpc/h'
@@ -34,9 +33,8 @@ def read_zpos(boxsize, redshift):
     vel['vy'].unit = 'Mpc/h'
     vel['vz'].unit = 'Mpc/h'
 
-    # vel.sort('vz')                                                                                                                                                                                                                                                                        
-    print(vel)
-
+    # vel.sort('vz')
+    
     # Redshift-space position.
     zpos           = Table(pos, copy=True)
     zpos['z']      = pos['z'] + vel['vz']
@@ -44,7 +42,7 @@ def read_zpos(boxsize, redshift):
     # Wrap redshift-space position.                                                                                                                                                                                                    
     zpos['z']      = np.mod(zpos['z'], boxsize)
     
-    # print(vel)
+    print(zpos)
 
     pos.write('../bigdat/simba_gpos_{:.5f}.fits'.format(redshift),   format='fits', overwrite=True)
     zpos.write('../bigdat/simba_gzpos_{:.5f}.fits'.format(redshift), format='fits', overwrite=True)
