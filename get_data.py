@@ -43,8 +43,8 @@ def get_data(boxsize, getredshift, printit=False):
     print('\n\nRetrieving:  {}'.format(photfile))
 
     ##  Extract desired data from this redshift snapshot. 
-    f          = h5py.File(getfile)
-    _          = h5py.File(photfile)
+    f          = h5py.File(getfile, mode='r')
+    _          = h5py.File(photfile, mode='r')
 
     if printit:
         print_keys(f)
@@ -142,8 +142,11 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
         retain += ['i1500']
     
     frame  = frame[retain]
-    frame  = frame[:nrows]
-    
+
+    if nrows > -1:
+      frame = frame[:nrows]
+      ids   =   ids[:nrows]
+      
     if printit:
         for x in attrs:
             print(x)

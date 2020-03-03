@@ -52,7 +52,7 @@ bands        =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
 for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five], [ids2, ids3, ids4, ids5]):
   _, dbands      = det_bands(redshift, wave, bands, lim=1500.)
 
-  x['TARGETIDS'] = ids[:nrows]
+  x['TARGETIDS'] = ids
 
   x['DBANDS']    = ''.join(x.split('_')[-1] for x in dbands)
   x['ISIN']      = np.array([''] * len(x['LSST_u']))

@@ -6,11 +6,12 @@ from    astropy.table     import  Table
 from    snaps             import  snaps
 from    get_data          import  get_caesar
 from    astropy.cosmology import  FlatLambdaCDM
+from    insample          import  read_insample
 
 
 cosmo              =  FlatLambdaCDM(H0=68, Om0=0.3, Tcmb0=2.725)
 
-def read_zpos(boxsize, redshift):
+def read_zpos(boxsize, redshift, set_insample=0):
     caesar         =  get_caesar(boxsize, redshift)
 
     pos            =  [list([x.GroupID]) + list(x.pos.to('Mpccm/h').value) for x in caesar.galaxies]  # comoving Mpc/h.             
@@ -39,11 +40,28 @@ def read_zpos(boxsize, redshift):
     zpos           = Table(pos, copy=True)
     zpos['z']      = pos['z'] + vel['vz']
 
-    # Wrap redshift-space position.                                                                                                                                                                                                    
+    # Wrap redshift-space position.
     zpos['z']      = np.mod(zpos['z'], boxsize)
     
     print(zpos)
 
+    if set_insample:
+      insample     = read_insample(redshift)
+
+      print(insample)
+
+      targetids    = insample['TARGETIDS'].to_numpy()
+      insample     = insample['INSAMPLE'].to_numpy()
+
+      print(len(pos))
+      print(len(targetids))
+      
+      assert  np.all(np.array(pos['id']).astype(np.int) == targetids.astype(np.float))
+
+      pos['INSAMPLE']  = insample
+      zpos['INSAMPLE'] = insample
+
+      
     pos.write('../bigdat/simba_gpos_{:.5f}.fits'.format(redshift),   format='fits', overwrite=True)
     zpos.write('../bigdat/simba_gzpos_{:.5f}.fits'.format(redshift), format='fits', overwrite=True)
 
@@ -51,7 +69,9 @@ def read_zpos(boxsize, redshift):
 
 
 if __name__ == '__main__':
+  set_insample = 1
+
   for x in snaps.keys():
-    read_zpos(100., x)
+    read_zpos(100., x, set_insample=set_insample)
     
   print('\n\nDone.\n\n')
