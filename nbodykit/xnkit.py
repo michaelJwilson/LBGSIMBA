@@ -32,7 +32,7 @@ cols       = ['x', 'y', 'z']
 
 Nmesh      = 1024
 
-insample   = 1
+insample   = 0
 
 ##  Real or redshift space, ['z', ''].
 for space in ['']:

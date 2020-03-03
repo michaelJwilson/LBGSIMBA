@@ -14,7 +14,7 @@ from    itertools           import  product
 from    sutils              import  latexify
 from    fithod              import  cen_model, sat_model
 from    get_data            import  get_caesar
-##  from    caesar.quick_loader import  quick_load
+from    insample            import  read_insample
 
 
 latexify(columns=1, equal=True, fontsize=10, ggplot=True, usetex=True)
@@ -35,16 +35,46 @@ def plot_tree(shuffled, seed):
     
   pl.savefig('plots/shuffled_{}.pdf'.format(seed))
 
-
-def gen_shuffled(seed, boxsize, getredshift, print_tree=False):    
+def gen_shuffled(seed, boxsize, getredshift, print_tree=False, insample=0):    
     ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
     snap           =  snaps[getredshift]
     
     ##  cc         =  quick_load('/home/rad/data/m50n1024/s50/Groups/m50n1024_026.hdf5')
     cc             =  get_caesar(boxsize, getredshift, load_halo=True)
+    ids            = [x.GroupID for x in cc.galaxies]
     
     halos          =  cc.halos
 
+    if insample:
+      lsst_sample  =  read_insample(redshift)
+
+      targetids    =  insample['TARGETIDS'].values
+      isin         =  lsst_sample['INSAMPLE'].values
+
+      assert  np.all(targetids == ids)
+
+      for x in cc.halos:
+        ##  Null central galaxies that are not in sample. 
+        if x.central_galaxy is not None:
+          cid      =  x.central_galaxy.GroupID 
+  
+          if not isin[targetids == cid]:
+            x.central_galaxy = None
+
+        if len(x.satellite_galaxies) > 0:
+          sids          = [y.GroupID for y in x.satellite_galaxies] 
+          keep          = [isin[targetids == sid] for sid in sids]
+          
+          insample_sats = []
+
+          for i, y in enumerate(x.satellite_galaxies):
+            if keep[i]:
+              insample_sats.append(y)
+
+          x.satellite_galaxies = insample_sats
+
+    return
+      
     ##  Now bin galaxies and halos by halo mass.    
     bins           =  np.logspace(10., 14., 10, endpoint=True, base=10.0)
 
@@ -53,12 +83,12 @@ def gen_shuffled(seed, boxsize, getredshift, print_tree=False):
     newtree        =  {}
     
     for i in np.arange(len(bins)):
-      tree[i]      = []
-      newtree[i]   = []
+      tree[i]      =  []
+      newtree[i]   =  []
 
     ##  Conservation of sats and centrals with shuffling. 
-    _ncentral      = 0
-    _nsatellite    = 0 
+    _ncentral      =   0
+    _nsatellite    =   0 
     
     for hh in halos:
       hmass        = hh.masses['dm']                                          # Solar. ['baryon', 'dm', 'gas', 'stellar', 'total']
@@ -185,18 +215,18 @@ if __name__ == '__main__':
     print('\n\nWelcome to Simba shuffled HOD.')
 
     ##  Greater than zero for shuffling.                                                                                                                                                                                         
-    seed    = 42
+    seed     = 42
 
     np.random.seed(seed)
 
-    boxsize = 50.
-    zs      = snaps.keys()
+    boxsize  = 100.
+    zs       = snaps.keys()
+
+    insample = 1
     
     for getredshift in zs:
       print('\n\nSolving for redshift: {}.'.format(getredshift))
 
-      gen_shuffled(seed, boxsize, getredshift)
-
-      break
+      gen_shuffled(seed, boxsize, getredshift, insample=insample)
       
     print('\n\nDone.\n\n')
