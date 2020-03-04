@@ -203,7 +203,7 @@ def gen_shuffled(seed, boxsize, getredshift, print_tree=False, insample=0):
     print(result)
 
     ##  Write shuffled catalogue.                                                                                                                                                                                                
-    fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}.fits'.format(getredshift, seed)
+    fpath      = '/home/mjwilson/LBGSIMBA/bigdat/simba_gpos_{}_shuffled{:d}_insample_{}.fits'.format(getredshift, seed, insample)
         
     names      = ['x', 'y', 'z', 'central']
     towrite    = {'x': result[:,0], 'y': result[:,1], 'z': result[:,2], 'central': result[:,3]}
