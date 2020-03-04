@@ -46,7 +46,7 @@ def gen_shuffled(seed, boxsize, getredshift, print_tree=False, insample=0):
     halos          =  cc.halos
 
     if insample:
-      lsst_sample  =  read_insample(redshift)
+      lsst_sample  =  read_insample(getredshift)
 
       targetids    =  insample['TARGETIDS'].values
       isin         =  lsst_sample['INSAMPLE'].values
