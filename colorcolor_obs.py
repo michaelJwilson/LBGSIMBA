@@ -32,7 +32,6 @@ nrows              =  -1
 prop               =  'hmass'  ## 'smass'     
 
 wave, two,   ids2  =  get_pyloser(boxsize, 2.024621, nrows=nrows)
-
 wave, three, ids3  =  get_pyloser(boxsize, 3.003070, nrows=nrows)
 wave, four,  ids4  =  get_pyloser(boxsize, 3.963392, nrows=nrows)
 wave, five,  ids5  =  get_pyloser(boxsize, 5.024400, nrows=nrows)

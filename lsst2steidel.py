@@ -13,8 +13,8 @@ def lsst2steidel():
     from   get_data import get_pyloser
 
 
-    nrows     =  -1
-    boxsize   = 100.
+    nrows          =   -1
+    boxsize        =  100.
 
     ##  2.024621,  3.963392                                                                                                                                                                                                          
     wave, two, ids = get_pyloser(boxsize, 2.024621, nrows=nrows, steidel=True)
@@ -34,11 +34,11 @@ def lsst2steidel():
 if __name__ == '__main__':
     two, bxdrops, bmdrops = lsst2steidel()
 
-    two['U-G']            = two['steidel_un']     - two['steidel_g']
-    two['u-g']            = two['LSST_u']         - two['LSST_g'] 
+    two['U-G']            = two['steidel_un'] - two['steidel_g']
+    two['u-g']            = two['LSST_u']     - two['LSST_g'] 
     
-    two['G-R']            = two['steidel_g']      - two['steidel_rs']
-    two['g-r']            = two['LSST_g']         - two['LSST_r']
+    two['G-R']            = two['steidel_g']  - two['steidel_rs']
+    two['g-r']            = two['LSST_g']     - two['LSST_r']
     
     pl.plot(two['U-G'],          two['u-g'],          marker='.', c='k',    lw=0.0, markersize=1, alpha=0.2)
     pl.plot(two['U-G'][bxdrops], two['u-g'][bxdrops], marker='.', c='gold', lw=0.0, markersize=1, alpha=0.2)
