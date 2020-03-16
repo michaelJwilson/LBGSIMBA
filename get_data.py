@@ -117,7 +117,7 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False):
     #  Currently, photometry only. 
     root   = '/home/mjwilson/LBGSIMBA/100/'
     snap   = snaps[redshift]
@@ -139,6 +139,9 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
     
     retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
 
+    if steidel:
+        retain += ['steidel_un', 'steidel_g', 'steidel_rs', 'steidel_i']
+    
     if magtype == 'abs':
         retain += ['i1500']
     
@@ -163,7 +166,7 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app'):
             
     return  waves, frame, ids
 
-def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
+def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1, steidel=False):
     from  depths  import  get_depths
 
 
@@ -172,6 +175,10 @@ def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1):
     wave, frame, ids  = get_pyloser(boxsize, redshift, printit=printit)
     
     retain            = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+
+    if steidel:
+      retain         += ['steidel_un', 'steidel_g', 'steidel_rs', 'steidel_i']
+
     frame             = frame[retain]
 
     if nrows > -1:
@@ -226,9 +233,9 @@ if __name__ == '__main__':
     print(p2['COLOR_INFO'][:])
     '''
 
-    links           = get_caesar(boxsize, 2.024621)
+    # links           = get_caesar(boxsize, 2.024621)
 
-    # wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='abs')
+    wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='app')
     # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result          = get_phys(boxsize, 2.024621, printit=False)

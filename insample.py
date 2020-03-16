@@ -29,14 +29,28 @@ def insample(selection, u, g, r, i, z, y):
 
         return isin
 
-    elif selection in ['BX', 'BM']:
-        isin = (g-r) >= 0.2
-        isin = isin & ((u-g) >= (g-r) + 0.2)
-        isin = isin & ((u-g) <  (g-r) + 1.0)
-        isin = isin & ((g-r) <= 0.2 * (u-g) + 0.4)
-
-        return isin
+def insample_steidel(selection, Un, G, R):
+    if selection == 'BX':
+        ##  Steidel filters.                                                                                                                                                                                              
+        isin = (G-R)          >= -0.2
+        isin = isin & ((Un-G) >= (G-R) + 0.2)
+        isin = isin & ((Un-G) <  (G-R) + 1.0)
+        isin = isin & (( G-R) <= 0.2 * (Un-G) + 0.4)
+        isin = isin & (R > 23.5)
         
+        return isin
+
+    elif selection == 'BM':
+	##  Steidel filters; 1.4 < z < 3.3, R > 23.5
+        isin = (G-R)          >= -0.2
+        isin = isin & ((Un-G) >= (G-R) - 0.1)
+        isin = isin & ((Un-G) <  (G-R) + 0.2)
+        isin = isin & (( G-R) <= 0.2 * (Un-G) + 0.4)
+
+        isin = isin & (R > 23.5)
+        
+        return isin
+
     else:
         raise  ValueWarning('Specific selection ({}) is not available.'.format(selection))
 
@@ -62,37 +76,26 @@ def test_colorcolor():
     boxsize   = 100.
 
     ##  2.024621,  3.963392
-    wave, two = get_pyloser(boxsize, 2.024621, nrows=nrows)
+    wave, two, ids = get_pyloser(boxsize, 2.024621, nrows=nrows, steidel=True)
 
-    bdrops    = insample('BX', two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
-    udrops    = insample('u',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
-    gdrops    = insample('g',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values) 
-    rdrops    = insample('r',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
-
-    print(len(two['LSST_u'].values), np.count_nonzero(bdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops))
+    bxdrops        = insample_steidel('BX', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values)
+    bmdrops        = insample_steidel('BM', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values)
     
-    umg       = two['LSST_u'].values - two['LSST_g'].values
-    gmr       = two['LSST_g'].values - two['LSST_r'].values
-    rmi       = two['LSST_r'].values - two['LSST_i'].values
+    udrops         = insample('u',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
+    gdrops         = insample('g',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values) 
+    rdrops         = insample('r',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
     
-    pl.plot(gmr,         umg,         marker='.', alpha=0.1, lw=0, c='k')
-    pl.plot(gmr[bdrops], umg[bdrops], marker='.', lw=0, c='g')
-
-    ##  pl.plot(rmi,         gmr,         marker='.', alpha=0.1, lw=0, c='k')
-    ##  pl.plot(rmi[gdrops], gmr[gdrops], marker='.', lw=0, c='g') 
-
-    pl.xlim(-2.0, 2.0)
-    pl.ylim(-2.0, 3.5)
-    
-    pl.savefig('plots/insample.pdf')
-    
+    print(np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops))
 
 if __name__ == '__main__':
     snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
-
+    '''
     for key in snaps.keys():
       frame = read_insample(key)
 
       print(frame)
-      
+    '''
+
+    test_colorcolor()
+    
     print('\n\nDone.\n\n')
