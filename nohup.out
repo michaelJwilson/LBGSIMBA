@@ -1,0 +1,52 @@
+yt : [INFO     ] 2020-03-04 17:31:21,227 Reading /home/rad/data/m100n1024/s50/Groups/m100n1024_078.hdf5
+yt : [INFO     ] 2020-03-04 17:31:21,300 Restoring halo attributes
+yt : [INFO     ] 2020-03-04 17:47:00,953 Restoring galaxy attributes
+yt : [INFO     ] 2020-03-04 17:47:11,859 Linking galaxies and halos
+yt : [INFO     ] 2020-03-04 17:47:13,127 Creating sublists
+yt : [INFO     ] 2020-03-04 17:47:16,621 Reading /home/rad/data/m100n1024/s50/Groups/m100n1024_062.hdf5
+yt : [INFO     ] 2020-03-04 17:47:16,698 Restoring halo attributes
+yt : [INFO     ] 2020-03-04 18:02:35,642 Restoring galaxy attributes
+yt : [INFO     ] 2020-03-04 18:02:44,400 Linking galaxies and halos
+yt : [INFO     ] 2020-03-04 18:02:45,663 Creating sublists
+yt : [INFO     ] 2020-03-04 18:02:47,838 Reading /home/rad/data/m100n1024/s50/Groups/m100n1024_051.hdf5
+yt : [INFO     ] 2020-03-04 18:02:47,914 Restoring halo attributes
+yt : [INFO     ] 2020-03-04 18:16:05,309 Restoring galaxy attributes
+yt : [INFO     ] 2020-03-04 18:16:12,028 Linking galaxies and halos
+yt : [INFO     ] 2020-03-04 18:16:13,549 Creating sublists
+yt : [INFO     ] 2020-03-04 18:16:15,251 Reading /home/rad/data/m100n1024/s50/Groups/m100n1024_042.hdf5
+yt : [INFO     ] 2020-03-04 18:16:15,327 Restoring halo attributes
+yt : [INFO     ] 2020-03-04 18:25:57,065 Restoring galaxy attributes
+yt : [INFO     ] 2020-03-04 18:26:06,652 Linking galaxies and halos
+yt : [INFO     ] 2020-03-04 18:26:07,436 Creating sublists
+
+
+Welcome to Simba shuffled HOD.
+
+
+Solving for redshift: 2.024621.
+
+
+Reading in sample: /home/mjwilson/LBGSIMBA//bigdat/insample_two.h5.
+
+
+Solving for redshift: 3.00307.
+
+
+Reading in sample: /home/mjwilson/LBGSIMBA//bigdat/insample_three.h5.
+
+
+Solving for redshift: 3.963392.
+
+
+Reading in sample: /home/mjwilson/LBGSIMBA//bigdat/insample_four.h5.
+
+
+Solving for redshift: 5.0244.
+
+
+Reading in sample: /home/mjwilson/LBGSIMBA//bigdat/insample_five.h5.
+
+
+Done.
+
+

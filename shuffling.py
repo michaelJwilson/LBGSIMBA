@@ -48,7 +48,7 @@ def gen_shuffled(seed, boxsize, getredshift, print_tree=False, insample=0):
     if insample:
       lsst_sample  =  read_insample(getredshift)
 
-      targetids    =  insample['TARGETIDS'].values
+      targetids    =  lsst_sample['TARGETIDS'].values
       isin         =  lsst_sample['INSAMPLE'].values
 
       assert  np.all(targetids == ids)

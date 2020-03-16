@@ -2,19 +2,19 @@ import  matplotlib;  matplotlib.use('PDF')
 
 import  glob
 import  h5py
-import  numpy             as      np
-import  pylab             as      pl
-import  matplotlib.pyplot as      plt
+import  numpy                                 as      np
+import  pylab                                 as      pl
+import  matplotlib.pyplot                     as      plt
 
-from    scipy.spatial     import  KDTree
-from    itertools         import  product
-from    get_data          import  get_data
-from    sutils            import  latexify
-from    luptitudes        import  luptitude, lup_lim
-from    hildebrandt       import  ferr
-from    depths            import  get_depths, get_depths27
-from    scipy.stats       import  norm       as normal_rand
-from    sphotometry       import  read_mags
+from    scipy.spatial                         import  KDTree
+from    itertools                             import  product
+from    get_data                              import  get_data
+from    sutils                                import  latexify
+from    luptitudes                            import  luptitude, lup_lim
+from    hildebrandt                           import  ferr
+from    depths                                import  get_depths, get_depths27
+from    scipy.stats                           import  norm       as normal_rand
+from    sphotometry                           import  read_mags
 from    insample                              import  insample
 from    fast_scatter                          import  fast_scatter
 from    get_data                              import  get_pyloser, get_phys
@@ -44,19 +44,19 @@ phys5              =  get_phys(boxsize, 5.024400, nrows=nrows)['hmass']
 
 ##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]                                                                                                                                                                        
 ##  Available snapshots: ['062',   '078',    '051',    '042']
-nruns        =  5 * (len(two['LSST_u'])  + len(three['LSST_u']) + len(four['LSST_u']) + len(five['LSST_u']))
-count        =  0
+nruns              =  5 * (len(two['LSST_u'])  + len(three['LSST_u']) + len(four['LSST_u']) + len(five['LSST_u']))
+count              =  0
 
-bands        =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
+bands              =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
 
 for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five], [ids2, ids3, ids4, ids5]):
-  _, dbands      = det_bands(redshift, wave, bands, lim=1500.)
+  _, dbands        = det_bands(redshift, wave, bands, lim=1500.)
 
-  x['TARGETIDS'] = ids
+  x['TARGETIDS']   = ids
 
-  x['DBANDS']    = ''.join(x.split('_')[-1] for x in dbands)
-  x['ISIN']      = np.array([''] * len(x['LSST_u']))
-  x['SNR2']      = np.zeros_like(x['LSST_u'])
+  x['DBANDS']      = ''.join(x.split('_')[-1] for x in dbands)
+  x['ISIN']        = np.array([''] * len(x['LSST_u']))
+  x['SNR2']        = np.zeros_like(x['LSST_u'])
   
   for band in bands:
     x['LUP_' + band]  = np.zeros_like(x[band])
@@ -111,7 +111,7 @@ for name, frame, phys, selection in zip(['two', 'three', 'four', 'five'], [two, 
   isin              = isin & insample(selection, frame['LUP_LSST_u'].values, frame['LUP_LSST_g'].values, frame['LUP_LSST_r'].values, frame['LUP_LSST_i'].values, frame['LUP_LSST_z'].values, frame['LUP_LSST_y'].values)
 
   frame['INSAMPLE'] = isin
-  frame.drop(['ISIN'], axis=1)
+  framae            = frame.drop(['ISIN'], axis=1)
   
   ##  frame.to_pickle('bigdat/insample_{}.pkl'.format(name))
   frame.to_hdf('bigdat/insample_{}.h5'.format(name), key='df', mode='w')  
