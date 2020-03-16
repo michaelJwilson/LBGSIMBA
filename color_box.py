@@ -24,11 +24,11 @@ def color_box(ax, dband = 'g'):
     minrcol    = (minbcol - intercept) / gradient
     bcollim    =  gradient * maxrcol + intercept
 
-    ## Plot selection box perimeter. 
+    ##  Plot selection box perimeter. 
     ax.plot(rcols[rcols < minrcol], minbcol * np.ones_like(rcols[rcols < minrcol]), 'k', lw=0.4)
     ax.plot(maxrcol * np.ones_like(bcols[bcols > bcollim]), bcols[bcols > bcollim], 'k', lw=0.4)
     
-    ## Gradient
+    ##  Gradient
     ax.plot(rcols[(rcols > minrcol) & (bcols < bcollim)], bcols[(rcols > minrcol) & (bcols < bcollim)], c='k', linestyle='-', lw=0.4)
 
     return  0

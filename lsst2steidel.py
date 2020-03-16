@@ -35,15 +35,57 @@ if __name__ == '__main__':
     two, bxdrops, bmdrops = lsst2steidel()
 
     two['U-G']            = two['steidel_un']     - two['steidel_g']
-    two['*U-G*']          = 0.97 * (two['LSST_u'] - two['LSST_g']) + 1.27
+    two['u-g']            = two['LSST_u']         - two['LSST_g'] 
     
     two['G-R']            = two['steidel_g']      - two['steidel_rs']
-    two['*G-R*']          = 0.32 * (two['LSST_r'] - two['LSST_i']) + 1.10
+    two['g-r']            = two['LSST_g']         - two['LSST_r']
     
-    pl.plot(two['U-G'][bmdrops], two['*U-G*'][bmdrops], marker='.', c='k', lw=0.0, markersize=2)
+    pl.plot(two['U-G'],          two['u-g'],          marker='.', c='k',    lw=0.0, markersize=1, alpha=0.2)
+    pl.plot(two['U-G'][bxdrops], two['u-g'][bxdrops], marker='.', c='gold', lw=0.0, markersize=1, alpha=0.2)
+    pl.plot(two['U-G'][bmdrops], two['u-g'][bmdrops], marker='.', c='c',    lw=0.0, markersize=1, alpha=0.2)
 
-    pl.savefig('plots/lsst2steidel.pdf')
+    pl.xlabel(r'$U_n-G$')
+    pl.ylabel(r'$u-g$')
     
+    pl.savefig('plots/lsst2steidel_umg.pdf')
+
+    ##
+    pl.clf()
+    
+    pl.plot(two['G-R'],          two['g-r'],          marker='.', c='k',    lw=0.0, markersize=1, alpha=0.2)
+    pl.plot(two['G-R'][bxdrops], two['g-r'][bxdrops], marker='.', c='gold', lw=0.0, markersize=1, alpha=0.2)
+    pl.plot(two['G-R'][bmdrops], two['g-r'][bmdrops], marker='.', c='c',    lw=0.0, markersize=1, alpha=0.2)
+
+    pl.xlabel(r'$G-R$')
+    pl.ylabel(r'$g-r$')
+
+    pl.savefig('plots/lsst2steidel_gmr.pdf')
+
+    ##
+    pl.clf()
+
+    pl.plot(two['g-r'][bxdrops], two['u-g'][bxdrops], marker='.', c='gold', lw=0.0, markersize=1, alpha=0.2, label='BX')
+    pl.plot(two['g-r'][bmdrops], two['u-g'][bmdrops], marker='.', c='c', lw=0.0, markersize=1, alpha=0.2, label='BM')
+
+    pl.xlabel(r'$g-r$')
+    pl.ylabel(r'$u-g$')
+    pl.legend(frameon=False)
+    
+    pl.savefig('plots/lsst2steidel.pdf')
+
+    ##                                                                                                                                                                                                                               
+    pl.clf()
+
+    pl.plot(two['G-R'][bxdrops], two['U-G'][bxdrops], marker='.', c='gold', lw=0.0, markersize=1, alpha=0.2, label='BX')
+    pl.plot(two['G-R'][bmdrops], two['U-G'][bmdrops], marker='.', c='c', lw=0.0, markersize=1, alpha=0.2, label='BM')
+
+    pl.xlabel(r'$G-R$')
+    pl.ylabel(r'$Un-G$')
+    
+    pl.legend(frameon=False)
+    
+    pl.savefig('plots/lsst2steidel_steidel.pdf')
+
     print('\n\nDone.\n\n')
 
 
