@@ -5,12 +5,21 @@ import numpy    as     np
 import pylab    as     pl
 import pandas   as     pd
 
+from   snaps    import snaps  as snaps_c
+from   snaps    import snaps_lhalf, snaps_hhalf
 
-def insample(selection, u, g, r, i, z, y):
+
+def insample(selection, u, g, r, i, z, y, maglim=None, default=True):
     if selection == 'u':
         isin = (u-g) > 1.5
         isin = isin & ((g-r) > -1.0) & ((g-r) < 1.2)
         isin = isin & (1.5 * (g-r) < (u-g) -0.75)
+
+        if maglim is not None:
+          if default:
+            maglim = 24.6
+            
+          isin = isin & (i <= maglim)
         
         return  isin
 
@@ -19,6 +28,12 @@ def insample(selection, u, g, r, i, z, y):
         isin = isin & ((g-r) > 1.0)
         isin = isin & ((r-i) <	1.0)
         isin = isin & ((g-r) >	1.5 * (r-i) + 0.8)
+
+        if maglim is not None:
+          if default:
+            maglim = 25.8  
+
+          isin = isin &	(i < maglim)
         
         return isin
 
@@ -27,16 +42,27 @@ def insample(selection, u, g, r, i, z, y):
         isin = isin & ((z-y) < 0.5)
         isin = isin & ((i-z) >  2.0 * (z-y) + 1.1)
 
+        if maglim is not None:
+          if default:
+            maglim = 25.8 
+            
+          isin = isin &	(z < maglim)
+        
         return isin
 
-def insample_steidel(selection, Un, G, R):
+def insample_steidel(selection, Un, G, R, maglim=None, default=True):
     if selection == 'BX':
         ##  Steidel filters.                                                                                                                                                                                              
         isin = (G-R)          >= -0.2
         isin = isin & ((Un-G) >= (G-R) + 0.2)
         isin = isin & ((Un-G) <  (G-R) + 1.0)
         isin = isin & (( G-R) <= 0.2 * (Un-G) + 0.4)
-        isin = isin & (R > 23.5)
+
+        if maglim is not None:
+          if default:
+            maglim = 25.5
+            
+          isin = isin & (R >= 23.5) & (R <= maglim)
         
         return isin
 
@@ -47,7 +73,11 @@ def insample_steidel(selection, Un, G, R):
         isin = isin & ((Un-G) <  (G-R) + 0.2)
         isin = isin & (( G-R) <= 0.2 * (Un-G) + 0.4)
 
-        isin = isin & (R > 23.5)
+        if maglim is not None:
+          if default:
+            maglim = 25.5
+            
+          isin = isin & (R >= 23.5) & (R <= maglim)
         
         return isin
 
@@ -67,26 +97,73 @@ def read_insample(getredshift):
 
     return  frame
 
-def test_colorcolor():
+def test_insample():
     import pylab    as     pl
     from   get_data import get_pyloser
 
     
-    nrows     =  -1
-    boxsize   = 100.
+    nrows              =   -1
+    boxsize            =  100.
 
-    ##  2.024621,  3.963392
-    wave, two, ids = get_pyloser(boxsize, 2.024621, nrows=nrows, steidel=True)
+    snaps              =  snaps_c
+    zs                 =  np.sort(list(snaps.keys()))
 
-    bxdrops        = insample_steidel('BX', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values)
-    bmdrops        = insample_steidel('BM', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values)
+    mlims              =  np.arange(22.5, 26.0, 0.1)
+    results            =  {}
     
-    udrops         = insample('u',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
-    gdrops         = insample('g',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values) 
-    rdrops         = insample('r',  two['LSST_u'].values, two['LSST_g'].values, two['LSST_r'].values, two['LSST_i'].values, two['LSST_z'].values, two['LSST_y'].values)
-    
-    print(np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops))
+    for nodust, name in zip([True, False], ['nodust', 'dust']):
+      results[name]    = []
+        
+      if snaps == snaps_c:
+        wave, two,   ids2    =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel= True)
+        wave, three, ids3    =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+        wave, four,  ids4    =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+        wave, five,  ids5    =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
 
+      else:
+          # No dust magnitudes not available at displaced redshifts, e.g. 2.0 -> 1.5 etc. 
+          wave, two,   ids2  =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+          wave, three, ids3  =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+          wave, four,  ids4  =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+	  wave, five,  ids5  =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+          
+      for maglim in mlims:
+        if snaps == snaps_c:
+          bxdrops            =  insample_steidel('BX', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values, maglim=maglim, default=False)
+          bmdrops            =  insample_steidel('BM', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values, maglim=maglim, default=False)
+
+        else:
+          bxdrops            =  np.zeros_like(two['LSST_u'].values).astype(bool)
+          bmdrops            =  np.zeros_like(two['LSST_u'].values).astype(bool)
+
+        ##  
+        udrops               =  insample('u',  three['LSST_u'].values, three['LSST_g'].values, three['LSST_r'].values, three['LSST_i'].values, three['LSST_z'].values, three['LSST_y'].values, maglim=maglim, default=False)
+        gdrops               =  insample('g',   four['LSST_u'].values,  four['LSST_g'].values,  four['LSST_r'].values,  four['LSST_i'].values,  four['LSST_z'].values,  four['LSST_y'].values, maglim=maglim, default=False)
+        rdrops               =  insample('r',   five['LSST_u'].values,  five['LSST_g'].values,  five['LSST_r'].values,  five['LSST_i'].values,  five['LSST_z'].values,  five['LSST_y'].values, maglim=maglim, default=False)
+
+        print('\n\n ------------- Dust? {} -------------'.format(1 - np.int(nodust)))
+        # print('\n\nExpected\nBX \t BM \t u \t g \t r.')
+        # print('{:.0f} \t -- \t {:.0f} \t {:.0f} \t {:.0f}.'.format(1.e6 * 10.**-2.06, 1.e6 * 10.**-3.15, 1.e6 * 10.**-2.45, 1.e6 * 10.**-3.00))
+       
+        print('\n\nSimba')
+        print('BX \t BM \t u \t g \t r.')
+        print('{:.0f} \t {:.0f} \t {:.0f} \t {:.0f} \t {:.0f}.'.format(np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)))
+
+        tmp                  =  [np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)]
+        results[name].append(tmp)
+
+    results['nodust']  = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
+    results['dust']    = pd.DataFrame(np.c_[mlims, np.array(results['dust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
+
+    print('\n\n')
+    print(results['nodust'])
+    print('\n\n')
+    print(results['dust'])                                      
+
+    results['nodust'].to_csv('no_dust_Ns.csv')
+    results['dust'].to_csv('dust_Ns.csv')
+    
+    
 if __name__ == '__main__':
     snaps = {2.024621: '078', 3.00307: '062', 3.963392: '051', 5.0244: '042'}
     '''
@@ -96,6 +173,7 @@ if __name__ == '__main__':
       print(frame)
     '''
 
-    test_colorcolor()
+    test_insample()
     
     print('\n\nDone.\n\n')
+

@@ -117,7 +117,7 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False):
     #  Currently, photometry only. 
     root   = '/home/mjwilson/LBGSIMBA/100/'
     snap   = snaps[redshift]
@@ -132,10 +132,19 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
 
     bands  = list(links.attrs['bands'])
 
-    for x in bands:
+    if printit:
+      print(attrs)  
+
+      for x in bands:
         print(x)
-    
-    frame  = pd.DataFrame(data=links['{}mag'.format(magtype)][:], columns=bands) 
+
+    if nodust:
+      load   = '{}mag_nodust'.format(magtype)
+
+    else:
+      load   = '{}mag'.format(magtype)
+        
+    frame  = pd.DataFrame(data=links[load][:], columns=bands) 
     
     retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
 
