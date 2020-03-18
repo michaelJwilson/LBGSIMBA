@@ -119,11 +119,17 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
 def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False):
     #  Currently, photometry only. 
-    root   = '/home/mjwilson/LBGSIMBA/100/'
-    snap   = snaps[redshift]
 
-    fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
-    
+    if boxsize == 100.:
+      root   = '/home/mjwilson/LBGSIMBA/100/'
+      snap   = snaps[redshift]
+      fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+
+    elif boxsize == 25.:
+      root   = '/home/mjwilson/LBGSIMBA/25/'
+      snap   = snaps[redshift]
+      fpath  = root + 'pyloser_m25n512_{}.hdf5'.format(snap)
+        
     links  = h5py.File(fpath, 'r')
 
     ids    = links['iobjs'][:]

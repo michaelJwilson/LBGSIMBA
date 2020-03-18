@@ -25,7 +25,6 @@ def insample(selection, u, g, r, i, z, y, maglim=None, default=True):
 
     elif selection == 'g':
         isin = (g-r) >	1.0 
-        isin = isin & ((g-r) > 1.0)
         isin = isin & ((r-i) <	1.0)
         isin = isin & ((g-r) >	1.5 * (r-i) + 0.8)
 
@@ -52,7 +51,8 @@ def insample(selection, u, g, r, i, z, y, maglim=None, default=True):
 
 def insample_steidel(selection, Un, G, R, maglim=None, default=True):
     if selection == 'BX':
-        ##  Steidel filters.                                                                                                                                                                                              
+        ##  Steidel filters.
+        ##  https://arxiv.org/pdf/astro-ph/0401445.pdf
         isin = (G-R)          >= -0.2
         isin = isin & ((Un-G) >= (G-R) + 0.2)
         isin = isin & ((Un-G) <  (G-R) + 1.0)
@@ -108,7 +108,9 @@ def test_insample():
     snaps              =  snaps_c
     zs                 =  np.sort(list(snaps.keys()))
 
-    mlims              =  np.arange(22.5, 26.0, 0.1)
+    print(zs)
+    
+    mlims              =  np.arange(22.5, 30.0, 0.1)
     results            =  {}
     
     for nodust, name in zip([True, False], ['nodust', 'dust']):
@@ -141,23 +143,15 @@ def test_insample():
         gdrops               =  insample('g',   four['LSST_u'].values,  four['LSST_g'].values,  four['LSST_r'].values,  four['LSST_i'].values,  four['LSST_z'].values,  four['LSST_y'].values, maglim=maglim, default=False)
         rdrops               =  insample('r',   five['LSST_u'].values,  five['LSST_g'].values,  five['LSST_r'].values,  five['LSST_i'].values,  five['LSST_z'].values,  five['LSST_y'].values, maglim=maglim, default=False)
 
-        print('\n\n ------------- Dust? {} -------------'.format(1 - np.int(nodust)))
-        # print('\n\nExpected\nBX \t BM \t u \t g \t r.')
-        # print('{:.0f} \t -- \t {:.0f} \t {:.0f} \t {:.0f}.'.format(1.e6 * 10.**-2.06, 1.e6 * 10.**-3.15, 1.e6 * 10.**-2.45, 1.e6 * 10.**-3.00))
-       
-        print('\n\nSimba')
-        print('BX \t BM \t u \t g \t r.')
-        print('{:.0f} \t {:.0f} \t {:.0f} \t {:.0f} \t {:.0f}.'.format(np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)))
-
         tmp                  =  [np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)]
         results[name].append(tmp)
 
     results['nodust']  = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
     results['dust']    = pd.DataFrame(np.c_[mlims, np.array(results['dust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
 
-    print('\n\n')
+    print('\n\n ----  No dust  ----')
     print(results['nodust'])
-    print('\n\n')
+    print('\n\n ----  Dust  ----')
     print(results['dust'])                                      
 
     results['nodust'].to_csv('no_dust_Ns.csv')

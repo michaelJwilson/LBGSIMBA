@@ -1,0 +1,23 @@
+#!/usr/bin/env python                                                                                                                                                                                                                 
+"""
+Snapshot to redshift.                                                                                                                                                                                                            
+"""
+
+import sys
+import argparse
+import numpy as np
+
+
+dat      = np.loadtxt('/home/mjwilson/LBGSIMBA/snapshot_redshifts.txt')
+dat      = np.load('/home/mjwilson/LBGSIMBA/snapshot_redshifts.npy')
+
+parser   = argparse.ArgumentParser(description='Convert Simba snapshots to redshifts.')
+
+parser.add_argument('snapshot', metavar='N', type=int, nargs='+',
+                    help='xxx snapshot to convert')
+
+args     = parser.parse_args()
+snap     = args.snapshot[0]
+
+print(snap, dat[dat[:,2] == snap, 1][0])
+
