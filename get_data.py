@@ -119,7 +119,6 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
 def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False):
     #  Currently, photometry only. 
-
     if boxsize == 100.:
       root   = '/home/mjwilson/LBGSIMBA/100/'
       snap   = snaps[redshift]
@@ -128,7 +127,7 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
     elif boxsize == 25.:
       root   = '/home/mjwilson/LBGSIMBA/25/'
       snap   = snaps[redshift]
-      fpath  = root + 'pyloser_m25n512_{}.hdf5'.format(snap)
+      fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
         
     links  = h5py.File(fpath, 'r')
 
@@ -159,7 +158,9 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
     
     if magtype == 'abs':
         retain += ['i1500']
-    
+
+    return None, None, None
+        
     frame  = frame[retain]
 
     if nrows > -1:
@@ -250,7 +251,7 @@ if __name__ == '__main__':
 
     # links           = get_caesar(boxsize, 2.024621)
 
-    wave, frame, ids  = get_pyloser(boxsize, 2.024621, printit=True, magtype='app')
+    wave, frame, ids  = get_pyloser(100., 2.024621, printit=True, magtype='abs', nodust=True)
     # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result          = get_phys(boxsize, 2.024621, printit=False)
