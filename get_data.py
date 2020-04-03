@@ -158,8 +158,6 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
     
     if magtype == 'abs':
         retain += ['i1500']
-
-    return None, None, None
         
     frame  = frame[retain]
 
@@ -225,7 +223,48 @@ def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1, steidel=False
         
     return wave, frame
 
-      
+def get_pyloser_AV(boxsize, redshift):
+    if boxsize == 100.:
+      root   = '/home/mjwilson/LBGSIMBA/100/'
+      snap   = snaps[redshift]
+      fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+
+    elif boxsize == 25.:
+      root   = '/home/mjwilson/LBGSIMBA/25/'
+      snap   = snaps[redshift]
+      fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
+
+    links    = h5py.File(fpath, 'r')
+
+    ids      = links['iobjs'][:]
+    AV       = links['A_V'][:]
+
+    return  AV
+    
+def get_pyloser_spectra(boxsize, redshift):
+    if boxsize == 100.:
+      root   = '/home/mjwilson/LBGSIMBA/100/'
+      snap   = snaps[redshift]
+      fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+
+    elif boxsize == 25.:
+      root   = '/home/mjwilson/LBGSIMBA/25/'
+      snap   = snaps[redshift]
+      fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
+
+    links    = h5py.File(fpath, 'r')
+
+    attrs    = links.attrs.items()
+
+    # Angstroms.
+    wave     = links['spec_wavelengths'][:]
+
+    # erg/s/cm2/AA;  (ntargets, nwave)                                                                                                                                                                                         
+    spec     = links['spec'][:]
+
+    return  wave, spec
+
+
 if __name__ == '__main__':
     print('\n\nWelcome to Simba get_data.')
 
@@ -251,9 +290,11 @@ if __name__ == '__main__':
 
     # links           = get_caesar(boxsize, 2.024621)
 
-    wave, frame, ids  = get_pyloser(100., 2.024621, printit=True, magtype='abs', nodust=True)
+    # wave, frame, ids  = get_pyloser(100., 2.024621, printit=True, magtype='abs', nodust=True)
     # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result          = get_phys(boxsize, 2.024621, printit=False)
-        
+
+    wave, spec        = get_pyloser_spectra(100., 2.024621)
+    
     print('\n\nDone.\n\n')

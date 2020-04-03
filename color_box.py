@@ -33,6 +33,44 @@ def color_box(ax, dband = 'g'):
 
     return  0
 
+def color_box_steidel(ax, ttype = 'BX'):
+    ##  https://arxiv.org/pdf/astro-ph/0401445.pdf
+    steidel    = {'bx': {'bcol': 'Un-G', 'rcol': 'G-R', 'minrcol': -0.2, 'gradient': 1.0, 'intercept': 0.2},\
+                  'bm': {'bcol': 'Un-G', 'rcol': 'G-R', 'minrcol': -0.2, 'gradient': 1.0, 'intercept': 0.2}}
+
+    bcol       =  steidel[ttype]['bcol']
+    rcol       =  steidel[ttype]['rcol']
+
+    minrcol    =  steidel[ttype]['minrcol']                                                                                                                                                 
+
+    gradient   =  steidel[ttype]['gradient']
+    intercept  =  steidel[ttype]['intercept']
+
+    rcols      =  np.arange(-1.5, 4.0, 0.001)
+
+    bcollims   = []
+    bcolmaxs   = []
+    
+    for i, intercept in enumerate([-1.0, 0.2, 1.0]):
+      bcols    =  gradient * rcols + intercept
+
+      rcollim  =  rcols < 0.2 * bcols + 0.4
+
+      bcollims.append(bcols[(rcols > minrcol) & rcollim].min())
+      bcolmaxs.append(bcols[(rcols > minrcol) & rcollim].max())
+      
+      ax.plot(rcols[(rcols > minrcol) & rcollim], bcols[(rcols > minrcol) & rcollim], c='k', linestyle='-', lw=0.4)
+
+    bcollims   =  np.array(bcollims) 
+    bcolmaxs   =  np.array(bcolmaxs)
+    
+    ax.plot(minrcol * np.ones_like(np.arange(bcollims[0], bcollims[-1], 0.001)), np.arange(bcollims[0], bcollims[-1], 0.001), lw=0.4, c='k')
+    ax.plot(rcols[((5.0 * (rcols - 0.4)) > bcolmaxs[0]) & ((5.0 * (rcols - 0.4)) < bcolmaxs[-1])], (5.0 * (rcols - 0.4))[((5.0 * (rcols - 0.4)) > bcolmaxs[0]) & ((5.0 * (rcols - 0.4)) < bcolmaxs[-1])], lw=0.4, c='k')
+
+    print((5.0 * (rcols - 0.4))[(bcols > bcolmaxs[0]) & (bcols < bcolmaxs[-1])])
+    
+    return  0
+
 
 if __name__ == '__main__':
     colourtrack('g')

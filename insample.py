@@ -143,19 +143,27 @@ def test_insample():
         gdrops               =  insample('g',   four['LSST_u'].values,  four['LSST_g'].values,  four['LSST_r'].values,  four['LSST_i'].values,  four['LSST_z'].values,  four['LSST_y'].values, maglim=maglim, default=False)
         rdrops               =  insample('r',   five['LSST_u'].values,  five['LSST_g'].values,  five['LSST_r'].values,  five['LSST_i'].values,  five['LSST_z'].values,  five['LSST_y'].values, maglim=maglim, default=False)
 
+        # Color selected.
         tmp                  =  [np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)]
-        results[name].append(tmp)
 
-    results['nodust']  = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
-    results['dust']    = pd.DataFrame(np.c_[mlims, np.array(results['dust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r'])
+        # Pure magnitude limits.
+        tmp2                 =  [np.count_nonzero((two['steidel_rs'] >= 23.5) & (two['steidel_rs'] <= maglim)),\
+                                 np.count_nonzero(three['LSST_i'] < maglim),\
+                                 np.count_nonzero(four['LSST_i'] < maglim),\
+                                 np.count_nonzero(five['LSST_z'] < maglim)]
+        
+        results[name].append(tmp + tmp2)
+
+    results['nodust']  = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
+    results['dust']    = pd.DataFrame(np.c_[mlims, np.array(results['dust'])],   columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
 
     print('\n\n ----  No dust  ----')
     print(results['nodust'])
     print('\n\n ----  Dust  ----')
     print(results['dust'])                                      
 
-    results['nodust'].to_csv('no_dust_Ns.csv')
-    results['dust'].to_csv('dust_Ns.csv')
+    results['nodust'].to_csv('no_dust_Ns_{}.csv'.format(boxsize))
+    results['dust'].to_csv('dust_Ns_{}.csv'.format(boxsize))
     
     
 if __name__ == '__main__':
