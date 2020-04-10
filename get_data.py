@@ -1,3 +1,4 @@
+import  copy
 import  glob
 import  h5py
 import  caesar
@@ -16,6 +17,8 @@ def print_keys(arg):
     print('\n\nAvailable keys for {}:\n{}'.format(arg, arg.keys()))
 
 def get_data(boxsize, getredshift, printit=False):
+    raise  DeprecationWarning('TO DO:  Fix this - for get_phys.')
+
     ##  Find the CAESAR snapshot file closest to the desired redshift, getredshift. 
     files      = glob.glob('/home/mjwilson/LBGSIMBA/100/m100n1024_*.hdf5')
     snapshots  = [int(x.split('/')[-1].split('_')[-1].split('.hdf5')[0]) for x in files]
@@ -66,7 +69,7 @@ def get_phys(boxsize, getredshift, printit=False, nrows=-1):
     to_return['haloindex']   =  f['galaxy_data']['parent_halo_index'][:]
     to_return['cid']         =  p['CAESAR_ID'][:]
     
-    ##  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'                                                                                                                                                           
+    ##  1300 1700 1510 Idealized 1500A bandpass: rounded tophat centered'                                                                                                                                  
     to_return['MUV']         =  p['absmag_19'][:]
 
     ## Ignore photometry that's not in the files.
@@ -117,17 +120,21 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False, allfilters=False, fpath=None, retain=[]):
     #  Currently, photometry only. 
-    if boxsize == 100.:
-      root   = '/home/mjwilson/LBGSIMBA/100/'
-      snap   = snaps[redshift]
-      fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+    if fpath is None:    
+      if boxsize == 100.: 
+        root   = '/home/mjwilson/LBGSIMBA/100/'
+        snap   = snaps[redshift]
+        fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
 
-    elif boxsize == 25.:
-      root   = '/home/mjwilson/LBGSIMBA/25/'
-      snap   = snaps[redshift]
-      fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
+      elif boxsize == 25.:
+        root   = '/home/mjwilson/LBGSIMBA/25/'
+        snap   = snaps[redshift]
+        fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
+        
+    else:
+      print('Loading external {}.'.format(fpath))
         
     links  = h5py.File(fpath, 'r')
 
@@ -136,7 +143,7 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
     attrs  = links.attrs.items()
 
     bands  = list(links.attrs['bands'])
-
+    
     if printit:
       print(attrs)  
 
@@ -149,15 +156,19 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
     else:
       load   = '{}mag'.format(magtype)
         
-    frame  = pd.DataFrame(data=links[load][:], columns=bands) 
-    
-    retain = ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
+    frame    = pd.DataFrame(data=links[load][:], columns=bands) 
+
+    retain   = copy.deepcopy(retain)
+    retain  += ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_y', 'LSST_z']
 
     if steidel:
         retain += ['steidel_un', 'steidel_g', 'steidel_rs', 'steidel_i']
     
     if magtype == 'abs':
         retain += ['i1500']
+
+    if allfilters:
+        retain  = bands
         
     frame  = frame[retain]
 
@@ -177,7 +188,9 @@ def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steid
 
     waves  = np.array(links['mag_wavelengths'])[sel]
     waves  = dict(zip(bands, waves))
-            
+
+    links.close()
+    
     return  waves, frame, ids
 
 def get_pyloser_fluxes(boxsize, redshift, printit=False, nrows=-1, steidel=False):
@@ -239,6 +252,8 @@ def get_pyloser_AV(boxsize, redshift):
     ids      = links['iobjs'][:]
     AV       = links['A_V'][:]
 
+    links.close()
+    
     return  AV
     
 def get_pyloser_spectra(boxsize, redshift):
@@ -262,6 +277,8 @@ def get_pyloser_spectra(boxsize, redshift):
     # erg/s/cm2/AA;  (ntargets, nwave)                                                                                                                                                                                         
     spec     = links['spec'][:]
 
+    links.close()
+    
     return  wave, spec
 
 
@@ -270,12 +287,6 @@ if __name__ == '__main__':
 
     boxsize     =  100.
     '''
-    ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
-    f2, p2      =  get_data(boxsize, 2.024621)
-    f3, p3      =  get_data(boxsize, 3.00307)
-    f4, p4      =  get_data(boxsize, 3.963392)
-    f5, p5      =  get_data(boxsize, 5.024400)
-
     print
     print(p2['HEADER_INFO'][:])
     print
@@ -287,14 +298,23 @@ if __name__ == '__main__':
     print
     print(p2['COLOR_INFO'][:])
     '''
+    '''
+    fpath              = '/home/mjwilson/LBGSIMBA/pylosers/m100n1024/s50/pyloser_m100n1024_051.hdf5'
+    # retain           = ['i2300', 'i2800']
+    retain             = []
+    
+    wave, frame, ids   = get_pyloser(100., 3.963392, printit=False, magtype='abs', nodust=True, allfilters=True, fpath=fpath, retain=retain)
+    ww,   ff,    ii    = get_pyloser(100., 3.963392, printit=False, magtype='app', nodust=True, allfilters=True, fpath=fpath, retain=retain)
 
-    # links           = get_caesar(boxsize, 2.024621)
+    print(frame.columns)
+    
+    # wave, links      = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
-    # wave, frame, ids  = get_pyloser(100., 2.024621, printit=True, magtype='abs', nodust=True)
-    # wave, links     = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
+    # result           = get_phys(boxsize, 2.024621, printit=False)
 
-    # result          = get_phys(boxsize, 2.024621, printit=False)
+    # wave, spec       = get_pyloser_spectra(100., 2.024621)
+    '''
 
-    wave, spec        = get_pyloser_spectra(100., 2.024621)
+    cc                 = get_caesar(boxsize, 3.963392, load_halo=False)
     
     print('\n\nDone.\n\n')

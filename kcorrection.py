@@ -19,42 +19,46 @@ from    cosmo             import  cosmo
 
 ##  Closest redshifts:  2.024621, 3.00307, 3.963392, 5.0244
 boxsize      =  100.
-maglim       =  False
-nodust       =  False
 
-##  Available redshifts: [3.00307, 2.024621, 3.963392, 5.0244]
-##  Available snapshots: ['062',   '078',    '051',    '042']
+redshifts    = [3.00307, 3.963392, 5.0244]
 
-redshifts    = [3.00307, 3.963392]
-
-##                                                                                                                                                                                                                           
 latexify(columns=2, equal=False, fontsize=8, ggplot=True, usetex=True, ratio=0.35)
 
-fig, axes    = plt.subplots(nrows=2, ncols=2, sharey=False, figsize=(7, 7))
+fig, axes    = plt.subplots(nrows=2, ncols=3, sharey=False, figsize=(10, 7))
 plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hspace=None)
 
 for j, nodust in enumerate([False, True]):
- for i, zz in enumerate(redshifts):
-  chi               = cosmo.comoving_distance(zz).value   ##  [Mpc]. 
-  lumdist           = (1. + zz) * chi            
-  distmod           = 5. * np.log10(lumdist) + 25.
+ for i, (zz, band) in enumerate(zip(redshifts, ['i', 'i', 'z'])):
+  print(zz, band)
   
-  wave, frame, ids  =  get_pyloser(boxsize, zz, nrows=-1, nodust=nodust, steidel=False, magtype='abs')
+  band              = 'LSST_{}'.format(band)
+
+  chi               =  cosmo.comoving_distance(zz).value   ##  [Mpc]. 
+  lumdist           = (1. + zz) * chi            
+  distmod           =  5. * np.log10(1.e5 * lumdist)
+
+  fpath             = '/home/mjwilson/LBGSIMBA/pylosers/m100n1024/s50/pyloser_m100n1024_051.hdf5'
+  fpath             =  None
+  
+  wave, frame, ids  =  get_pyloser(boxsize, zz, nrows=-1, nodust=nodust, steidel=False, magtype='abs', fpath=fpath, allfilters=True)
   MUV               =  frame['i1500'].values
 
-  wave, frame, ids  =  get_pyloser(boxsize, zz, nrows=-1, nodust=nodust, steidel=False)
-  muv               =  frame['LSST_i'].values
+  wave, frame, ids  =  get_pyloser(boxsize, zz, nrows=-1, nodust=nodust, steidel=False, magtype='app', fpath=fpath, allfilters=True)
+  muv               =  frame[band].values
+
+  print(np.count_nonzero(muv <= 25.8))
   
   exp               =  muv - distmod + 2.5 * np.log10(1. + zz)
-
+  
   axes[j][i].plot(muv, exp - MUV, marker='.', c='k', lw=0, markersize=0.5, label=r'$z$={:.2f}, {}'.format(zz, 'no dust' if nodust else 'dust'))
 
-  axes[j][i].set_xlabel(r'$i_{AB}$')
+  axes[j][i].set_xlabel(r'{}'.format(band[-1]) + r'$_{AB}$')
   axes[j][i].set_ylabel(r'$\langle M_{UV} \rangle - M_{UV}$')
 
-  axes[j][i].set_ylim(1.0, 2.0)
+  axes[j][i].set_xlim(21., 32.0)
+  # axes[j][i].set_ylim(1.0,  2.0)
 
-  axes[j][i].legend(loc=1, frameon=False)
+  axes[j][i].legend(loc=3, frameon=False)
 
   ax = axes[j][i]
   
