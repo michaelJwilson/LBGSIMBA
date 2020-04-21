@@ -97,7 +97,7 @@ def read_insample(getredshift):
 
     return  frame
 
-def test_insample():
+def test_insample(root=None):
     import pylab    as     pl
     from   get_data import get_pyloser
 
@@ -108,7 +108,11 @@ def test_insample():
     snaps              =  snaps_c
     zs                 =  np.sort(list(snaps.keys()))
 
-    print(zs)
+    # Overwrite with custom simba run.  Gaussian EBV of magnitude 0.3 
+    root               = '/home/mjwilson/LBGSIMBA/pylosers/m100n1024/s50/run/'
+
+    if root is None:
+      root             = '/home/mjwilson/LBGSIMBA/'
     
     mlims              =  np.arange(22.5, 30.0, 0.1)
     results            =  {}
@@ -117,19 +121,20 @@ def test_insample():
       results[name]    = []
         
       if snaps == snaps_c:
-        wave, two,   ids2    =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel= True)
-        wave, three, ids3    =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
-        wave, four,  ids4    =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
-        wave, five,  ids5    =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+        # wave, two,   ids2  =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel=True, root=root)
+        wave, three, ids3    =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False, root=root)
+        # wave, four,  ids4  =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+        # wave, five,  ids5  =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
 
       else:
           # No dust magnitudes not available at displaced redshifts, e.g. 2.0 -> 1.5 etc. 
-          wave, two,   ids2  =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
-          wave, three, ids3  =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
-          wave, four,  ids4  =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
-	  wave, five,  ids5  =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+          # wave, two,   ids2 =  get_pyloser(boxsize, zs[0], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False, root=root)
+          wave, three, ids3   =  get_pyloser(boxsize, zs[1], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False, root=root)
+          # wave, four,  ids4 =  get_pyloser(boxsize, zs[2], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
+	  # wave, five,  ids5 =  get_pyloser(boxsize, zs[3], nrows=nrows, snaps=snaps, nodust=nodust, steidel=False)
           
       for maglim in mlims:
+        '''
         if snaps == snaps_c:
           bxdrops            =  insample_steidel('BX', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values, maglim=maglim, default=False)
           bmdrops            =  insample_steidel('BM', two['steidel_un'].values, two['steidel_g'].values, two['steidel_rs'].values, maglim=maglim, default=False)
@@ -137,33 +142,41 @@ def test_insample():
         else:
           bxdrops            =  np.zeros_like(two['LSST_u'].values).astype(bool)
           bmdrops            =  np.zeros_like(two['LSST_u'].values).astype(bool)
-
+        '''
+        
         ##  
         udrops               =  insample('u',  three['LSST_u'].values, three['LSST_g'].values, three['LSST_r'].values, three['LSST_i'].values, three['LSST_z'].values, three['LSST_y'].values, maglim=maglim, default=False)
-        gdrops               =  insample('g',   four['LSST_u'].values,  four['LSST_g'].values,  four['LSST_r'].values,  four['LSST_i'].values,  four['LSST_z'].values,  four['LSST_y'].values, maglim=maglim, default=False)
-        rdrops               =  insample('r',   five['LSST_u'].values,  five['LSST_g'].values,  five['LSST_r'].values,  five['LSST_i'].values,  five['LSST_z'].values,  five['LSST_y'].values, maglim=maglim, default=False)
+        # gdrops             =  insample('g',   four['LSST_u'].values,  four['LSST_g'].values,  four['LSST_r'].values,  four['LSST_i'].values,  four['LSST_z'].values,  four['LSST_y'].values, maglim=maglim, default=False)
+        # rdrops             =  insample('r',   five['LSST_u'].values,  five['LSST_g'].values,  five['LSST_r'].values,  five['LSST_i'].values,  five['LSST_z'].values,  five['LSST_y'].values, maglim=maglim, default=False)
 
         # Color selected.
-        tmp                  =  [np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)]
+        tmp                  =  [np.count_nonzero(udrops)]
+        # tmp                =  [np.count_nonzero(bxdrops), np.count_nonzero(bmdrops), np.count_nonzero(udrops), np.count_nonzero(gdrops), np.count_nonzero(rdrops)]
 
+        '''
         # Pure magnitude limits.
         tmp2                 =  [np.count_nonzero((two['steidel_rs'] >= 23.5) & (two['steidel_rs'] <= maglim)),\
-                                 np.count_nonzero(three['LSST_i'] < maglim),\
-                                 np.count_nonzero(four['LSST_i'] < maglim),\
+                                 np.count_nonzero(three['LSST_i'] < maglim), np.count_nonzero(four['LSST_i'] < maglim),\
                                  np.count_nonzero(five['LSST_z'] < maglim)]
+        '''
+
+        tmp2                 =  [np.count_nonzero(three['LSST_i'] < maglim)]
         
         results[name].append(tmp + tmp2)
-
-    results['nodust']  = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
-    results['dust']    = pd.DataFrame(np.c_[mlims, np.array(results['dust'])],   columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
+    
+    results['nodust'] = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'u', 'three'])
+    results['dust']   = pd.DataFrame(np.c_[mlims, np.array(results['dust'])],   columns=['mlim', 'u', 'three'])
+                                 
+    # results['nodust'] = pd.DataFrame(np.c_[mlims, np.array(results['nodust'])], columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
+    # results['dust']   = pd.DataFrame(np.c_[mlims, np.array(results['dust'])],   columns=['mlim', 'BX', 'BM', 'u', 'g', 'r', 'two', 'three', 'four', 'five'])
 
     print('\n\n ----  No dust  ----')
     print(results['nodust'])
     print('\n\n ----  Dust  ----')
     print(results['dust'])                                      
 
-    results['nodust'].to_csv('no_dust_Ns_{}.csv'.format(boxsize))
-    results['dust'].to_csv('dust_Ns_{}.csv'.format(boxsize))
+    results['nodust'].to_csv(root + 'no_dust_Ns_{}.csv'.format(boxsize))
+    results['dust'].to_csv(root + 'dust_Ns_{}.csv'.format(boxsize))
     
     
 if __name__ == '__main__':

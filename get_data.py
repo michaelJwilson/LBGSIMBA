@@ -120,21 +120,19 @@ def get_caesar(boxsize, redshift, load_halo=False):
 
     return  caesar.load(fpath, LoadHalo=np.int(load_halo))
 
-def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False, allfilters=False, fpath=None, retain=[]):
+def get_pyloser(boxsize, redshift, printit=False, nrows=-1, magtype='app', steidel=False, snaps=snaps, nodust=False, allfilters=False, root=None, retain=[], nn=1024):
     #  Currently, photometry only. 
-    if fpath is None:    
-      if boxsize == 100.: 
-        root   = '/home/mjwilson/LBGSIMBA/100/'
-        snap   = snaps[redshift]
-        fpath  = root + 'pyloser_m100n1024_{}.hdf5'.format(snap)
+    snap       = snaps[redshift]
 
-      elif boxsize == 25.:
-        root   = '/home/mjwilson/LBGSIMBA/25/'
-        snap   = snaps[redshift]
-        fpath  = root + '/Groups/pyloser_m25n512_{}.hdf5'.format(snap)
+    if root is None:
+        root   = '/home/mjwilson/LBGSIMBA/{:d}/'.format(np.int(boxsize))
+
+    if boxsize == 25.:
+        nn     = 512
         
-    else:
-      print('Loading external {}.'.format(fpath))
+    fpath      = root + 'pyloser_m{}n{}_{}.hdf5'.format(np.int(boxsize), nn, snap)
+
+    print('Loading (z={}, L={}) photometry from {}.'.format(redshift, boxsize, fpath))
         
     links  = h5py.File(fpath, 'r')
 
@@ -298,23 +296,20 @@ if __name__ == '__main__':
     print
     print(p2['COLOR_INFO'][:])
     '''
-    '''
-    fpath              = '/home/mjwilson/LBGSIMBA/pylosers/m100n1024/s50/pyloser_m100n1024_051.hdf5'
+    
+    root               = '/home/mjwilson/LBGSIMBA/pylosers/m100n1024/s50/run/'
     # retain           = ['i2300', 'i2800']
     retain             = []
     
-    wave, frame, ids   = get_pyloser(100., 3.963392, printit=False, magtype='abs', nodust=True, allfilters=True, fpath=fpath, retain=retain)
-    ww,   ff,    ii    = get_pyloser(100., 3.963392, printit=False, magtype='app', nodust=True, allfilters=True, fpath=fpath, retain=retain)
-
-    print(frame.columns)
+    wave, frame, ids   = get_pyloser(100., 2.024621, printit=False, magtype='abs', nodust=True, allfilters=True, root=root, retain=retain)
+    ww,   ff,    ii    = get_pyloser(100., 3.003070, printit=False, magtype='app', nodust=True, allfilters=True, root=root, retain=retain)
     
     # wave, links      = get_pyloser_fluxes(boxsize, 2.024621, printit=True, nrows=10)   
 
     # result           = get_phys(boxsize, 2.024621, printit=False)
 
     # wave, spec       = get_pyloser_spectra(100., 2.024621)
-    '''
 
-    cc                 = get_caesar(boxsize, 3.963392, load_halo=False)
+    #  cc              = get_caesar(boxsize, 3.963392, load_halo=False)
     
     print('\n\nDone.\n\n')

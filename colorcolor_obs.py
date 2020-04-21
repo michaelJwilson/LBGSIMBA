@@ -48,7 +48,10 @@ count              =  0
 
 bands              =  ['LSST_u', 'LSST_g', 'LSST_r', 'LSST_i', 'LSST_z', 'LSST_y']
 
-for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five], [ids2, ids3, ids4, ids5]):
+# runs: [2.024621, 3.003070, 3.963392, 5.0244], [two, three, four, five], [ids2, ids3, ids4, ids5]
+# runs: [3.003070], [three], [ids3]
+
+for redshift, x, ids in zip([3.003070], [three], [ids3]):
   _, dbands        = det_bands(redshift, wave, bands, lim=1500.)
 
   x['TARGETIDS']   = ids
@@ -79,7 +82,8 @@ for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three,
       SigF       =  ferr(y, depths[band], estar=0.2, alphab=-0.25, alphaf=0.22, lim_snr=None)
 
       Noise      =  normal_rand(loc=0.0, scale=SigF).rvs(size=1)[0]
-            
+      Noise      =  np.zeros_like(Noise)
+      
       ##  See also eqn. (10.2) of Chromey, Introduction to Observational Astronomy.
       ##  x.at[i, 'LUP_' + band] = luptitude(Flux,         onesig)
 
@@ -104,8 +108,11 @@ for redshift, x, ids in zip([2.024621, 3.003070, 3.963392, 5.0244], [two, three,
 physs  = {}
 frames = {}
 
-##  Sufficiently detected. 
-for name, frame, phys, selection in zip(['two', 'three', 'four', 'five'], [two, three, four, five], [phys2, phys3, phys4, phys5], ['BM', 'u', 'g', 'r']):
+##  Sufficiently detected.
+# runs: ['two', 'three', 'four', 'five'], [two, three, four, five], [phys2, phys3, phys4, phys5], ['BM', 'u', 'g', 'r']
+# runs: 
+
+for name, frame, phys, selection in zip(['three'], [three], [phys3], ['u']):
   isin              = [len(x) >= 1 for x in frame['ISIN']]
   isin              = isin & insample(selection, frame['LUP_LSST_u'].values, frame['LUP_LSST_g'].values, frame['LUP_LSST_r'].values, frame['LUP_LSST_i'].values, frame['LUP_LSST_z'].values, frame['LUP_LSST_y'].values)
 
@@ -120,35 +127,31 @@ for name, frame, phys, selection in zip(['two', 'three', 'four', 'five'], [two, 
 
   physs[name]       = phys
   frames[name]      = frame 
-
-
-
-
   
 ##
-two          =  frames['two']
+#two          =  frames['two']
 three        =  frames['three']
-four         =  frames['four']
-five         =  frames['five']
+#four         =  frames['four']
+#five         =  frames['five']
 
-phys2        =  physs['two']
+#phys2        =  physs['two']
 phys3        =	physs['three']
-phys4        =	physs['four']
-phys5        =	physs['five']
+#phys4        =	physs['four']
+#phys5        =	physs['five']
 
 
 ##
-umg2         =    two['LUP_LSST_u'].values - two['LUP_LSST_g'].values
-gmr2         =    two['LUP_LSST_g'].values - two['LUP_LSST_r'].values
+#umg2         =    two['LUP_LSST_u'].values - two['LUP_LSST_g'].values
+#gmr2         =    two['LUP_LSST_g'].values - two['LUP_LSST_r'].values
 
 umg3         =  three['LUP_LSST_u'].values - three['LUP_LSST_g'].values
 gmr3         =  three['LUP_LSST_g'].values - three['LUP_LSST_r'].values
 
-gmr4         =   four['LUP_LSST_g'].values - four['LUP_LSST_r'].values
-rmi4         =   four['LUP_LSST_r'].values - four['LUP_LSST_i'].values
+#gmr4         =   four['LUP_LSST_g'].values - four['LUP_LSST_r'].values
+#rmi4         =   four['LUP_LSST_r'].values - four['LUP_LSST_i'].values
 
-imz5         =   five['LUP_LSST_i'].values - five['LUP_LSST_z'].values
-rmi5         =   five['LUP_LSST_r'].values - five['LUP_LSST_i'].values
+#imz5         =   five['LUP_LSST_i'].values - five['LUP_LSST_z'].values
+#rmi5         =   five['LUP_LSST_r'].values - five['LUP_LSST_i'].values
 
 
 ##
@@ -161,21 +164,21 @@ plt.subplots_adjust(left=None, bottom=0.2, right=None, top=None, wspace=0.75, hs
 
 cmap         = 'viridis'
 
-isin         = two['INSAMPLE'].values
-scatter      = axes[0].scatter(gmr2[ isin], umg2[ isin], marker='.', c=np.log10(phys2[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
-scatter      = axes[0].scatter(gmr2[~isin], umg2[~isin], marker='x', c=np.log10(phys2[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.5)
+#isin         = two['INSAMPLE'].values
+#scatter      = axes[0].scatter(gmr2[ isin], umg2[ isin], marker='.', c=np.log10(phys2[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+#scatter      = axes[0].scatter(gmr2[~isin], umg2[~isin], marker='x', c=np.log10(phys2[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.5)
 
 isin         = three['INSAMPLE'].values
 scatter      = axes[1].scatter(gmr3[ isin], umg3[ isin], marker='.', c=np.log10(phys3[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
 scatter      = axes[1].scatter(gmr3[~isin], umg3[~isin], marker='x', c=np.log10(phys3[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
 
-isin         = four['INSAMPLE'].values
-scatter      = axes[2].scatter(rmi4[ isin], gmr4[ isin], marker='.', c=np.log10(phys4[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
-scatter      = axes[2].scatter(rmi4[~isin], gmr4[~isin], marker='x', c=np.log10(phys4[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
+#isin         = four['INSAMPLE'].values
+#scatter      = axes[2].scatter(rmi4[ isin], gmr4[ isin], marker='.', c=np.log10(phys4[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+#scatter      = axes[2].scatter(rmi4[~isin], gmr4[~isin], marker='x', c=np.log10(phys4[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
 
-isin         = five['INSAMPLE'].values
-scatter      = axes[3].scatter(imz5[ isin], rmi5[ isin], marker='.', c=np.log10(phys5[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
-scatter      = axes[3].scatter(imz5[~isin], rmi5[~isin], marker='x', c=np.log10(phys5[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
+#isin         = five['INSAMPLE'].values
+#scatter      = axes[3].scatter(imz5[ isin], rmi5[ isin], marker='.', c=np.log10(phys5[ isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14.)
+#scatter      = axes[3].scatter(imz5[~isin], rmi5[~isin], marker='x', c=np.log10(phys5[~isin]), lw=0, s=5, cmap=cmap, vmin=9.5, vmax=14., alpha=0.7)
 
 
 ##  
@@ -219,4 +222,4 @@ for ax in axes:
 
 plt.tight_layout()
 
-pl.savefig('plots/colorcolor_obs.png')
+pl.savefig('plots/colorcolor_obs_gaussian_ebv_threetenths.png')
